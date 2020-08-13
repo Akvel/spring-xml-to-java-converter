@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/Akvel/spring-xml-to-java-converter.svg?branch=master)](https://travis-ci.com/Akvel/spring-xml-to-java-converter)
+
 # spring-xml-to-java-converter
 Tool for convert all Spring xml configurations to Spring java based configurations.
 
