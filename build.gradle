@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.11.2'
+
+    // https://mvnrepository.com/artifact/com.sun.codemodel/codemodel
+    compile group: 'com.sun.codemodel', name: 'codemodel', version: '2.6'
+
+    // https://mvnrepository.com/artifact/org.springframework/spring-context
+    compile group: 'org.springframework', name: 'spring-context', version: '5.2.8.RELEASE'
+
+    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+
+
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    testImplementation group: 'commons-io', name: 'commons-io', version: '2.7'
+
+
+
+}
+
+test {
+    useJUnitPlatform()
+}

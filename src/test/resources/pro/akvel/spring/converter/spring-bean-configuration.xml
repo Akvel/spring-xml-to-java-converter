@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/task
+           http://www.springframework.org/schema/task/spring-task-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd"
+       default-init-method="init"
+       default-destroy-method="shutdown">
+
+    <context:annotation-config/>
+
+    <!-- Done -->
+    <bean class="pro.akvel.spring.converter.testbean.BeanWithoutId"/>
+
+    <!-- Done -->
+    <bean id="BeanWithIdOnly" class="pro.akvel.spring.converter.testbean.BeanWithIdOnly"/>
+
+
+    <!-- Done -->
+    <bean id="BeanWithConstructorParams"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParams">
+        <constructor-arg ref="bean1"/>
+        <constructor-arg ref="bean2"/>
+    </bean>
+
+    <!-- Not supported, no info about constructor agrs -->
+    <bean id="BeanWithConstructorParamsWithNames"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithNames">
+        <constructor-arg name="param2" ref="bean2"/>
+        <constructor-arg name="param1" ref="bean1"/>
+    </bean>
+
+
+    <!-- Done -->
+    <bean id="BeanWithConstructorParamsWithNull"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithNull">
+        <constructor-arg>
+            <null/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithConstructorParamsWithIndex"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithIndex">
+        <constructor-arg index="0" ref="bean1"/>
+        <constructor-arg index="1" ref="bean2"/>
+        <constructor-arg index="3">
+            <null/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithConstructorParamsFromCode"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsFromCode">
+        <constructor-arg value="#{T(pro.akvel.spring.converter.testbean.TestType).type1}"/>
+    </bean>
+
+
+    <!-- Done -->
+    <bean id="BeanWithProperty"
+          class="pro.akvel.spring.converter.testbean.BeanWithProperty">
+        <property name="property1" value="value1"/>
+        <property name="property1" ref="value1"/>
+    </bean>
+
+    <!-- Done -->
+    <bean id="BeanWithConstuctorConstArgs"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstuctorConstArgs">
+        <constructor-arg value="stringValue" type="java.lang.String"/>
+        <constructor-arg type="java.lang.String">
+            <null/>
+        </constructor-arg>
+        <constructor-arg value="param3Value"/>
+    </bean>
+
+    <bean id="BeanWithMap" class="pro.akvel.spring.converter.testbean.BeanWithMap">
+        <constructor-arg>
+            <map key-type="pro.akvel.spring.converter.testbean.Key"
+                 value-type="pro.akvel.spring.converter.testbean.Value">
+                <entry key="key1" value-ref="value1"/>
+                <entry key="key2" value-ref="value2"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <!-- Done -->
+    <bean id="BeanWithConstructorWithCreateSubBean"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBean">
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.SubBean">
+                <constructor-arg ref="bean1"/>
+                <constructor-arg ref="bean2"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- Done -->
+    <bean id="BeanWithConstructorWithCreateSubBeanWithSubBean"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithSubBean"
+    >
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.SubBeanWithSubBean">
+                <constructor-arg>
+                    <bean class="pro.akvel.spring.converter.testbean.SubBean">
+                        <constructor-arg ref="bean1"/>
+                        <constructor-arg ref="bean2"/>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- Done -->
+    <bean id="BeanWithSubBeanWithProperty"
+          class="pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty"
+    >
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.SubBeanWithSubBeanWithProperty">
+                <property name="property1" value="value1"/>
+                <property name="property2" ref="value2"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap">
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.SubBeanWithSubBean">
+                <constructor-arg>
+                    <bean class="pro.akvel.spring.converter.testbean.SubSubBean">
+                        <constructor-arg>
+                            <bean class="pro.akvel.spring.converter.testbean.SubSubBeanWithMap">
+                                <constructor-arg>
+                                    <map>
+                                        <entry key="mapKey"
+                                               value="mapValue"/>
+                                    </map>
+                                </constructor-arg>
+                            </bean>
+                        </constructor-arg>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithConstructorWithCreateSubBeanWithFactory"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithFactory">
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.BeanWithFactoryBean"
+                  factory-bean="beanFactory" factory-method="getBean"/>
+        </constructor-arg>
+    </bean>
+    <bean id="BeanWithConstructorWithCreateSubBeanWithFactoryAndType"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithFactoryAndType">
+        <constructor-arg>
+            <bean class="java.lang.Integer" factory-bean="beanFactoryInteger"
+                  factory-method="getInteger"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithConstructorWithCreateSubBeanWithConstArg"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithConstArg">
+        <constructor-arg ref="bean1"/>
+        <constructor-arg>
+            <bean class="pro.akvel.spring.converter.testbean.BeanWithConstParam">
+                <constructor-arg type="java.lang.String" value="stringValue"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithInitDestroyMethod"
+          class="pro.akvel.spring.converter.testbean.BeanWithInitMethod"
+          init-method="initMethod" destroy-method="destroyMethod">
+        <constructor-arg ref="bean1"/>
+    </bean>
+
+
+    <bean id="BeanWithDependsOn"
+          class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
+          depends-on="bean1">
+        <constructor-arg ref="bean2"/>
+    </bean>
+
+    <bean id="BeanWithDependsOnMulti"
+          class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
+          depends-on="bean1, bean2">
+        <constructor-arg ref="bean3"/>
+    </bean>
+
+    <bean id="BeanWithFactoryBean"
+          class="pro.akvel.spring.converter.testbean.BeanWithFactoryBean"
+          factory-bean="beanFactory" factory-method="getBean">
+        <constructor-arg ref="bean2"/>
+    </bean>
+
+    <task:scheduled-tasks scheduler="TaskScheduler">
+        <task:scheduled ref="taskSchedulerBean" method="run" fixed-delay="10"/>
+    </task:scheduled-tasks>
+
+
+    <task:scheduler id="TaskScheduler" pool-size="1"/>
+
+    <task:scheduled-tasks scheduler="TaskScheduler">
+        <task:scheduled ref="taskSchedulerBeanWithCron" method="run" cron="0 * 0/1 * * *"/>
+    </task:scheduled-tasks>
+
+
+    <bean id="BeanWithConstructorListArg"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg"
+    >
+        <constructor-arg name="param1" ref="bean1"/>
+        <constructor-arg name="param2">
+            <set>
+                <ref bean="bean2"/>
+                <ref bean="bean3"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+</beans>
