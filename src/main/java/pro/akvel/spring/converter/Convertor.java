@@ -8,6 +8,10 @@ package pro.akvel.spring.converter;
  */
 public class Convertor {
 
+    public static void main(String[] args) {
+        XmlScanner scanner = new XmlScanner("src/test/resources/pro/akvel/spring/converter");
+    }
+
     @Override
     public String toString() {
         return super.toString();

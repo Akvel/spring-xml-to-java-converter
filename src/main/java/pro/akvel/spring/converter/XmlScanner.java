@@ -1,7 +1,10 @@
 package pro.akvel.spring.converter;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Xml configuration searcher
@@ -10,10 +13,27 @@ import java.util.List;
  * @since 12.08.2020
  */
 public class XmlScanner {
-    //FIXME add logs
+    /**
+     * Directory for search
+     */
+    private final String path;
+
+    public XmlScanner(String path) {
+        this.path = path;
+    }
+
+    public List<File> getConfigurations() {
+        File directory = new File(path);
+
+        if (!directory.isDirectory()){
+            throw new IllegalArgumentException("Directory not found");
+        }
 
 
-    List<File> getConfigurations(String path){
-        return List.of(new File(path));
+        String[] files = directory.list((dir, name) -> name.endsWith(".xml"));
+
+        return Arrays.stream(files)
+                .map(File::new)
+                .collect(Collectors.toList());
     }
 }

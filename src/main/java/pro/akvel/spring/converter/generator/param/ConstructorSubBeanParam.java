@@ -2,6 +2,7 @@ package pro.akvel.spring.converter.generator.param;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import pro.akvel.spring.converter.generator.BeanData;
 
@@ -13,11 +14,11 @@ import pro.akvel.spring.converter.generator.BeanData;
  */
 @Data
 @Builder
-public class ConstructorSubBeanParam implements Param {
+public class ConstructorSubBeanParam implements ConstructIndexParam, Param {
     @NonNull
     private final BeanData beanData;
 
-    public ConstructorSubBeanParam(BeanData beanData) {
-        this.beanData = beanData;
-    }
+    @Builder.Default
+    private final int index = Integer.MAX_VALUE;
+
 }

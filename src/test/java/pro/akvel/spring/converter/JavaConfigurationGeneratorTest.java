@@ -77,6 +77,61 @@ class JavaConfigurationGeneratorTest {
     }
 
     @Test
+    public void generateBeanWithIndexParams() throws IOException, JClassAlreadyExistsException {
+        JavaConfigurationGenerator config = new JavaConfigurationGenerator();
+
+        String fileName = "GenerateBeanWithIndexParams";
+        config.generateClass("pro.akvel.spring.converter.test", fileName,
+                Collections.singletonList(BeanData.builder()
+                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                        .constructorParams(List.of(
+                                ConstructorConstantParam.builder()
+                                        .value("param1")
+                                        .index(1)
+                                        .build(),
+                                ConstructorConstantParam.builder()
+                                        .value("param0")
+                                        .index(0)
+                                        .build()
+                        ))
+                        .build()
+                ),
+                OUTPUT_PATH);
+
+
+        Path generatedFile = Paths.get(OUTPUT_PATH + "/pro/akvel/spring/converter/test/" + fileName + ".java");
+        Path expectedFile = Paths.get("src/test/resources/pro/akvel/spring/converter/generated/" + fileName + ".java");
+
+
+        Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+    }
+
+
+    @Test
+    public void generateBeanInitDestroyMethod() throws IOException, JClassAlreadyExistsException {
+        JavaConfigurationGenerator config = new JavaConfigurationGenerator();
+
+        String fileName = "GenerateBeanInitDestroyMethod";
+        config.generateClass("pro.akvel.spring.converter.test", fileName,
+                Collections.singletonList(BeanData.builder()
+                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                        .constructorParams(List.of())
+                        .id("beanId")
+                        .initMethodName("initMethod")
+                        .destroyMethodName("destroyMethod")
+                        .build()
+                ),
+                OUTPUT_PATH);
+
+
+        Path generatedFile = Paths.get(OUTPUT_PATH + "/pro/akvel/spring/converter/test/" + fileName + ".java");
+        Path expectedFile = Paths.get("src/test/resources/pro/akvel/spring/converter/generated/" + fileName + ".java");
+
+
+        Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+    }
+
+    @Test
     public void generateBeanWithNull() throws IOException, JClassAlreadyExistsException {
         JavaConfigurationGenerator config = new JavaConfigurationGenerator();
 
@@ -85,7 +140,8 @@ class JavaConfigurationGeneratorTest {
                 Collections.singletonList(BeanData.builder()
                         .clazzName("pro.akvel.spring.converter.generator.TestBean")
                         .constructorParams(List.of(
-                                new ConstructorNullParam()
+                                ConstructorNullParam.builder()
+                                        .build()
                         ))
                         .build()
                 ),
@@ -224,7 +280,8 @@ class JavaConfigurationGeneratorTest {
                                                                 .clazzName("pro.akvel.spring.converter.generator.SubSubBean")
                                                                 .id("subSubBean")
                                                                 .constructorParams(List.of(
-                                                                        new ConstructorNullParam(),
+                                                                        ConstructorNullParam.builder()
+                                                                                .build(),
                                                                         ConstructorBeanParam.builder()
                                                                                 .className("pro.akvel.spring.converter.generator.TestBean1")
                                                                                 .ref("value1")

@@ -43,6 +43,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Done -->
     <bean id="BeanWithConstructorParamsWithIndex"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithIndex">
         <constructor-arg index="0" ref="bean1"/>
@@ -153,6 +154,7 @@
                   factory-bean="beanFactory" factory-method="getBean"/>
         </constructor-arg>
     </bean>
+
     <bean id="BeanWithConstructorWithCreateSubBeanWithFactoryAndType"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithFactoryAndType">
         <constructor-arg>
@@ -161,6 +163,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Done -->
     <bean id="BeanWithConstructorWithCreateSubBeanWithConstArg"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithConstArg">
         <constructor-arg ref="bean1"/>
@@ -171,6 +174,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Done -->
     <bean id="BeanWithInitDestroyMethod"
           class="pro.akvel.spring.converter.testbean.BeanWithInitMethod"
           init-method="initMethod" destroy-method="destroyMethod">
@@ -178,12 +182,14 @@
     </bean>
 
 
+    <!-- Done -->
     <bean id="BeanWithDependsOn"
           class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
           depends-on="bean1">
         <constructor-arg ref="bean2"/>
     </bean>
 
+    <!-- Done -->
     <bean id="BeanWithDependsOnMulti"
           class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
           depends-on="bean1, bean2">

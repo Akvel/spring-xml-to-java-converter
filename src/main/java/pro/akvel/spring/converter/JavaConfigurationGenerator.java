@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.akvel.spring.converter.generator.BeanData;
+import pro.akvel.spring.converter.generator.param.ConstructIndexParam;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
 import pro.akvel.spring.converter.generator.param.ConstructorNullParam;
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +68,7 @@ public class JavaConfigurationGenerator {
             JMethod method = jc.method(JMod.PUBLIC,
                     CODE_MODEL.ref(it.getClazzName()), getMethodName(it.getClazzName(), it.getId()));
 
-            addBeanAnnotation(method, it.getId());
+            addBeanAnnotation(method, it);
 
             addMethodParams(it, method);
 
@@ -124,48 +126,52 @@ public class JavaConfigurationGenerator {
     }
 
     private void addParamToBeanConstructor(BeanData it, JMethod method, JInvocation aNew) {
-        it.getConstructorParams().forEach(arg -> {
+        it.getConstructorParams()
+                .stream()
+                .filter(itt -> itt instanceof ConstructIndexParam)
+                .map(itt -> (ConstructIndexParam) itt)
+                .sorted(Comparator.comparingInt(ConstructIndexParam::getIndex))
+                .forEach(arg -> {
+                    if (arg instanceof ConstructorBeanParam) {
+                        ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;
 
-            if (arg instanceof ConstructorBeanParam) {
-                ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;
+                        aNew.arg(method.params().stream()
+                                .filter(itt -> itt.name().equals(beanParam.getRef()))
+                                .findFirst().orElseThrow());
+                    }
 
-                aNew.arg(method.params().stream()
-                        .filter(itt -> itt.name().equals(beanParam.getRef()))
-                        .findFirst().orElseThrow());
-            }
+                    if (arg instanceof ConstructorNullParam) {
+                        aNew.arg(JExpr._null());
+                    }
 
-            if (arg instanceof ConstructorNullParam) {
-                aNew.arg(JExpr._null());
-            }
+                    if (arg instanceof ConstructorSubBeanParam) {
+                        ConstructorSubBeanParam subBeanData = (ConstructorSubBeanParam) arg;
 
-            if (arg instanceof ConstructorSubBeanParam) {
-                ConstructorSubBeanParam subBeanData = (ConstructorSubBeanParam) arg;
+                        JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClazzName());
+                        JInvocation subBeanNew = JExpr._new(subBeanClass);
+                        if (canReturnNewObject(subBeanData.getBeanData())) {
+                            addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                            aNew.arg(subBeanNew);
+                        } else {
+                            JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
+                            setProperties(newBeanVar, getPropertyParams(subBeanData.getBeanData()), method);
+                            addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                            aNew.arg(newBeanVar);
+                        }
+                    }
 
-                JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClazzName());
-                JInvocation subBeanNew = JExpr._new(subBeanClass);
-                if (canReturnNewObject(subBeanData.getBeanData())) {
-                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
-                    aNew.arg(subBeanNew);
-                } else {
-                    JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
-                    setProperties(newBeanVar, getPropertyParams(subBeanData.getBeanData()), method);
-                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
-                    aNew.arg(newBeanVar);
-                }
-            }
+                    if (arg instanceof ConstructorConstantParam) {
+                        ConstructorConstantParam constant = (ConstructorConstantParam) arg;
 
-            if (arg instanceof ConstructorConstantParam) {
-                ConstructorConstantParam constant = (ConstructorConstantParam) arg;
-
-                if (Integer.class.getName().equals(constant.getType())) {
-                    aNew.arg(JExpr.lit(Integer.parseInt(constant.getValue())));
-                } else if (Long.class.getName().equals(constant.getType())) {
-                    aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
-                } else {
-                    aNew.arg(JExpr.lit(constant.getValue()));
-                }
-            }
-        });
+                        if (Integer.class.getName().equals(constant.getType())) {
+                            aNew.arg(JExpr.lit(Integer.parseInt(constant.getValue())));
+                        } else if (Long.class.getName().equals(constant.getType())) {
+                            aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
+                        } else {
+                            aNew.arg(JExpr.lit(constant.getValue()));
+                        }
+                    }
+                });
     }
 
     private void addMethodParams(BeanData beanData, JMethod method) {
@@ -213,11 +219,23 @@ public class JavaConfigurationGenerator {
     }
 
 
-    private static void addBeanAnnotation(@Nonnull JMethod method, @Nullable String id) {
+    private static void addBeanAnnotation(@Nonnull JMethod method, @Nonnull BeanData beanData) {
         JAnnotationUse beanAnnotation = method.annotate(Bean.class);
 
-        if (id != null) {
-            beanAnnotation.param("value", id);
+        if (beanData.getId() != null) {
+            if (beanData.getInitMethodName() == null && beanData.getDestroyMethodName() == null) {
+                beanAnnotation.param("value", beanData.getId());
+            } else {
+                beanAnnotation.param("name", beanData.getId());
+            }
+        }
+
+        if (beanData.getInitMethodName() != null) {
+            beanAnnotation.param("initMethod", beanData.getInitMethodName());
+        }
+
+        if (beanData.getDestroyMethodName() != null) {
+            beanAnnotation.param("destroyMethod", beanData.getDestroyMethodName());
         }
     }
 
