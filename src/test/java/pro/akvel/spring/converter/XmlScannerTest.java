@@ -4,13 +4,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 class XmlScannerTest {
 
+    private static final Path root = Paths.get(".").normalize().toAbsolutePath();
+
     @Test
     public void shouldAllFindXmls() {
-        XmlScanner scanner = new XmlScanner(System.getProperty("user.dir") + "/src/test/resources/pro/akvel/spring/converter/xml");
+        XmlScanner scanner = new XmlScanner(root + "/src/test/resources/pro/akvel/spring/converter/xml");
         List<File> files = scanner.getConfigurations();
 
         Assertions.assertEquals(2, files.size());
@@ -21,7 +25,7 @@ class XmlScannerTest {
 
     @Test
     public void shouldReturnEmpty() {
-        XmlScanner scanner = new XmlScanner(System.getProperty("user.dir") + "/src/test/resources/pro/akvel/spring/converter/xml/empty");
+        XmlScanner scanner = new XmlScanner(root + "/src/test/resources/pro/akvel/spring/converter/xml/empty");
         List<File> files = scanner.getConfigurations();
 
         Assertions.assertTrue(files.isEmpty());
@@ -29,7 +33,7 @@ class XmlScannerTest {
 
     @Test
     public void shouldReturnErrorIfFolderNotFound() {
-        XmlScanner scanner = new XmlScanner(System.getProperty("user.dir") + "/src/test/resources/pro/akvel/spring/converter/xml/unknown");
+        XmlScanner scanner = new XmlScanner(root + "/src/test/resources/pro/akvel/spring/converter/xml/unknown");
 
         Assertions.assertThrows(IllegalArgumentException.class, scanner::getConfigurations);
     }
