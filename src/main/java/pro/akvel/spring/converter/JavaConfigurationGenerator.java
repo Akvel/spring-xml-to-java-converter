@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.akvel.spring.converter.generator.BeanData;
+import pro.akvel.spring.converter.generator.ConfigurationData;
 import pro.akvel.spring.converter.generator.param.ConstructIndexParam;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
@@ -48,7 +49,7 @@ public class JavaConfigurationGenerator {
 
     void generateClass(String packageName,
                        String classConfigurationName,
-                       List<BeanData> beans,
+                       ConfigurationData configurationData,
                        String outputPath) throws JClassAlreadyExistsException, IOException {
         // Instantiate a new JCodeModel
 
@@ -62,13 +63,13 @@ public class JavaConfigurationGenerator {
         jc.javadoc().add("Generated Java based configuration");
 
         // Add get beans
-        beans.forEach(it -> {
+        configurationData.getBeans().forEach(it -> {
             JClass beanClass = CODE_MODEL.ref(it.getClazzName());
 
             JMethod method = jc.method(JMod.PUBLIC,
                     CODE_MODEL.ref(it.getClazzName()), getMethodName(it.getClazzName(), it.getId()));
 
-            addBeanAnnotation(method, it);
+            addBeanAnnotation(configurationData, method, it);
 
             addMethodParams(it, method);
 
@@ -219,7 +220,7 @@ public class JavaConfigurationGenerator {
     }
 
 
-    private static void addBeanAnnotation(@Nonnull JMethod method, @Nonnull BeanData beanData) {
+    private static void addBeanAnnotation(ConfigurationData configurationData, @Nonnull JMethod method, @Nonnull BeanData beanData) {
         JAnnotationUse beanAnnotation = method.annotate(Bean.class);
 
         if (beanData.getId() != null) {
@@ -232,10 +233,16 @@ public class JavaConfigurationGenerator {
 
         if (beanData.getInitMethodName() != null) {
             beanAnnotation.param("initMethod", beanData.getInitMethodName());
+        } else if (configurationData.getDefaultBeanInitMethod() != null) {
+            beanAnnotation.param("initMethod", configurationData.getDefaultBeanInitMethod());
+            method.javadoc().add("initMethod added by default-init-method\n");
         }
 
         if (beanData.getDestroyMethodName() != null) {
             beanAnnotation.param("destroyMethod", beanData.getDestroyMethodName());
+        } else if (configurationData.getDefaultBeanDestroyMethod() != null){
+            method.javadoc().add("destroyMethod added by bean element default-destroy-method\n");
+            beanAnnotation.param("destroyMethod", configurationData.getDefaultBeanDestroyMethod());
         }
     }
 

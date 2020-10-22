@@ -4,6 +4,7 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pro.akvel.spring.converter.generator.BeanData;
+import pro.akvel.spring.converter.generator.ConfigurationData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
 import pro.akvel.spring.converter.generator.param.ConstructorNullParam;
@@ -30,21 +31,23 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithRefs";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .id("beanId")
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                ConstructorBeanParam.builder()
-                                        .className("pro.akvel.spring.converter.generator.TestBean1")
-                                        .ref("value1")
-                                        .build(),
-                                ConstructorBeanParam.builder()
-                                        .className("pro.akvel.spring.converter.generator.TestBean2")
-                                        .ref("value2")
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .id("beanId")
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        ConstructorBeanParam.builder()
+                                                .className("pro.akvel.spring.converter.generator.TestBean1")
+                                                .ref("value1")
+                                                .build(),
+                                        ConstructorBeanParam.builder()
+                                                .className("pro.akvel.spring.converter.generator.TestBean2")
+                                                .ref("value2")
+                                                .build()
+                                ))
+                                .build()
+                        )).build()
+                ,
                 OUTPUT_PATH);
 
 
@@ -61,11 +64,36 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithoutId";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of())
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of())
+                                .build()
+                        )).build(),
+                OUTPUT_PATH);
+
+
+        Path generatedFile = Paths.get(OUTPUT_PATH + "/pro/akvel/spring/converter/test/" + fileName + ".java");
+        Path expectedFile = Paths.get("src/test/resources/pro/akvel/spring/converter/generated/" + fileName + ".java");
+
+
+        Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+    }
+
+    @Test
+    public void generateBeanWithDefaulInitDestroyMethods() throws IOException, JClassAlreadyExistsException {
+        JavaConfigurationGenerator config = new JavaConfigurationGenerator();
+
+        String fileName = "GenerateBeanWithDefaulInitDestroyMethods";
+        config.generateClass("pro.akvel.spring.converter.test", fileName,
+                ConfigurationData.builder()
+                        .defaultBeanInitMethod("defaultInitMethod")
+                        .defaultBeanDestroyMethod("defaultDestroyMethod")
+                        .beans(Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of())
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -82,20 +110,21 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithIndexParams";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                ConstructorConstantParam.builder()
-                                        .value("param1")
-                                        .index(1)
-                                        .build(),
-                                ConstructorConstantParam.builder()
-                                        .value("param0")
-                                        .index(0)
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        ConstructorConstantParam.builder()
+                                                .value("param1")
+                                                .index(1)
+                                                .build(),
+                                        ConstructorConstantParam.builder()
+                                                .value("param0")
+                                                .index(0)
+                                                .build()
+                                ))
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -113,14 +142,15 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanInitDestroyMethod";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of())
-                        .id("beanId")
-                        .initMethodName("initMethod")
-                        .destroyMethodName("destroyMethod")
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of())
+                                .id("beanId")
+                                .initMethodName("initMethod")
+                                .destroyMethodName("destroyMethod")
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -137,14 +167,15 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithNull";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                ConstructorNullParam.builder()
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        ConstructorNullParam.builder()
+                                                .build()
+                                ))
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -161,21 +192,22 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanProperties";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                PropertyValueParam.builder()
-                                        .name("property1")
-                                        .value("value1")
-                                        .build(),
-                                PropertyBeanParam.builder()
-                                        .name("property2")
-                                        .className("pro.akvel.spring.converter.generator.PropertyBean")
-                                        .ref("refToBean")
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        PropertyValueParam.builder()
+                                                .name("property1")
+                                                .value("value1")
+                                                .build(),
+                                        PropertyBeanParam.builder()
+                                                .name("property2")
+                                                .className("pro.akvel.spring.converter.generator.PropertyBean")
+                                                .ref("refToBean")
+                                                .build()
+                                ))
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -192,29 +224,30 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateSubBeanProperties";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(
-                                List.of(
-                                        ConstructorSubBeanParam.builder()
-                                                .beanData(BeanData.builder()
-                                                        .id("subBean")
-                                                        .clazzName("pro.akvel.spring.converter.generator.SubBean")
-                                                        .constructorParams(
-                                                                List.of(
-                                                                        PropertyValueParam.builder()
-                                                                                .name("property1")
-                                                                                .value("value1")
-                                                                                .build(),
-                                                                        PropertyBeanParam.builder()
-                                                                                .name("property2")
-                                                                                .className("pro.akvel.spring.converter.generator.PropertyBean")
-                                                                                .ref("ref")
-                                                                                .build()))
-                                                        .build())
-                                                .build()))
-                        .build())
-                , OUTPUT_PATH);
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(
+                                        List.of(
+                                                ConstructorSubBeanParam.builder()
+                                                        .beanData(BeanData.builder()
+                                                                .id("subBean")
+                                                                .clazzName("pro.akvel.spring.converter.generator.SubBean")
+                                                                .constructorParams(
+                                                                        List.of(
+                                                                                PropertyValueParam.builder()
+                                                                                        .name("property1")
+                                                                                        .value("value1")
+                                                                                        .build(),
+                                                                                PropertyBeanParam.builder()
+                                                                                        .name("property2")
+                                                                                        .className("pro.akvel.spring.converter.generator.PropertyBean")
+                                                                                        .ref("ref")
+                                                                                        .build()))
+                                                                .build())
+                                                        .build()))
+                                .build())
+                ).build(), OUTPUT_PATH);
 
 
         Path generatedFile = Paths.get(OUTPUT_PATH + "/pro/akvel/spring/converter/test/" + fileName + ".java");
@@ -230,28 +263,29 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithConstants";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                ConstructorConstantParam.builder()
-                                        .type("java.lang.Integer")
-                                        .value("1")
-                                        .build(),
-                                ConstructorConstantParam.builder()
-                                        .type("java.lang.Long")
-                                        .value("2")
-                                        .build(),
-                                ConstructorConstantParam.builder()
-                                        .type("java.lang.String")
-                                        .value("3")
-                                        .build(),
-                                ConstructorConstantParam.builder()
-                                        .type("java.lang.String")
-                                        .value("4")
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        ConstructorConstantParam.builder()
+                                                .type("java.lang.Integer")
+                                                .value("1")
+                                                .build(),
+                                        ConstructorConstantParam.builder()
+                                                .type("java.lang.Long")
+                                                .value("2")
+                                                .build(),
+                                        ConstructorConstantParam.builder()
+                                                .type("java.lang.String")
+                                                .value("3")
+                                                .build(),
+                                        ConstructorConstantParam.builder()
+                                                .type("java.lang.String")
+                                                .value("4")
+                                                .build()
+                                ))
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -268,31 +302,32 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithSubBeanWithSubBean";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of(
-                                ConstructorSubBeanParam.builder()
-                                        .beanData(BeanData.builder()
-                                                .clazzName("pro.akvel.spring.converter.generator.SubBean")
-                                                .id("subBean")
-                                                .constructorParams(List.of(ConstructorSubBeanParam.builder()
-                                                        .beanData(BeanData.builder()
-                                                                .clazzName("pro.akvel.spring.converter.generator.SubSubBean")
-                                                                .id("subSubBean")
-                                                                .constructorParams(List.of(
-                                                                        ConstructorNullParam.builder()
-                                                                                .build(),
-                                                                        ConstructorBeanParam.builder()
-                                                                                .className("pro.akvel.spring.converter.generator.TestBean1")
-                                                                                .ref("value1")
-                                                                                .build()))
-                                                                .build())
-                                                        .build()))
-                                                .build())
-                                        .build()
-                        ))
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of(
+                                        ConstructorSubBeanParam.builder()
+                                                .beanData(BeanData.builder()
+                                                        .clazzName("pro.akvel.spring.converter.generator.SubBean")
+                                                        .id("subBean")
+                                                        .constructorParams(List.of(ConstructorSubBeanParam.builder()
+                                                                .beanData(BeanData.builder()
+                                                                        .clazzName("pro.akvel.spring.converter.generator.SubSubBean")
+                                                                        .id("subSubBean")
+                                                                        .constructorParams(List.of(
+                                                                                ConstructorNullParam.builder()
+                                                                                        .build(),
+                                                                                ConstructorBeanParam.builder()
+                                                                                        .className("pro.akvel.spring.converter.generator.TestBean1")
+                                                                                        .ref("value1")
+                                                                                        .build()))
+                                                                        .build())
+                                                                .build()))
+                                                        .build())
+                                                .build()
+                                ))
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 
@@ -309,12 +344,13 @@ class JavaConfigurationGeneratorTest {
 
         String fileName = "GenerateBeanWithoutParams";
         config.generateClass("pro.akvel.spring.converter.test", fileName,
-                Collections.singletonList(BeanData.builder()
-                        .id("beanId")
-                        .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                        .constructorParams(List.of())
-                        .build()
-                ),
+                ConfigurationData.builder().beans(
+                        Collections.singletonList(BeanData.builder()
+                                .id("beanId")
+                                .clazzName("pro.akvel.spring.converter.generator.TestBean")
+                                .constructorParams(List.of())
+                                .build()
+                        )).build(),
                 OUTPUT_PATH);
 
 

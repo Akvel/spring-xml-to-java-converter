@@ -1,9 +1,9 @@
 package pro.akvel.spring.converter.generator.param;
 
 /**
- * FIXME
+ * ConstructIndexParam
  *
- * @author akintsev
+ * @author akvel
  * @since 14.08.2020
  */
 public interface ConstructIndexParam {
