@@ -34,6 +34,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
 
+    // https://mvnrepository.com/artifact/org.springframework/spring-beans
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.9.RELEASE'
+
+    compile 'log4j:log4j:1.2.17'
 
 
     compileOnly 'org.projectlombok:lombok:1.18.12'

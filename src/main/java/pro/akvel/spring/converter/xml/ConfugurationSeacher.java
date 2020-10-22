@@ -1,4 +1,4 @@
-package pro.akvel.spring.converter;
+package pro.akvel.spring.converter.xml;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
  * @author akvel
  * @since 12.08.2020
  */
-public class XmlScanner {
+public class ConfugurationSeacher {
     /**
      * Directory for search
      */
     private final String path;
 
-    public XmlScanner(String path) {
+    public ConfugurationSeacher(String path) {
         this.path = path;
     }
 

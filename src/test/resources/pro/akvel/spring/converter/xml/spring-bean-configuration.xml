@@ -20,6 +20,8 @@
 
     <!-- Done -->
     <bean id="BeanWithIdOnly" class="pro.akvel.spring.converter.testbean.BeanWithIdOnly"/>
+    <bean id="bean1" class="pro.akvel.spring.converter.testbean.BeanWithIdOnly"/>
+    <bean id="bean2" class="pro.akvel.spring.converter.testbean.BeanWithIdOnly"/>
 
 
     <!-- Done -->
@@ -60,12 +62,11 @@
         <constructor-arg value="#{T(pro.akvel.spring.converter.testbean.TestType).type1}"/>
     </bean>
 
-
     <!-- Done -->
     <bean id="BeanWithProperty"
           class="pro.akvel.spring.converter.testbean.BeanWithProperty">
         <property name="property1" value="value1"/>
-        <property name="property1" ref="value1"/>
+        <property name="property2" ref="value2"/>
     </bean>
 
     <!-- Done -->
@@ -77,6 +78,7 @@
         </constructor-arg>
         <constructor-arg value="param3Value"/>
     </bean>
+
 
     <bean id="BeanWithMap" class="pro.akvel.spring.converter.testbean.BeanWithMap">
         <constructor-arg>
@@ -116,9 +118,7 @@
     </bean>
 
     <!-- Done -->
-    <bean id="BeanWithSubBeanWithProperty"
-          class="pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty"
-    >
+    <bean id="BeanWithSubBeanWithProperty" class="pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty">
         <constructor-arg>
             <bean class="pro.akvel.spring.converter.testbean.SubBeanWithSubBeanWithProperty">
                 <property name="property1" value="value1"/>
@@ -204,21 +204,22 @@
         <constructor-arg ref="bean2"/>
     </bean>
 
+    <!-- Not supported -->
     <task:scheduled-tasks scheduler="TaskScheduler">
         <task:scheduled ref="taskSchedulerBean" method="run" fixed-delay="10"/>
     </task:scheduled-tasks>
 
-
+    <!-- Not supported -->
     <task:scheduler id="TaskScheduler" pool-size="1"/>
 
+    <!-- Not supported -->
     <task:scheduled-tasks scheduler="TaskScheduler">
         <task:scheduled ref="taskSchedulerBeanWithCron" method="run" cron="0 * 0/1 * * *"/>
     </task:scheduled-tasks>
 
 
     <bean id="BeanWithConstructorListArg"
-          class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg"
-    >
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg">
         <constructor-arg name="param1" ref="bean1"/>
         <constructor-arg name="param2">
             <set>

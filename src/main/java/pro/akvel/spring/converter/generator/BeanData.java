@@ -19,6 +19,8 @@ import java.util.List;
 @Builder
 public class BeanData {
 
+    //FIXME support scopes
+
     /**
      * Bean id ({@link Bean#name()}
      */

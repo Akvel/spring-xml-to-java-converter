@@ -3,6 +3,7 @@ package pro.akvel.spring.converter.generator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.util.List;
 
