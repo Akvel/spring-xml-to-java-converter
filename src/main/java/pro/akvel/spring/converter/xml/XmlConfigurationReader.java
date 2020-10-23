@@ -1,5 +1,11 @@
 package pro.akvel.spring.converter.xml;
 
+import org.springframework.beans.factory.parsing.AliasDefinition;
+import org.springframework.beans.factory.parsing.ComponentDefinition;
+import org.springframework.beans.factory.parsing.DefaultsDefinition;
+import org.springframework.beans.factory.parsing.ImportDefinition;
+import org.springframework.beans.factory.parsing.ReaderEventListener;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.util.xml.XmlValidationModeDetector;
@@ -10,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.EventListener;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,14 +28,13 @@ import java.util.stream.Collectors;
  */
 public class XmlConfigurationReader {
 
-    private final DefaultListableBeanFactory beanFactory;
+    private final BeanDefinitionRegistry beanFactory;
 
-    XmlBeanDefinitionReader reader;
+    private final XmlBeanDefinitionReader reader;
 
     public XmlConfigurationReader() {
         beanFactory = new DefaultListableBeanFactory();
         reader = new XmlBeanDefinitionReader(beanFactory);
-        //FIXME Maybe need?
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
     }
 
@@ -38,5 +44,9 @@ public class XmlConfigurationReader {
         return Arrays.stream(beanFactory.getBeanDefinitionNames())
                 .map(name -> ConfigurationDataConverter.getConfigurationData(name, beanFactory)
                 ).collect(Collectors.toList());
+    }
+
+    BeanDefinitionRegistry getBeanFactory() {
+        return beanFactory;
     }
 }

@@ -2,6 +2,7 @@ package pro.akvel.spring.converter.generator.param;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 /**
  * Null value
@@ -12,6 +13,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ConstructorNullParam implements ConstructIndexParam, Param {
-    @Builder.Default
-    final int index = Integer.MAX_VALUE;
+    @NonNull
+    final Integer index;
 }

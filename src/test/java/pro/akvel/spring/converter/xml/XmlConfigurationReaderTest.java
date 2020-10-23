@@ -1,27 +1,37 @@
 package pro.akvel.spring.converter.xml;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pro.akvel.spring.converter.generator.BeanData;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class XmlConfigurationReaderTest {
+/**
+ * @author akvel
+ * @since 23.10.2020
+ */
+public class XmlConfigurationReaderTest {
 
     private static final Path root = Paths.get(".").normalize().toAbsolutePath();
 
     @Test
-    void readXmlFile() throws FileNotFoundException {
+    public void emptyXml() throws FileNotFoundException {
+        var xmlReader = new XmlConfigurationReader();
+        xmlReader.readXmlFile(new File(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-empty.xml"));
 
-        XmlConfigurationReader reader = new XmlConfigurationReader();
+        Assertions.assertEquals(0, xmlReader.getBeanFactory().getBeanDefinitionCount());
+    }
 
-        List<BeanData> beans = reader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/spring-bean-configuration.xml"));
+    @Test()
+    public void xmlFileWithImport() throws FileNotFoundException {
+        var xmlReader = new XmlConfigurationReader();
 
+        xmlReader.readXmlFile(new File(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-withImport.xml"));
+
+        Assertions.assertEquals(1, xmlReader.getBeanFactory().getBeanDefinitionCount());
     }
 }

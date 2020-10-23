@@ -1,5 +1,7 @@
 package pro.akvel.spring.converter.generator.param;
 
+import javax.annotation.Nonnull;
+
 /**
  * ConstructIndexParam
  *
@@ -8,7 +10,8 @@ package pro.akvel.spring.converter.generator.param;
  */
 public interface ConstructIndexParam {
     /**
-     * This value has all or all equals {@link Integer#MAX_VALUE}
+     * constructor-args index
      */
-    int getIndex();
+    @Nonnull
+    Integer getIndex();
 }

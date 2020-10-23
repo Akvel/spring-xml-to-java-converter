@@ -18,7 +18,7 @@ public class ConstructorSubBeanParam implements ConstructIndexParam, Param {
     @NonNull
     private final BeanData beanData;
 
-    @Builder.Default
-    private final int index = Integer.MAX_VALUE;
+    @NonNull
+    private final Integer index;
 
 }

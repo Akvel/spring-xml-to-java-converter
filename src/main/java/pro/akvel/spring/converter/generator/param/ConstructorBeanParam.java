@@ -13,12 +13,12 @@ import lombok.NonNull;
 @Data
 @Builder
 public class ConstructorBeanParam implements ConstructIndexParam, Param {
-    //FIXME нужно искать по xml id и вытаскивать тип
     @NonNull
     private final String className;
 
+    @NonNull
     private final String ref;
 
-    @Builder.Default
-    private final int index = Integer.MAX_VALUE;
+    @NonNull
+    private final Integer index;
 }

@@ -39,10 +39,12 @@ class JavaConfigurationGeneratorTest {
                                         ConstructorBeanParam.builder()
                                                 .className("pro.akvel.spring.converter.generator.TestBean1")
                                                 .ref("value1")
+                                                .index(Integer.MAX_VALUE)
                                                 .build(),
                                         ConstructorBeanParam.builder()
                                                 .className("pro.akvel.spring.converter.generator.TestBean2")
                                                 .ref("value2")
+                                                .index(Integer.MAX_VALUE)
                                                 .build()
                                 ))
                                 .build()
@@ -172,6 +174,7 @@ class JavaConfigurationGeneratorTest {
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
                                 .constructorParams(List.of(
                                         ConstructorNullParam.builder()
+                                                .index(Integer.MAX_VALUE)
                                                 .build()
                                 ))
                                 .build()
@@ -269,18 +272,22 @@ class JavaConfigurationGeneratorTest {
                                 .constructorParams(List.of(
                                         ConstructorConstantParam.builder()
                                                 .type("java.lang.Integer")
+                                                .index(Integer.MAX_VALUE)
                                                 .value("1")
                                                 .build(),
                                         ConstructorConstantParam.builder()
                                                 .type("java.lang.Long")
+                                                .index(Integer.MAX_VALUE)
                                                 .value("2")
                                                 .build(),
                                         ConstructorConstantParam.builder()
                                                 .type("java.lang.String")
+                                                .index(Integer.MAX_VALUE)
                                                 .value("3")
                                                 .build(),
                                         ConstructorConstantParam.builder()
                                                 .type("java.lang.String")
+                                                .index(Integer.MAX_VALUE)
                                                 .value("4")
                                                 .build()
                                 ))
@@ -316,10 +323,12 @@ class JavaConfigurationGeneratorTest {
                                                                         .id("subSubBean")
                                                                         .constructorParams(List.of(
                                                                                 ConstructorNullParam.builder()
+                                                                                        .index(Integer.MAX_VALUE)
                                                                                         .build(),
                                                                                 ConstructorBeanParam.builder()
                                                                                         .className("pro.akvel.spring.converter.generator.TestBean1")
                                                                                         .ref("value1")
+                                                                                        .index(Integer.MAX_VALUE)
                                                                                         .build()))
                                                                         .build())
                                                                 .build()))

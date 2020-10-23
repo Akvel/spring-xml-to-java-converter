@@ -20,6 +20,6 @@ public class ConstructorConstantParam implements ConstructIndexParam, Param {
     @NonNull
     private final String value;
 
-    @Builder.Default
-    private final int index = Integer.MAX_VALUE;
+    @NonNull
+    private final Integer index;
 }

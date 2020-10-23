@@ -29,7 +29,6 @@ public class ConfugurationSeacher {
             throw new IllegalArgumentException("Directory not found");
         }
 
-
         String[] files = directory.list((dir, name) -> name.endsWith(".xml"));
 
         return Arrays.stream(files)
