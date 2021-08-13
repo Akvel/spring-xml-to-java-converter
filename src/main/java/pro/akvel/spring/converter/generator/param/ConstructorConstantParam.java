@@ -13,13 +13,13 @@ import lombok.experimental.SuperBuilder;
  */
 @Data
 @SuperBuilder
-public class ConstructorConstantParam implements ConstructIndexParam, Param {
+public class ConstructorConstantParam implements ConstructIndexParam {
 
     private final String type;
 
     @NonNull
     private final String value;
 
-    @NonNull
+    //@NonNull
     private final Integer index;
 }

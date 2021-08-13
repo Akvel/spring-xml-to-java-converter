@@ -9,11 +9,11 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd"
 
-       default-init-method="init"
-       default-destroy-method="shutdown">
+       default-init-method="initDef"
+       default-destroy-method="shutdownDef">
     <!-- Done default-init-method/ default-destroy-method -->
 
     <context:annotation-config/>
 
-    <bean class="pro.akvel.spring.converter.testbean.BeanWithoutId"/>
+    <bean id="testDefaultInitDestroyBean" class="pro.akvel.spring.converter.testbean.BeanWithoutId"/>
 </beans>

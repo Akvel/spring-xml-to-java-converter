@@ -67,8 +67,9 @@
     <bean id="BeanWithProperty"
           class="pro.akvel.spring.converter.testbean.BeanWithProperty">
         <property name="property1" value="value1"/>
-        <property name="property2" ref="value2"/>
+        <property name="property2" ref="bean1"/>
     </bean>
+
 
     <!-- Done -->
     <bean id="BeanWithConstructorConstArgs"
@@ -86,7 +87,7 @@
             <map key-type="pro.akvel.spring.converter.testbean.Key"
                  value-type="pro.akvel.spring.converter.testbean.Value">
                 <entry key="key1" value-ref="value1"/>
-                <entry key="key2" value-ref="value2"/>
+                <entry key="key2" value-ref="BeanWithIdOnly"/>
             </map>
         </constructor-arg>
         <constructor-arg name="handlers">
@@ -129,7 +130,7 @@
         <constructor-arg>
             <bean class="pro.akvel.spring.converter.testbean.SubBeanWithSubBeanWithProperty">
                 <property name="property1" value="value1"/>
-                <property name="property2" ref="value2"/>
+                <property name="property2" ref="BeanWithIdOnly"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -178,7 +179,7 @@
         <constructor-arg ref="bean1"/>
         <constructor-arg>
             <bean class="pro.akvel.spring.converter.testbean.BeanWithConstParam">
-                <constructor-arg type="java.lang.String" value="stringValue"/>
+                <constructor-arg type="java.lang.Integer" value="123"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -187,7 +188,6 @@
     <bean id="BeanWithInitDestroyMethod"
           class="pro.akvel.spring.converter.testbean.BeanWithInitMethod"
           init-method="initMethod" destroy-method="destroyMethod">
-        <constructor-arg ref="bean1"/>
     </bean>
 
 
@@ -195,14 +195,12 @@
     <bean id="BeanWithDependsOn"
           class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
           depends-on="bean1">
-        <constructor-arg ref="bean2"/>
     </bean>
 
     <!-- Done -->
     <bean id="BeanWithDependsOnMulti"
           class="pro.akvel.spring.converter.testbean.BeanWithDependsOn"
           depends-on="bean1, bean2">
-        <constructor-arg ref="bean3"/>
     </bean>
 
     <bean id="BeanWithFactoryBean"
@@ -242,10 +240,12 @@
     </bean>
 
     <bean name="BeanWithScope" class="pro.akvel.spring.converter.testbean.BeanWithScope" scope="singleton">
-        <constructor-arg index="1" type="java.lang.String" value="value1"/>
     </bean>
 
     <bean name="BeanWithPrimary" class="pro.akvel.spring.converter.testbean.BeanWithPrimary" primary="true"/>
 
+    <bean name="BeanWithDescription" class="pro.akvel.spring.converter.testbean.BeanWithDescription">
+        <description>Bean with description</description>
+    </bean>
 
 </beans>

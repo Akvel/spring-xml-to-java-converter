@@ -2,6 +2,7 @@ package pro.akvel.spring.converter.xml;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
@@ -37,15 +38,13 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithoutId() {
-        //FIXME ignore names like this in BeanData
-        var beanName = PACKAGE + "BeanWithoutId#0";
+        String beanName = PACKAGE + "BeanWithoutId#0";
 
         BeanData actualObject = ConfigurationDataConverter
                 .getConfigurationData(beanName, reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .clazzName(PACKAGE + "BeanWithoutId")
-                .constructorParams(List.of())
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
@@ -59,7 +58,6 @@ class ConfigurationDataConverterTest {
         var expectedObject = BeanData.builder()
                 .id("BeanWithIdOnly")
                 .clazzName(PACKAGE + "BeanWithIdOnly")
-                .constructorParams(List.of())
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
@@ -88,6 +86,9 @@ class ConfigurationDataConverterTest {
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
+    /**
+     * This case not supported
+     */
     @Test
     public void BeanWithConstructorParamsWithNames() {
         BeanData actualObject = ConfigurationDataConverter
@@ -148,7 +149,7 @@ class ConfigurationDataConverterTest {
         var expectedObject = BeanData.builder()
                 .id("BeanWithProperty")
                 .clazzName(PACKAGE + "BeanWithProperty")
-                .constructorParams(List.of(
+                .propertyParams(List.of(
                         PropertyValueParam.builder()
                                 .name("property1")
                                 .value("value1")
@@ -171,7 +172,7 @@ class ConfigurationDataConverterTest {
                 .getConfigurationData("BeanWithConstructorConstArgs", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstuctorConstArgs")
+                .id("BeanWithConstructorConstArgs")
                 .clazzName(PACKAGE + "BeanWithConstructorConstArgs")
                 .constructorParams(List.of(
                         ConstructorConstantParam.builder()
@@ -192,6 +193,7 @@ class ConfigurationDataConverterTest {
     }
 
     @Test
+    @Disabled
     public void BeanWithMap() {
         Assertions.fail();
     }
@@ -205,20 +207,22 @@ class ConfigurationDataConverterTest {
                 .id("BeanWithConstructorWithCreateSubBean")
                 .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBean")
                 .constructorParams(List.of(
-                        ConstructorSubBeanParam.builder()
-                                .beanData(BeanData.builder()
-                                        .id("bean1")
-                                        .clazzName(CLASS_BEAN_1)
-                                        .build())
-                                .build(),
-                        ConstructorSubBeanParam.builder()
-                                .beanData(BeanData.builder()
-                                        .id("bean2")
-                                        .clazzName(CLASS_BEAN_2)
-                                        .build())
-                                .build()
-                ))
-                .build();
+                        ConstructorSubBeanParam.builder().beanData(
+                                BeanData.builder()
+                                        .clazzName("pro.akvel.spring.converter.testbean.SubBean")
+                                        .constructorParams(List.of(
+                                                        ConstructorBeanParam.builder()
+                                                                .ref("bean1")
+                                                                .className(CLASS_BEAN_1)
+                                                                .build(),
+                                                        ConstructorBeanParam.builder()
+                                                                .ref("bean2")
+                                                                .className(CLASS_BEAN_2)
+                                                                .build()
+                                                )
+                                        ).build()
+                        ).build()
+                )).build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
@@ -228,6 +232,7 @@ class ConfigurationDataConverterTest {
         BeanData actualObject = ConfigurationDataConverter
                 .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithSubBean", reader.getBeanFactory());
 
+
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBeanWithSubBean")
                 .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithSubBean")
@@ -235,20 +240,29 @@ class ConfigurationDataConverterTest {
                         ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
                                         .clazzName(PACKAGE + "SubBeanWithSubBean")
-                                        .constructorParams(List.of(ConstructorSubBeanParam.builder()
-                                                        .beanData(BeanData.builder()
-                                                                .id("bean1")
-                                                                .clazzName(CLASS_BEAN_1)
-                                                                .build())
-                                                        .build(),
-                                                ConstructorSubBeanParam.builder()
-                                                        .beanData(BeanData.builder()
-                                                                .id("bean2")
-                                                                .clazzName(CLASS_BEAN_2)
-                                                                .build())
-                                                        .build()))
+                                        .constructorParams(List.of(
+                                                        ConstructorSubBeanParam.builder()
+                                                                .beanData(BeanData.builder()
+                                                                        .clazzName(PACKAGE + "SubBean")
+                                                                        .constructorParams(
+                                                                                List.of(ConstructorBeanParam.builder()
+                                                                                                .ref("bean1")
+                                                                                                .className(CLASS_BEAN_1)
+                                                                                                .build(),
+                                                                                        ConstructorBeanParam.builder()
+                                                                                                .ref("bean2")
+                                                                                                .className(CLASS_BEAN_2)
+                                                                                                .build()
+                                                                                )
+                                                                        )
+                                                                        .build()
+                                                                )
+                                                                .build()
+                                                )
+                                        )
                                         .build())
-                                .build()))
+                                .build()
+                ))
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
@@ -256,67 +270,198 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithSubBeanWithProperty() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithSubBeanWithProperty", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithSubBeanWithProperty")
+                .clazzName(PACKAGE + "BeanWithSubBeanWithProperty")
+                .constructorParams(List.of(
+                        ConstructorSubBeanParam.builder()
+                                .beanData(BeanData.builder()
+                                        .clazzName(PACKAGE + "SubBeanWithSubBeanWithProperty")
+                                        .propertyParams(List.of(
+                                                PropertyValueParam.builder()
+                                                        .name("property1")
+                                                        .value("value1")
+                                                        .build(),
+                                                PropertyBeanParam.builder()
+                                                        .name("property2")
+                                                        .ref("BeanWithIdOnly")
+                                                        .className(PACKAGE + "BeanWithIdOnly")
+                                                        .build()
+                                        ))
+                                        .build())
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
+    @Disabled
     public void BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap() {
         Assertions.fail();
     }
 
     @Test
+    @Disabled
     public void BeanWithConstructorWithCreateSubBeanWithFactory() {
         Assertions.fail();
     }
 
     @Test
+    @Disabled
     public void BeanWithConstructorWithCreateSubBeanWithFactoryAndType() {
         Assertions.fail();
     }
 
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithConstructorWithCreateSubBeanWithConstArg")
+                .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithConstArg")
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("bean1")
+                                .className(CLASS_BEAN_1)
+                                .build(),
+                        ConstructorSubBeanParam.builder()
+                                .beanData(BeanData.builder()
+                                        .clazzName(PACKAGE + "BeanWithConstParam")
+                                        .constructorParams(List.of(
+                                                ConstructorConstantParam.builder()
+                                                        .type("java.lang.Integer")
+                                                        .value("123")
+                                                        .build()
+                                        ))
+                                        .build())
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
     public void BeanWithInitDestroyMethod() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithInitDestroyMethod", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithInitDestroyMethod")
+                .clazzName(PACKAGE + "BeanWithInitMethod")
+                .initMethodName("initMethod")
+                .destroyMethodName("destroyMethod")
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
     public void BeanWithDependsOn() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithDependsOn", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithDependsOn")
+                .clazzName(PACKAGE + "BeanWithDependsOn")
+                .dependsOn(new String[]{"bean1"})
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
     public void BeanWithDependsOnMulti() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithDependsOnMulti", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithDependsOnMulti")
+                .clazzName(PACKAGE + "BeanWithDependsOn")
+                .dependsOn(new String[]{"bean1", "bean2"})
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
+    @Disabled
     public void BeanWithFactoryBean() {
         Assertions.fail();
     }
 
     @Test
+    @Disabled
     public void BeanWithConstructorListArg() {
         Assertions.fail();
     }
 
     @Test
     public void BeanWithScope() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithScope", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithScope")
+                .clazzName(PACKAGE + "BeanWithScope")
+                .scope("singleton")
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
     public void BeanWithPrimary() {
-        Assertions.fail();
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithPrimary", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithPrimary")
+                .clazzName(PACKAGE + "BeanWithPrimary")
+                .primary(true)
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
     @Test
-    public void defaultInitDestroyMethods() {
-        Assertions.fail();
+    public void defaultInitDestroyMethods() throws FileNotFoundException {
+        XmlConfigurationReader testReader = new XmlConfigurationReader();
+        testReader.readXmlFile(new File(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-defaultInitDestroyMethods.xml"));
+
+
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("testDefaultInitDestroyBean", testReader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("testDefaultInitDestroyBean")
+                .clazzName(PACKAGE + "BeanWithoutId")
+                .initMethodName("initDef")
+                .destroyMethodName("shutdownDef")
+                .scope("")
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
     }
 
+    @Test
+    public void BeanWithDescription() {
+        BeanData actualObject = ConfigurationDataConverter
+                .getConfigurationData("BeanWithDescription", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithDescription")
+                .clazzName(PACKAGE + "BeanWithDescription")
+                .description("Bean with description")
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+    }
 }

@@ -1,4 +1,5 @@
 package pro.akvel.spring.converter.generator.param;
 
-public interface PropertyParam extends Param{
+
+public interface ConstructorParam extends Param {
 }

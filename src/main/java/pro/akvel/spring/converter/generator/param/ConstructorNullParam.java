@@ -12,7 +12,7 @@ import lombok.NonNull;
  */
 @Data
 @Builder
-public class ConstructorNullParam implements ConstructIndexParam, Param {
-    @NonNull
+public class ConstructorNullParam implements ConstructIndexParam {
+
     final Integer index;
 }

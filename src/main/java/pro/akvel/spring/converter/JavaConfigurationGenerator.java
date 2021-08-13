@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Java configuration class generator
@@ -76,13 +75,13 @@ public class JavaConfigurationGenerator {
 
             JBlock body = method.body();
 
-            if (canReturnNewObject(it)) {
+            if (constructorParamsOnly(it)) {
                 JInvocation aNew = JExpr._new(beanClass);
                 addParamToBeanConstructor(it, method, aNew);
                 body._return(aNew);
             } else {
                 JVar newBean = body.decl(beanClass, "bean", JExpr._new(beanClass));
-                setProperties(newBean, getPropertyParams(it), method);
+                setProperties(newBean, it.getPropertyParams(), method);
                 body._return(newBean);
             }
         });
@@ -90,14 +89,11 @@ public class JavaConfigurationGenerator {
         CODE_MODEL.build(new File(outputPath));
     }
 
-    private List<PropertyParam> getPropertyParams(BeanData it) {
-        return it.getConstructorParams().stream()
-                .filter(itt -> itt instanceof PropertyParam)
-                .map(itt -> (PropertyParam) itt)
-                .collect(Collectors.toList());
+    private static boolean constructorParamsOnly(BeanData it) {
+        return it.getPropertyParams().isEmpty();
     }
 
-    private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method) {
+    private void setProperties(JVar newBean, @Nullable List<PropertyParam> propertyParams, JMethod method) {
         propertyParams.forEach(it -> {
             if (it instanceof PropertyBeanParam) {
                 PropertyBeanParam beanParam = (PropertyBeanParam) it;
@@ -121,10 +117,6 @@ public class JavaConfigurationGenerator {
         return "set" + StringUtils.capitalize(fieldName);
     }
 
-    private boolean canReturnNewObject(BeanData beanData) {
-        return beanData.getConstructorParams().stream()
-                .noneMatch(it -> it instanceof PropertyBeanParam);
-    }
 
     private void addParamToBeanConstructor(BeanData it, JMethod method, JInvocation aNew) {
         it.getConstructorParams()
@@ -150,12 +142,12 @@ public class JavaConfigurationGenerator {
 
                         JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClazzName());
                         JInvocation subBeanNew = JExpr._new(subBeanClass);
-                        if (canReturnNewObject(subBeanData.getBeanData())) {
+                        if (constructorParamsOnly(subBeanData.getBeanData())) {
                             addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
                             aNew.arg(subBeanNew);
                         } else {
                             JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
-                            setProperties(newBeanVar, getPropertyParams(subBeanData.getBeanData()), method);
+                            setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
                             addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
                             aNew.arg(newBeanVar);
                         }
@@ -176,19 +168,10 @@ public class JavaConfigurationGenerator {
     }
 
     private void addMethodParams(BeanData beanData, JMethod method) {
+
         beanData.getConstructorParams().stream()
                 .filter(it -> it instanceof ConstructorBeanParam)
                 .map(it -> (ConstructorBeanParam) it)
-                .forEach(arg -> {
-                    JVar param = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
-                    if (arg.getRef() != null) {
-                        param.annotate(Qualifier.class).param("value", arg.getRef());
-                    }
-                });
-
-        beanData.getConstructorParams().stream()
-                .filter(it -> it instanceof PropertyBeanParam)
-                .map(it -> (PropertyBeanParam) it)
                 .forEach(arg -> {
                     JVar param = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
                     if (arg.getRef() != null) {
@@ -203,6 +186,19 @@ public class JavaConfigurationGenerator {
                 .forEach(it ->
                         addMethodParams(it.getBeanData(), method)
                 );
+
+
+        beanData.getPropertyParams().stream()
+                .filter(it -> it instanceof PropertyBeanParam)
+                .map(it -> (PropertyBeanParam) it)
+                .forEach(arg -> {
+                    JVar param = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
+                    if (arg.getRef() != null) {
+                        param.annotate(Qualifier.class).param("value", arg.getRef());
+                    }
+                });
+
+
     }
 
     private String getMethodName(@Nonnull String className, @Nullable String id) {
@@ -240,7 +236,7 @@ public class JavaConfigurationGenerator {
 
         if (beanData.getDestroyMethodName() != null) {
             beanAnnotation.param("destroyMethod", beanData.getDestroyMethodName());
-        } else if (configurationData.getDefaultBeanDestroyMethod() != null){
+        } else if (configurationData.getDefaultBeanDestroyMethod() != null) {
             method.javadoc().add("destroyMethod added by bean element default-destroy-method\n");
             beanAnnotation.param("destroyMethod", configurationData.getDefaultBeanDestroyMethod());
         }

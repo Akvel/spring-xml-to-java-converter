@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class PropertyValueParam implements Param, PropertyParam {
+public class PropertyValueParam implements PropertyParam {
     private final String name;
     private final String value;
 }

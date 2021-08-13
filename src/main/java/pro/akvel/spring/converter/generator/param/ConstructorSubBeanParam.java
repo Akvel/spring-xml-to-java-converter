@@ -14,11 +14,12 @@ import pro.akvel.spring.converter.generator.BeanData;
  */
 @Data
 @Builder
-public class ConstructorSubBeanParam implements ConstructIndexParam, Param {
+public class ConstructorSubBeanParam implements ConstructIndexParam {
     @NonNull
     private final BeanData beanData;
 
-    @NonNull
+    //FIXME почему тут был nonnull?
+    //@NonNull
     private final Integer index;
 
 }

@@ -12,13 +12,12 @@ import lombok.NonNull;
  */
 @Data
 @Builder
-public class ConstructorBeanParam implements ConstructIndexParam, Param {
+public class ConstructorBeanParam implements ConstructIndexParam {
     @NonNull
     private final String className;
 
     @NonNull
     private final String ref;
 
-    @NonNull
     private final Integer index;
 }

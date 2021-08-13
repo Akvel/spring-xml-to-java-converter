@@ -36,6 +36,8 @@ dependencies {
 
     compile 'log4j:log4j:1.2.17'
 
+    compile 'org.reflections:reflections:0.9.12'
+
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.17.2'
 

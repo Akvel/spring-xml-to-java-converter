@@ -69,7 +69,6 @@ class JavaConfigurationGeneratorTest {
                 ConfigurationData.builder().beans(
                         Collections.singletonList(BeanData.builder()
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                                .constructorParams(List.of())
                                 .build()
                         )).build(),
                 OUTPUT_PATH);
@@ -83,7 +82,7 @@ class JavaConfigurationGeneratorTest {
     }
 
     @Test
-    public void generateBeanWithDefaulInitDestroyMethods() throws IOException, JClassAlreadyExistsException {
+    public void generateBeanWithDefaultInitDestroyMethods() throws IOException, JClassAlreadyExistsException {
         JavaConfigurationGenerator config = new JavaConfigurationGenerator();
 
         String fileName = "GenerateBeanWithDefaulInitDestroyMethods";
@@ -93,7 +92,6 @@ class JavaConfigurationGeneratorTest {
                         .defaultBeanDestroyMethod("defaultDestroyMethod")
                         .beans(Collections.singletonList(BeanData.builder()
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                                .constructorParams(List.of())
                                 .build()
                         )).build(),
                 OUTPUT_PATH);
@@ -147,7 +145,6 @@ class JavaConfigurationGeneratorTest {
                 ConfigurationData.builder().beans(
                         Collections.singletonList(BeanData.builder()
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                                .constructorParams(List.of())
                                 .id("beanId")
                                 .initMethodName("initMethod")
                                 .destroyMethodName("destroyMethod")
@@ -198,7 +195,7 @@ class JavaConfigurationGeneratorTest {
                 ConfigurationData.builder().beans(
                         Collections.singletonList(BeanData.builder()
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                                .constructorParams(List.of(
+                                .propertyParams(List.of(
                                         PropertyValueParam.builder()
                                                 .name("property1")
                                                 .value("value1")
@@ -236,17 +233,16 @@ class JavaConfigurationGeneratorTest {
                                                         .beanData(BeanData.builder()
                                                                 .id("subBean")
                                                                 .clazzName("pro.akvel.spring.converter.generator.SubBean")
-                                                                .constructorParams(
-                                                                        List.of(
-                                                                                PropertyValueParam.builder()
-                                                                                        .name("property1")
-                                                                                        .value("value1")
-                                                                                        .build(),
-                                                                                PropertyBeanParam.builder()
-                                                                                        .name("property2")
-                                                                                        .className("pro.akvel.spring.converter.generator.PropertyBean")
-                                                                                        .ref("ref")
-                                                                                        .build()))
+                                                                .propertyParams(List.of(
+                                                                        PropertyValueParam.builder()
+                                                                                .name("property1")
+                                                                                .value("value1")
+                                                                                .build(),
+                                                                        PropertyBeanParam.builder()
+                                                                                .name("property2")
+                                                                                .className("pro.akvel.spring.converter.generator.PropertyBean")
+                                                                                .ref("ref")
+                                                                                .build()))
                                                                 .build())
                                                         .build()))
                                 .build())
@@ -357,7 +353,6 @@ class JavaConfigurationGeneratorTest {
                         Collections.singletonList(BeanData.builder()
                                 .id("beanId")
                                 .clazzName("pro.akvel.spring.converter.generator.TestBean")
-                                .constructorParams(List.of())
                                 .build()
                         )).build(),
                 OUTPUT_PATH);
@@ -368,6 +363,26 @@ class JavaConfigurationGeneratorTest {
 
 
         Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+    }
+
+    @Test
+    public void scope() {
+        Assertions.fail();
+    }
+
+    @Test
+    public void primary() {
+        Assertions.fail();
+    }
+
+    @Test
+    public void description() {
+        Assertions.fail();
+    }
+
+    @Test
+    public void BeanWithSubBeanWithProperty() {
+        Assertions.fail();
     }
 
     private List<String> getLines(Path expectedFile) throws IOException {

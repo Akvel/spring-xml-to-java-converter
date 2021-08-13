@@ -12,7 +12,7 @@ import lombok.NonNull;
  */
 @Data
 @Builder
-public class PropertyBeanParam implements Param, PropertyParam {
+public class PropertyBeanParam implements PropertyParam {
 
     @NonNull
     final String name;

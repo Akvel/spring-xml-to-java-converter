@@ -1,7 +1,7 @@
 package pro.akvel.spring.converter.generator;
 
 /**
- * FIXME
+ * FIXME Удалить?
  *
  * @author akvel
  * @since 12.08.2020

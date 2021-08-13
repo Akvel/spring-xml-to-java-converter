@@ -8,10 +8,10 @@ import javax.annotation.Nonnull;
  * @author akvel
  * @since 14.08.2020
  */
-public interface ConstructIndexParam {
+public interface ConstructIndexParam extends ConstructorParam {
     /**
      * constructor-args index
      */
-    @Nonnull
+    //@Nonnull
     Integer getIndex();
 }
