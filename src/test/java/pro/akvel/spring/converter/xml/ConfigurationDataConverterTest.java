@@ -1,9 +1,11 @@
 package pro.akvel.spring.converter.xml;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import pro.akvel.spring.converter.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
@@ -14,9 +16,12 @@ import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,10 +30,16 @@ class ConfigurationDataConverterTest {
 
     private static final Path root = Paths.get(".").normalize().toAbsolutePath();
 
+    private static final String OUTPUT_PATH = "build/tmp/";
+
     private static final XmlConfigurationReader reader = new XmlConfigurationReader();
     private static final String PACKAGE = "pro.akvel.spring.converter.testbean.";
     private static final String CLASS_BEAN_1 = PACKAGE + "BeanWithIdOnly1";
     private static final String CLASS_BEAN_2 = PACKAGE + "BeanWithIdOnly2";
+    public static final String PACKAGE_NAME = "pro.akvel.spring.converter.generator";
+    public static final String EXPECTED_CLASS_PATH = "src/test/resources/pro/akvel/spring/converter/xml/expected/";
+
+    private JavaConfigurationGenerator classGenerator = new JavaConfigurationGenerator();
 
     @BeforeAll
     public static void init() throws FileNotFoundException {
@@ -48,7 +59,10 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithoutId");
     }
+
 
     @Test
     public void BeanWithIdOnly() {
@@ -61,6 +75,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithIdOnly");
     }
 
     @Test
@@ -84,6 +100,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParams");
     }
 
     /**
@@ -111,6 +129,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParamsWithNull");
     }
 
     @Test
@@ -139,6 +159,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParamsWithIndex");
     }
 
     @Test
@@ -164,6 +186,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithProperty");
     }
 
     @Test
@@ -190,6 +214,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorConstArgs");
     }
 
     @Test
@@ -225,6 +251,8 @@ class ConfigurationDataConverterTest {
                 )).build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBean");
     }
 
     @Test
@@ -266,6 +294,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBeanWithSubBean");
     }
 
     @Test
@@ -297,6 +327,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithSubBeanWithProperty");
     }
 
     @Test
@@ -345,6 +377,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBeanWithConstArg");
     }
 
     @Test
@@ -360,6 +394,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithInitDestroyMethod");
     }
 
     @Test
@@ -374,6 +410,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithDependsOn");
     }
 
     @Test
@@ -388,6 +426,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithDependsOnMulti");
     }
 
     @Test
@@ -414,6 +454,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithScope");
     }
 
     @Test
@@ -428,6 +470,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithPrimary");
     }
 
     @Test
@@ -449,6 +493,8 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "defaultInitDestroyMethods");
     }
 
     @Test
@@ -463,5 +509,50 @@ class ConfigurationDataConverterTest {
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithDescription");
+    }
+
+    @SneakyThrows
+    private static List<String> getLines(Path expectedFile) {
+        return Files.readAllLines(expectedFile, StandardCharsets.UTF_8)
+                .stream()
+                .map(it -> it.replaceAll("[^;*@.()\\[\\]a-zA-Z0-9]", ""))
+                .collect(Collectors.toList());
+    }
+
+    private static String getPath(String configClassName) {
+        return OUTPUT_PATH +
+                PACKAGE_NAME.replaceAll("\\.", "\\/") + "/" + configClassName + ".java";
+    }
+
+
+    private void assertGeneratedConfigClass(BeanData beanData, String configClassName) {
+        classGenerator.generateClass(PACKAGE_NAME,
+                configClassName,
+                beanData,
+                OUTPUT_PATH
+        );
+
+        Path generatedFile = Paths.get(getPath(configClassName));
+        Path expectedFile = Paths.get(EXPECTED_CLASS_PATH + configClassName + ".java");
+
+        Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+    }
+
+    @Test
+    public void subBeanWithNoSupportedType(){
+        //Factory
+        //Merged
+        //named params
+        Assertions.fail();
+    }
+
+    @Test
+    public void beanWithNoSupportedType(){
+        //Factory
+        //Merged
+        //named params
+        Assertions.fail();
     }
 }

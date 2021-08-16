@@ -3,7 +3,6 @@ package pro.akvel.spring.converter;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
-import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
@@ -13,10 +12,14 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JVar;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.ConfigurationData;
 import pro.akvel.spring.converter.generator.param.ConstructIndexParam;
@@ -31,9 +34,10 @@ import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Java configuration class generator
@@ -46,10 +50,23 @@ public class JavaConfigurationGenerator {
 
     private static final JCodeModel CODE_MODEL = new JCodeModel();
 
-    void generateClass(String packageName,
-                       String classConfigurationName,
-                       ConfigurationData configurationData,
-                       String outputPath) throws JClassAlreadyExistsException, IOException {
+
+    public void generateClass(String packageName,
+                              String classConfigurationName,
+                              BeanData beanData,
+                              String outputPath) {
+        generateClass(packageName, classConfigurationName,
+                ConfigurationData.builder()
+                        .beans(List.of(beanData))
+                        .build(),
+                outputPath);
+    }
+
+    @SneakyThrows
+    public void generateClass(String packageName,
+                              String classConfigurationName,
+                              ConfigurationData configurationData,
+                              String outputPath) {
         // Instantiate a new JCodeModel
 
         // Create a new package
@@ -69,6 +86,25 @@ public class JavaConfigurationGenerator {
                     CODE_MODEL.ref(it.getClazzName()), getMethodName(it.getClazzName(), it.getId()));
 
             addBeanAnnotation(configurationData, method, it);
+
+            if (!it.getScope().isBlank()) {
+                JAnnotationUse scopeAnnotation = method.annotate(Scope.class);
+                scopeAnnotation.param("value", it.getScope());
+            }
+
+            if (it.getDependsOn() != null) {
+                JAnnotationUse scopeAnnotation = method.annotate(DependsOn.class);
+                var arrayParam = scopeAnnotation.paramArray("value");
+                Arrays.stream(it.getDependsOn()).forEach(arrayParam::param);
+            }
+
+            if (it.getDescription() != null) {
+                method.javadoc().add(it.getDescription());
+            }
+
+            if (it.isPrimary()) {
+                method.annotate(Primary.class);
+            }
 
             addMethodParams(it, method);
 
@@ -123,7 +159,8 @@ public class JavaConfigurationGenerator {
                 .stream()
                 .filter(itt -> itt instanceof ConstructIndexParam)
                 .map(itt -> (ConstructIndexParam) itt)
-                .sorted(Comparator.comparingInt(ConstructIndexParam::getIndex))
+                .sorted(Comparator.comparingInt(v ->
+                        Optional.ofNullable(v.getIndex()).orElse(Integer.MAX_VALUE)))
                 .forEach(arg -> {
                     if (arg instanceof ConstructorBeanParam) {
                         ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;

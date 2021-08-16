@@ -21,9 +21,6 @@ import java.util.List;
 @Data
 @Builder
 public class BeanData {
-
-    //FIXME support scopes
-
     /**
      * Bean id ({@link Bean#name()}
      */
@@ -71,7 +68,6 @@ public class BeanData {
     /**
      * {@link BeanDefinition#getScope()}
      */
-    @Nullable
     @Builder.Default
     String scope = "";
 

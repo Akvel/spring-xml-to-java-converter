@@ -21,6 +21,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated Java class tests added to {@link pro.akvel.spring.converter.xml.XmlConfigurationReaderTest}
+ */
+@Deprecated
 class JavaConfigurationGeneratorTest {
 
     private static final String OUTPUT_PATH = "build/tmp";
@@ -385,7 +389,7 @@ class JavaConfigurationGeneratorTest {
         Assertions.fail();
     }
 
-    private List<String> getLines(Path expectedFile) throws IOException {
+    private static List<String> getLines(Path expectedFile) throws IOException {
         return Files.readAllLines(expectedFile, StandardCharsets.UTF_8)
                 .stream()
                 .map(it -> it.replaceAll("[^;*@.()\\[\\]a-zA-Z0-9]", ""))
