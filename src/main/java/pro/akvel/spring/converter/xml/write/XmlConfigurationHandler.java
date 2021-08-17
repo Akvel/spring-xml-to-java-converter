@@ -6,7 +6,6 @@ import net.sf.saxon.Configuration;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.Serializer;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -25,7 +24,6 @@ public class XmlConfigurationHandler extends DefaultHandler {
     private final XMLStreamWriter xsw;
 
     private boolean write;
-    private Optional<BeanKey> currentBean;
     private int counter;
 
     @SneakyThrows
@@ -34,7 +32,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
         this.convertedBeans = convertedBeans;
         XMLOutputFactory xof = XMLOutputFactory.newInstance();
 
-        //Saxon used for pretty print new XML config
+        //Saxon used for pretty print new XML config only
         Configuration config = new Configuration();
         Processor p = new net.sf.saxon.s9api.Processor(config);
         Serializer s = p.newSerializer();
@@ -46,16 +44,15 @@ public class XmlConfigurationHandler extends DefaultHandler {
 
     @SneakyThrows
     @Override
-    public void startDocument() throws SAXException {
+    public void startDocument() {
         super.startDocument();
         write = true;
-        currentBean = Optional.empty();
         xsw.writeStartDocument();
     }
 
     @SneakyThrows
     @Override
-    public void endDocument() throws SAXException {
+    public void endDocument() {
         super.endDocument();
         xsw.writeEndDocument();
         xsw.flush();
@@ -65,7 +62,9 @@ public class XmlConfigurationHandler extends DefaultHandler {
 
     @SneakyThrows
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName,
+                             String qName,
+                             Attributes attributes) {
         super.startElement(uri, localName, qName, attributes);
 
 
@@ -74,7 +73,6 @@ public class XmlConfigurationHandler extends DefaultHandler {
             if (convertedBeans.contains(beanKey)) {
                 log.info("Skip bean " + beanKey);
                 write = false;
-                currentBean = Optional.of(beanKey);
             }
 
             if (!write) {
@@ -94,7 +92,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
 
     @SneakyThrows
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
         super.characters(ch, start, length);
 
         if (write) {
@@ -104,7 +102,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
 
     @SneakyThrows
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) {
         super.endElement(uri, localName, qName);
 
         if (write) {
@@ -115,9 +113,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
             counter--;
             if (counter == 0) {
                 write = true;
-                currentBean = Optional.empty();
             }
         }
-
     }
 }

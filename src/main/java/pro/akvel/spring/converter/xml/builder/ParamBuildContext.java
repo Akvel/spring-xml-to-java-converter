@@ -10,6 +10,7 @@ public class ParamBuildContext<TObject> {
     private final String fieldName;
 
     private final Integer index;
+
     //FIXME может можно ограничить?
     private final BeanDefinitionRegistry beanDefinitionRegistry;
 
@@ -28,7 +29,8 @@ public class ParamBuildContext<TObject> {
         this.type = type;
     }
 
-    public @NonNull Integer getIndex() {
+    @NonNull
+    public Integer getIndex() {
         return index;
     }
 

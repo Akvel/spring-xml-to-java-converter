@@ -18,8 +18,6 @@ public class ConstructorSubBeanParam implements ConstructIndexParam {
     @NonNull
     private final BeanData beanData;
 
-    //FIXME почему тут был nonnull?
-    //@NonNull
     private final Integer index;
 
 }

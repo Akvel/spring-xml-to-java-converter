@@ -15,11 +15,11 @@ import lombok.NonNull;
 public class PropertyBeanParam implements PropertyParam {
 
     @NonNull
-    final String name;
+    private final String name;
 
     @NonNull
-    final String ref;
+    private final String ref;
 
     @NonNull
-    final String className;
+    private final String className;
 }

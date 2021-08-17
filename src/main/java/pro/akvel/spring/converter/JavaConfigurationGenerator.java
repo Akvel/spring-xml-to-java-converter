@@ -80,10 +80,10 @@ public class JavaConfigurationGenerator {
 
         // Add get beans
         configurationData.getBeans().forEach(it -> {
-            JClass beanClass = CODE_MODEL.ref(it.getClazzName());
+            JClass beanClass = CODE_MODEL.ref(it.getClassName());
 
             JMethod method = jc.method(JMod.PUBLIC,
-                    CODE_MODEL.ref(it.getClazzName()), getMethodName(it.getClazzName(), it.getId()));
+                    CODE_MODEL.ref(it.getClassName()), getMethodName(it.getClassName(), it.getId()));
 
             addBeanAnnotation(configurationData, method, it);
 
@@ -177,7 +177,7 @@ public class JavaConfigurationGenerator {
                     if (arg instanceof ConstructorSubBeanParam) {
                         ConstructorSubBeanParam subBeanData = (ConstructorSubBeanParam) arg;
 
-                        JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClazzName());
+                        JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
                         JInvocation subBeanNew = JExpr._new(subBeanClass);
                         if (constructorParamsOnly(subBeanData.getBeanData())) {
                             addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
@@ -266,16 +266,10 @@ public class JavaConfigurationGenerator {
 
         if (beanData.getInitMethodName() != null) {
             beanAnnotation.param("initMethod", beanData.getInitMethodName());
-        } else if (configurationData.getDefaultBeanInitMethod() != null) {
-            beanAnnotation.param("initMethod", configurationData.getDefaultBeanInitMethod());
-            method.javadoc().add("initMethod added by default-init-method\n");
         }
 
         if (beanData.getDestroyMethodName() != null) {
             beanAnnotation.param("destroyMethod", beanData.getDestroyMethodName());
-        } else if (configurationData.getDefaultBeanDestroyMethod() != null) {
-            method.javadoc().add("destroyMethod added by bean element default-destroy-method\n");
-            beanAnnotation.param("destroyMethod", configurationData.getDefaultBeanDestroyMethod());
         }
     }
 

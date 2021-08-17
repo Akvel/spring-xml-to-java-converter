@@ -8,7 +8,7 @@
            http://www.springframework.org/schema/task/spring-task-3.0.xsd
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd"
-     >
+>
 
     <context:annotation-config/>
 
@@ -50,17 +50,46 @@
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithIndex">
         <constructor-arg index="0" ref="bean1"/>
         <constructor-arg index="1" ref="bean2"/>
+        <constructor-arg index="2">
+            <null/>
+        </constructor-arg>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="BeanWithMissedIndex"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithIndex">
+        <constructor-arg index="0" ref="bean1"/>
+        <constructor-arg index="1" ref="bean2"/>
+        <!-- <constructor-arg index="2" ref="bean2"/> -->
         <constructor-arg index="3">
             <null/>
         </constructor-arg>
     </bean>
 
+    <!-- Not supported -->
+    <bean id="beanWithMixedIndexAndNonIndexParams"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithIndex">
+        <constructor-arg ref="bean1"/>
+        <constructor-arg index="0" ref="bean2"/>
+        <constructor-arg index="1">
+            <null/>
+        </constructor-arg>
+    </bean>
+
+    <!-- Not Supported -->
     <bean id="BeanWithConstructorParamsFromCode"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsFromCode">
         <constructor-arg value="#{T(pro.akvel.spring.converter.testbean.TestType).type1}"/>
+        <constructor-arg value="#{T(pro.akvel.spring.converter.testbean.TestType).getInt(100)}"/>
         <constructor-arg value="#{bean.value()}" type="java.lang.String"/>
-        <constructor-arg index="1" value="bean1"/>
         <constructor-arg value="#{getObject('param')}"/>
+    </bean>
+
+    <!-- Not Supported -->
+    <bean id="BeanWithPropertyParamsFromCode"
+          class="pro.akvel.spring.converter.testbean.BeanWithProperty">
+        <property name="property1" value="#{getObject('param')}"/>
+        <property name="property2" ref="bean1"/>
     </bean>
 
     <!-- Done -->
@@ -79,9 +108,11 @@
             <null/>
         </constructor-arg>
         <constructor-arg value="param3Value"/>
+        <constructor-arg value="0" type="java.lang.Integer"/>
+        <constructor-arg value="1" type="java.lang.Long"/>
     </bean>
 
-
+    <!-- Not implemented -->
     <bean id="BeanWithMap" class="pro.akvel.spring.converter.testbean.BeanWithMap">
         <constructor-arg>
             <map key-type="pro.akvel.spring.converter.testbean.Key"
@@ -135,6 +166,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Not implemented -->
     <bean id="BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap">
         <constructor-arg>
@@ -157,6 +189,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Not implemented -->
     <bean id="BeanWithConstructorWithCreateSubBeanWithFactory"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithFactory">
         <constructor-arg>
@@ -165,6 +198,7 @@
         </constructor-arg>
     </bean>
 
+    <!-- Not implemented -->
     <bean id="BeanWithConstructorWithCreateSubBeanWithFactoryAndType"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorWithCreateSubBeanWithFactoryAndType">
         <constructor-arg>
@@ -203,6 +237,7 @@
           depends-on="bean1, bean2">
     </bean>
 
+    <!-- Not implemented -->
     <bean id="BeanWithFactoryBean"
           class="pro.akvel.spring.converter.testbean.BeanWithFactoryBean"
           factory-bean="beanFactory" factory-method="getBean">
@@ -220,6 +255,7 @@
     <!-- Not supported -->
     <task:scheduler id="TaskScheduler" pool-size="1"/>
 
+    <!-- Not supported -->
     <task:executor id="TaskExecutor" pool-size="0-1"/>
 
     <!-- Not supported -->
@@ -227,7 +263,7 @@
         <task:scheduled ref="taskSchedulerBeanWithCron" method="run" cron="0 * 0/1 * * *"/>
     </task:scheduled-tasks>
 
-
+    <!-- Not supported -->
     <bean id="BeanWithConstructorListArg"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg">
         <constructor-arg name="param1" ref="bean1"/>
@@ -239,11 +275,14 @@
         </constructor-arg>
     </bean>
 
+    <!-- Done -->
     <bean name="BeanWithScope" class="pro.akvel.spring.converter.testbean.BeanWithScope" scope="singleton">
     </bean>
 
+    <!-- Done -->
     <bean name="BeanWithPrimary" class="pro.akvel.spring.converter.testbean.BeanWithPrimary" primary="true"/>
 
+    <!-- Done -->
     <bean name="BeanWithDescription" class="pro.akvel.spring.converter.testbean.BeanWithDescription">
         <description>Bean with description</description>
     </bean>

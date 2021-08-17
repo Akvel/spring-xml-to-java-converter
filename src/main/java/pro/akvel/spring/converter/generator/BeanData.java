@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * FIXME
+ * Bean definition model
  *
  * @author akvel
  * @since 12.08.2020
@@ -25,59 +25,59 @@ public class BeanData {
      * Bean id ({@link Bean#name()}
      */
     @Nullable
-    final String id;
+    private final String id;
 
     /**
      * Full class name, with package
      */
     @Nonnull
-    final String clazzName;
+    private final String className;
 
     /**
      * Bean constructor params with same order as in xml configuration
      */
     @NonNull
     @Builder.Default
-    final List<ConstructorParam> constructorParams = List.of();
+    private final List<ConstructorParam> constructorParams = List.of();
 
     /**
      * Bena property params
      */
     @NonNull
     @Builder.Default
-    final List<PropertyParam> propertyParams = List.of();
+    private final List<PropertyParam> propertyParams = List.of();
 
     /**
      * Name method for {@link Bean#initMethod()}
      */
     @Nullable
-    final String initMethodName;
+    private final String initMethodName;
 
     /**
      * Name method for {@link Bean#destroyMethod()}
      */
     @Nullable
-    final String destroyMethodName;
+    private final String destroyMethodName;
 
     /**
      * {@link BeanDefinition#getDependsOn()}}
      */
     @Nullable
-    final String[] dependsOn;
+    private final String[] dependsOn;
 
     /**
      * {@link BeanDefinition#getScope()}
      */
     @Builder.Default
-    String scope = "";
+    private final String scope = "";
 
     /**
      * {@link BeanDefinition#isPrimary()}
      */
-    final boolean primary;
+    private final boolean primary;
 
     /**
      * {@link BeanDefinition#getDescription()}
      */
-    final String description;
+    private final String description;
 }

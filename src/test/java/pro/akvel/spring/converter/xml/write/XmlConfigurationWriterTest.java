@@ -1,7 +1,7 @@
 package pro.akvel.spring.converter.xml.write;
 
 import lombok.SneakyThrows;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,7 +28,7 @@ class XmlConfigurationWriterTest {
         XmlConfigurationWriter writer = new XmlConfigurationWriter();
 
         BeanData bean = Mockito.mock(BeanData.class);
-        when(bean.getClazzName()).thenReturn("pro.akvel.spring.converter.testbean.BeanWithoutId");
+        when(bean.getClassName()).thenReturn("pro.akvel.spring.converter.testbean.BeanWithoutId");
 
         String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/write/allConverted.xml";
         String newConfigFilePath = OUTPUT_PATH + "/allConverted.xml";
@@ -51,7 +51,7 @@ class XmlConfigurationWriterTest {
         XmlConfigurationWriter writer = new XmlConfigurationWriter();
 
         BeanData bean = Mockito.mock(BeanData.class);
-        when(bean.getClazzName()).thenReturn("AnotherClass");
+        when(bean.getClassName()).thenReturn("AnotherClass");
 
         String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/write/allConverted.xml";
         String newConfigFilePath = OUTPUT_PATH + "/allSkipped.xml";
@@ -77,8 +77,7 @@ class XmlConfigurationWriterTest {
     }
 
     @Test
-    @Disabled
-    public void testFull(){
-        //FIXME
+    public void testFullXml(){
+        Assertions.fail();
     }
 }

@@ -10,6 +10,7 @@ import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 
 @Log4j
 public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionHolder> {
+
     @Override
     public ConstructorParam createConstructorParam(ParamBuildContext<BeanDefinitionHolder> context) {
         BeanDefinitionHolder value = context.getValue();
@@ -19,7 +20,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
             return null;
         }
 
-        var subBean = ConfigurationDataConverter.getConfigurationData(value.getBeanDefinition(),
+        var subBean = ConfigurationDataConverter.getInstance().getConfigurationData(value.getBeanDefinition(),
                 context.getBeanDefinitionRegistry(), null);
 
         if (subBean == null) {

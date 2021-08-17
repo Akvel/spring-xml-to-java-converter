@@ -14,5 +14,5 @@ import lombok.NonNull;
 @Builder
 public class ConstructorNullParam implements ConstructIndexParam {
 
-    final Integer index;
+    private final Integer index;
 }

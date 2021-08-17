@@ -20,6 +20,5 @@ public class ConstructorConstantParam implements ConstructIndexParam {
     @NonNull
     private final String value;
 
-    //@NonNull
     private final Integer index;
 }

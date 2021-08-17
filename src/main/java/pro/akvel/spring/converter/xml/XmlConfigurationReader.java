@@ -26,6 +26,8 @@ public class XmlConfigurationReader {
 
     private final XmlBeanDefinitionReader reader;
 
+    private final ConfigurationDataConverter configurationDataConverter = new ConfigurationDataConverter();
+
     public XmlConfigurationReader() {
         beanFactory = new DefaultListableBeanFactory();
         reader = new XmlBeanDefinitionReader(beanFactory);
@@ -36,7 +38,7 @@ public class XmlConfigurationReader {
         reader.loadBeanDefinitions(new InputSource(new FileInputStream(file)));
 
         return Arrays.stream(beanFactory.getBeanDefinitionNames())
-                .map(name -> ConfigurationDataConverter.getConfigurationData(name, beanFactory))
+                .map(name -> ConfigurationDataConverter.getInstance().getConfigurationData(name, beanFactory))
                 .collect(Collectors.toList());
     }
 

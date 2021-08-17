@@ -34,4 +34,19 @@ public class XmlConfigurationReaderTest {
 
         Assertions.assertEquals(1, xmlReader.getBeanFactory().getBeanDefinitionCount());
     }
+
+
+    @Test
+    public void notBeansDefinition() throws FileNotFoundException {
+        var xmlReader = new XmlConfigurationReader();
+
+        xmlReader.readXmlFile(new File(root + "/src/test/resources/pro/akvel/spring/converter/xml/configs/simple.xml"));
+
+        Assertions.assertEquals(xmlReader.getBeanFactory().getBeanDefinitionCount(), 0);
+    }
+
+    @Test
+    public void xmlWithClassImport() throws FileNotFoundException {
+        Assertions.fail();
+    }
 }

@@ -16,14 +16,6 @@ import java.util.List;
 @Data
 @Builder
 public class ConfigurationData {
-    /**
-     * <beans ...default-init-method="defaultBeanInitMethod" />
-     */
-    private final String defaultBeanInitMethod;
-    /**
-     * <beans ...default-destroy-method="defaultBeanDestroyMethod" />
-     */
-    private final String defaultBeanDestroyMethod;
 
     @NonNull
     private final List<BeanData> beans;

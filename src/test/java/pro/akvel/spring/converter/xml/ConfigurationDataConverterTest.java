@@ -51,11 +51,11 @@ class ConfigurationDataConverterTest {
     public void BeanWithoutId() {
         String beanName = PACKAGE + "BeanWithoutId#0";
 
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData(beanName, reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
-                .clazzName(PACKAGE + "BeanWithoutId")
+                .className(PACKAGE + "BeanWithoutId")
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
@@ -66,12 +66,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithIdOnly() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithIdOnly", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithIdOnly")
-                .clazzName(PACKAGE + "BeanWithIdOnly")
+                .className(PACKAGE + "BeanWithIdOnly")
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
@@ -81,12 +81,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorParams() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorParams", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParams")
-                .clazzName(PACKAGE + "BeanWithConstructorParams")
+                .className(PACKAGE + "BeanWithConstructorParams")
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("bean1")
@@ -109,7 +109,7 @@ class ConfigurationDataConverterTest {
      */
     @Test
     public void BeanWithConstructorParamsWithNames() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorParamsWithNames", reader.getBeanFactory());
 
         Assertions.assertEquals(null, actualObject);
@@ -117,12 +117,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorParamsWithNull() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorParamsWithNull", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParamsWithNull")
-                .clazzName(PACKAGE + "BeanWithConstructorParamsWithNull")
+                .className(PACKAGE + "BeanWithConstructorParamsWithNull")
                 .constructorParams(List.of(
                         ConstructorNullParam.builder().build()
                 ))
@@ -135,12 +135,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorParamsWithIndex() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorParamsWithIndex", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParamsWithIndex")
-                .clazzName(PACKAGE + "BeanWithConstructorParamsWithIndex")
+                .className(PACKAGE + "BeanWithConstructorParamsWithIndex")
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .index(0)
@@ -153,7 +153,7 @@ class ConfigurationDataConverterTest {
                                 .className(CLASS_BEAN_2)
                                 .build(),
                         ConstructorNullParam.builder()
-                                .index(3)
+                                .index(2)
                                 .build()
                 ))
                 .build();
@@ -165,12 +165,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithProperty() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithProperty", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithProperty")
-                .clazzName(PACKAGE + "BeanWithProperty")
+                .className(PACKAGE + "BeanWithProperty")
                 .propertyParams(List.of(
                         PropertyValueParam.builder()
                                 .name("property1")
@@ -192,12 +192,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorConstArgs() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorConstArgs", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorConstArgs")
-                .clazzName(PACKAGE + "BeanWithConstructorConstArgs")
+                .className(PACKAGE + "BeanWithConstructorConstArgs")
                 .constructorParams(List.of(
                         ConstructorConstantParam.builder()
                                 .type("java.lang.String")
@@ -209,6 +209,16 @@ class ConfigurationDataConverterTest {
                         ConstructorConstantParam.builder()
                                 .type("java.lang.String")
                                 .value("param3Value")
+                                .build(),
+
+                        ConstructorConstantParam.builder()
+                                .type("java.lang.Integer")
+                                .value("0")
+                                .build(),
+
+                        ConstructorConstantParam.builder()
+                                .type("java.lang.Long")
+                                .value("1")
                                 .build()
                 ))
                 .build();
@@ -226,16 +236,16 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorWithCreateSubBean() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorWithCreateSubBean", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBean")
-                .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBean")
+                .className(PACKAGE + "BeanWithConstructorWithCreateSubBean")
                 .constructorParams(List.of(
                         ConstructorSubBeanParam.builder().beanData(
                                 BeanData.builder()
-                                        .clazzName("pro.akvel.spring.converter.testbean.SubBean")
+                                        .className("pro.akvel.spring.converter.testbean.SubBean")
                                         .constructorParams(List.of(
                                                         ConstructorBeanParam.builder()
                                                                 .ref("bean1")
@@ -257,21 +267,21 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithSubBean() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithSubBean", reader.getBeanFactory());
 
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBeanWithSubBean")
-                .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithSubBean")
+                .className(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithSubBean")
                 .constructorParams(List.of(
                         ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
-                                        .clazzName(PACKAGE + "SubBeanWithSubBean")
+                                        .className(PACKAGE + "SubBeanWithSubBean")
                                         .constructorParams(List.of(
                                                         ConstructorSubBeanParam.builder()
                                                                 .beanData(BeanData.builder()
-                                                                        .clazzName(PACKAGE + "SubBean")
+                                                                        .className(PACKAGE + "SubBean")
                                                                         .constructorParams(
                                                                                 List.of(ConstructorBeanParam.builder()
                                                                                                 .ref("bean1")
@@ -300,16 +310,16 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithSubBeanWithProperty() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithSubBeanWithProperty", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithSubBeanWithProperty")
-                .clazzName(PACKAGE + "BeanWithSubBeanWithProperty")
+                .className(PACKAGE + "BeanWithSubBeanWithProperty")
                 .constructorParams(List.of(
                         ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
-                                        .clazzName(PACKAGE + "SubBeanWithSubBeanWithProperty")
+                                        .className(PACKAGE + "SubBeanWithSubBeanWithProperty")
                                         .propertyParams(List.of(
                                                 PropertyValueParam.builder()
                                                         .name("property1")
@@ -351,12 +361,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBeanWithConstArg")
-                .clazzName(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithConstArg")
+                .className(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithConstArg")
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("bean1")
@@ -364,7 +374,7 @@ class ConfigurationDataConverterTest {
                                 .build(),
                         ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
-                                        .clazzName(PACKAGE + "BeanWithConstParam")
+                                        .className(PACKAGE + "BeanWithConstParam")
                                         .constructorParams(List.of(
                                                 ConstructorConstantParam.builder()
                                                         .type("java.lang.Integer")
@@ -383,12 +393,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithInitDestroyMethod() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithInitDestroyMethod", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithInitDestroyMethod")
-                .clazzName(PACKAGE + "BeanWithInitMethod")
+                .className(PACKAGE + "BeanWithInitMethod")
                 .initMethodName("initMethod")
                 .destroyMethodName("destroyMethod")
                 .build();
@@ -400,12 +410,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithDependsOn() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithDependsOn", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDependsOn")
-                .clazzName(PACKAGE + "BeanWithDependsOn")
+                .className(PACKAGE + "BeanWithDependsOn")
                 .dependsOn(new String[]{"bean1"})
                 .build();
 
@@ -416,12 +426,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithDependsOnMulti() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithDependsOnMulti", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDependsOnMulti")
-                .clazzName(PACKAGE + "BeanWithDependsOn")
+                .className(PACKAGE + "BeanWithDependsOn")
                 .dependsOn(new String[]{"bean1", "bean2"})
                 .build();
 
@@ -444,12 +454,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithScope() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithScope", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithScope")
-                .clazzName(PACKAGE + "BeanWithScope")
+                .className(PACKAGE + "BeanWithScope")
                 .scope("singleton")
                 .build();
 
@@ -460,12 +470,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithPrimary() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithPrimary", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithPrimary")
-                .clazzName(PACKAGE + "BeanWithPrimary")
+                .className(PACKAGE + "BeanWithPrimary")
                 .primary(true)
                 .build();
 
@@ -481,12 +491,12 @@ class ConfigurationDataConverterTest {
                 + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-defaultInitDestroyMethods.xml"));
 
 
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("testDefaultInitDestroyBean", testReader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("testDefaultInitDestroyBean")
-                .clazzName(PACKAGE + "BeanWithoutId")
+                .className(PACKAGE + "BeanWithoutId")
                 .initMethodName("initDef")
                 .destroyMethodName("shutdownDef")
                 .scope("")
@@ -499,12 +509,12 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithDescription() {
-        BeanData actualObject = ConfigurationDataConverter
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithDescription", reader.getBeanFactory());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDescription")
-                .clazzName(PACKAGE + "BeanWithDescription")
+                .className(PACKAGE + "BeanWithDescription")
                 .description("Bean with description")
                 .build();
 
@@ -540,19 +550,5 @@ class ConfigurationDataConverterTest {
         Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
     }
 
-    @Test
-    public void subBeanWithNoSupportedType(){
-        //Factory
-        //Merged
-        //named params
-        Assertions.fail();
-    }
 
-    @Test
-    public void beanWithNoSupportedType(){
-        //Factory
-        //Merged
-        //named params
-        Assertions.fail();
-    }
 }

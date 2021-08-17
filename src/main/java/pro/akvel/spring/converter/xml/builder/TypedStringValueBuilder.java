@@ -8,6 +8,9 @@ import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
 public class TypedStringValueBuilder implements ParamBuilder<TypedStringValue> {
+
+    public static final String DEFAULT_VALUE_TYPE = "java.lang.String";
+
     @Override
     public ConstructorParam createConstructorParam(ParamBuildContext<TypedStringValue> context) {
         TypedStringValue value = context.getValue();
@@ -19,7 +22,7 @@ public class TypedStringValueBuilder implements ParamBuilder<TypedStringValue> {
         } else {
             return ConstructorConstantParam.builder()
                     .index(context.getIndex())
-                    .type(context.getType() != null ? context.getType() : "java.lang.String")
+                    .type(context.getType() != null ? context.getType() : DEFAULT_VALUE_TYPE)
                     .value(value.getValue())
                     .build();
         }

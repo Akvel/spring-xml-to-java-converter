@@ -3,7 +3,6 @@ package pro.akvel.spring.converter.xml;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.Mergeable;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import pro.akvel.spring.converter.generator.BeanData;
@@ -24,28 +23,32 @@ import java.util.stream.Stream;
  */
 @Log4j
 public class ConfigurationDataConverter {
-    private static final ParamBuilderProvider paramBuilderProvider = new ParamBuilderProvider();
+    public static final ConfigurationDataConverter INSTANCE = new ConfigurationDataConverter();
+
+
+    private final ParamBuilderProvider paramBuilderProvider = new ParamBuilderProvider();
+    private final BeanSupportValidator beanSupportValidator = new BeanSupportValidator();
 
     @Nullable
-    public static BeanData getConfigurationData(@Nonnull String name,
+    public BeanData getConfigurationData(@Nonnull String name,
                                                 @Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
         return getConfigurationData(beanDefinitionRegistry.getBeanDefinition(name), beanDefinitionRegistry, name);
     }
 
 
     @Nullable
-    public static BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
+    public BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
                                                 @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
                                                 @Nullable String beanName) {
         log.info("Convert bean definition " + beanDefinition);
 
-        if (convertNotSupported(beanDefinition, beanName)) {
+        if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName)) {
             return null;
         }
 
         return BeanData.builder()
                 .id(getBeanId(beanName, beanDefinition.getBeanClassName()))
-                .clazzName(beanDefinition.getBeanClassName())
+                .className(beanDefinition.getBeanClassName())
                 .constructorParams(
                         Stream.concat(
                                         beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues()
@@ -94,30 +97,6 @@ public class ConfigurationDataConverter {
 
     }
 
-    private static boolean convertNotSupported(BeanDefinition beanDefinition, String name) {
-        if (beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().stream()
-                .anyMatch(it -> it.getName() != null)) {
-            log.info("Convert bean with named constructor parameter no supported. Skipped  " + name);
-            return true;
-        }
-
-        if (beanDefinition.getFactoryBeanName() != null) {
-            log.info("Convert bean with factory no supported. Skipped  " + name);
-            return true;
-        }
-
-        if (beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().stream()
-                .anyMatch(it -> it.getValue() instanceof Mergeable)
-                ||
-                beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues().values().stream()
-                        .anyMatch(it -> it.getValue() instanceof Mergeable)) {
-            log.info("Convert bean with List, Set, Array, Properties, Map not supported. Skipped  " + name);
-            return true;
-        }
-
-        return false;
-    }
-
     @Nullable
     private static String getBeanId(@Nullable String name, @Nonnull String beanClassName) {
         if (name == null) {
@@ -129,5 +108,9 @@ public class ConfigurationDataConverter {
         }
 
         return name;
+    }
+
+    public static ConfigurationDataConverter getInstance(){
+        return INSTANCE;
     }
 }

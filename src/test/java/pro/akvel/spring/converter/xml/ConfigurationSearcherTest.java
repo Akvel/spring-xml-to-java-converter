@@ -1,21 +1,21 @@
-package pro.akvel.spring.converter;
+package pro.akvel.spring.converter.xml;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pro.akvel.spring.converter.xml.ConfugurationSeacher;
+import pro.akvel.spring.converter.xml.ConfigurationSearcher;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-class ConfugurationSeacherTest {
+class ConfigurationSearcherTest {
 
     private static final Path root = Paths.get(".").normalize().toAbsolutePath();
 
     @Test
     public void shouldAllFindXmls() {
-        ConfugurationSeacher scanner = new ConfugurationSeacher(root + "/src/test/resources/pro/akvel/spring/converter/xml");
+        ConfigurationSearcher scanner = new ConfigurationSearcher(root + "/src/test/resources/pro/akvel/spring/converter/xml/search/all");
         List<File> files = scanner.getConfigurations();
 
         Assertions.assertEquals(2, files.size());
@@ -26,7 +26,7 @@ class ConfugurationSeacherTest {
 
     @Test
     public void shouldReturnEmpty() {
-        ConfugurationSeacher scanner = new ConfugurationSeacher(root + "/src/test/resources/pro/akvel/spring/converter/xml/empty");
+        ConfigurationSearcher scanner = new ConfigurationSearcher(root + "/src/test/resources/pro/akvel/spring/converter/xml/search/empty");
         List<File> files = scanner.getConfigurations();
 
         Assertions.assertTrue(files.isEmpty());
@@ -34,7 +34,7 @@ class ConfugurationSeacherTest {
 
     @Test
     public void shouldReturnErrorIfFolderNotFound() {
-        ConfugurationSeacher scanner = new ConfugurationSeacher(root + "/src/test/resources/pro/akvel/spring/converter/xml/unknown");
+        ConfigurationSearcher scanner = new ConfigurationSearcher(root + "/src/test/resources/pro/akvel/spring/converter/xml/search/unknown");
 
         Assertions.assertThrows(IllegalArgumentException.class, scanner::getConfigurations);
     }

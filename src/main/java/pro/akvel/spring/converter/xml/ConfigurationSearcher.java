@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
  * @author akvel
  * @since 12.08.2020
  */
-public class ConfugurationSeacher {
+public class ConfigurationSearcher {
     /**
      * Directory for search
      */
     private final String path;
 
-    public ConfugurationSeacher(String path) {
+    public ConfigurationSearcher(String path) {
         this.path = path;
     }
 
