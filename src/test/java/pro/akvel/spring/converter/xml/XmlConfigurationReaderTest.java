@@ -18,19 +18,16 @@ public class XmlConfigurationReaderTest {
 
     @Test
     public void emptyXml() throws FileNotFoundException {
-        var xmlReader = new XmlConfigurationReader();
-        xmlReader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-empty.xml"));
+        var xmlReader = new XmlConfigurationReader(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-empty.xml");
 
         Assertions.assertEquals(0, xmlReader.getBeanFactory().getBeanDefinitionCount());
     }
 
     @Test()
     public void xmlFileWithImport() throws FileNotFoundException {
-        var xmlReader = new XmlConfigurationReader();
-
-        xmlReader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-withImport.xml"));
+        var xmlReader = new XmlConfigurationReader(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-withImport.xml");
 
         Assertions.assertEquals(1, xmlReader.getBeanFactory().getBeanDefinitionCount());
     }
@@ -38,15 +35,8 @@ public class XmlConfigurationReaderTest {
 
     @Test
     public void notBeansDefinition() throws FileNotFoundException {
-        var xmlReader = new XmlConfigurationReader();
-
-        xmlReader.readXmlFile(new File(root + "/src/test/resources/pro/akvel/spring/converter/xml/configs/simple.xml"));
+        var xmlReader = new XmlConfigurationReader(root + "/src/test/resources/pro/akvel/spring/converter/xml/configs/simple.xml");
 
         Assertions.assertEquals(xmlReader.getBeanFactory().getBeanDefinitionCount(), 0);
-    }
-
-    @Test
-    public void xmlWithClassImport() throws FileNotFoundException {
-        Assertions.fail();
     }
 }

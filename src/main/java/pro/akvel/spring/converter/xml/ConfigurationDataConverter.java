@@ -12,6 +12,9 @@ import pro.akvel.spring.converter.xml.builder.ParamBuilderProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,16 +34,16 @@ public class ConfigurationDataConverter {
 
     @Nullable
     public BeanData getConfigurationData(@Nonnull String name,
-                                                @Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+                                         @Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
         return getConfigurationData(beanDefinitionRegistry.getBeanDefinition(name), beanDefinitionRegistry, name);
     }
 
 
     @Nullable
     public BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
-                                                @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
-                                                @Nullable String beanName) {
-        log.info("Convert bean definition " + beanDefinition);
+                                         @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
+                                         @Nullable String beanName) {
+        log.debug("Convert bean definition " + beanDefinition);
 
         if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName)) {
             return null;
@@ -58,7 +61,7 @@ public class ConfigurationDataConverter {
                                                 .map(value -> Pair.of(Integer.MAX_VALUE, value)))
                                 .map(
                                         arg -> {
-                                            log.info("Convert param " + ReflectionToStringBuilder.toString(arg.getValue()));
+                                            log.debug("Convert param " + ReflectionToStringBuilder.toString(arg.getValue()));
 
                                             ParamBuildContext context = new ParamBuildContext(
                                                     arg.getValue().getValue(),
@@ -110,7 +113,14 @@ public class ConfigurationDataConverter {
         return name;
     }
 
-    public static ConfigurationDataConverter getInstance(){
+    public Set<BeanData> getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+        return Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
+                .map(it -> getConfigurationData(it, beanDefinitionRegistry))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    public static ConfigurationDataConverter getInstance() {
         return INSTANCE;
     }
 }

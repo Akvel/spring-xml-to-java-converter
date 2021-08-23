@@ -32,7 +32,10 @@ class ConfigurationDataConverterTest {
 
     private static final String OUTPUT_PATH = "build/tmp/";
 
-    private static final XmlConfigurationReader reader = new XmlConfigurationReader();
+    private static final XmlConfigurationReader reader = new XmlConfigurationReader(
+            root
+                    + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml"
+    );
     private static final String PACKAGE = "pro.akvel.spring.converter.testbean.";
     private static final String CLASS_BEAN_1 = PACKAGE + "BeanWithIdOnly1";
     private static final String CLASS_BEAN_2 = PACKAGE + "BeanWithIdOnly2";
@@ -40,12 +43,6 @@ class ConfigurationDataConverterTest {
     public static final String EXPECTED_CLASS_PATH = "src/test/resources/pro/akvel/spring/converter/xml/expected/";
 
     private JavaConfigurationGenerator classGenerator = new JavaConfigurationGenerator();
-
-    @BeforeAll
-    public static void init() throws FileNotFoundException {
-        reader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml"));
-    }
 
     @Test
     public void BeanWithoutId() {
@@ -486,10 +483,8 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void defaultInitDestroyMethods() throws FileNotFoundException {
-        XmlConfigurationReader testReader = new XmlConfigurationReader();
-        testReader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-defaultInitDestroyMethods.xml"));
-
+        XmlConfigurationReader testReader = new XmlConfigurationReader(root
+                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-defaultInitDestroyMethods.xml");
 
         BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("testDefaultInitDestroyBean", testReader.getBeanFactory());

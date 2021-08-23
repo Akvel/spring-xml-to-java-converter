@@ -6,6 +6,7 @@ import pro.akvel.spring.converter.generator.BeanData;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +17,7 @@ public class XmlConfigurationWriter {
     //FIXME докинуть в новый XML включения сканна аннтоций и где сканить
 
     @SneakyThrows
-    public void writeXmlWithoutConvertedBeans(List<BeanData> beans,
+    public void writeXmlWithoutConvertedBeans(Set<BeanData> beans,
                                               String configFilePath,
                                               String newConfigFilePath) {
         SAXParserFactory factory = SAXParserFactory.newInstance();

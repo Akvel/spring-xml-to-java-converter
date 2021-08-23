@@ -18,13 +18,10 @@ class BeanSupportValidatorTest {
 
     private static BeanSupportValidator validator = new BeanSupportValidator();
 
-    private static final XmlConfigurationReader reader = new XmlConfigurationReader();
-
-    @BeforeAll
-    public static void init() throws FileNotFoundException {
-        reader.readXmlFile(new File(root
-                + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml"));
-    }
+    private static final XmlConfigurationReader reader = new XmlConfigurationReader(
+            root
+                    + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml"
+    );
 
     @Test
     public void validBean(){

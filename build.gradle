@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'jacoco'
     id 'com.google.cloud.tools.jib' version '2.6.0'
+    id "com.github.spotbugs" version "4.7.3"
 }
 
 
@@ -59,6 +60,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-io/commons-io
     testImplementation group: 'commons-io', name: 'commons-io', version: '2.7'
+
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.10.1'
 }
 
 test {
@@ -72,5 +75,15 @@ jacocoTestReport {
         xml.enabled false
         csv.enabled false
         html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
     }
 }

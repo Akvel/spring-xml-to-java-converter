@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -21,28 +22,19 @@ import java.util.stream.Collectors;
  * @since 12.08.2020
  */
 public class XmlConfigurationReader {
+    @SneakyThrows
+    public XmlConfigurationReader(String configurationPath){
+        beanFactory = new DefaultListableBeanFactory();
+        reader = new XmlBeanDefinitionReader(beanFactory);
+        reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
+        reader.loadBeanDefinitions(new InputSource(new FileInputStream(new File(configurationPath))));
+    }
 
     private final BeanDefinitionRegistry beanFactory;
 
     private final XmlBeanDefinitionReader reader;
 
-    private final ConfigurationDataConverter configurationDataConverter = new ConfigurationDataConverter();
-
-    public XmlConfigurationReader() {
-        beanFactory = new DefaultListableBeanFactory();
-        reader = new XmlBeanDefinitionReader(beanFactory);
-        reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
-    }
-
-    public List<BeanData> readXmlFile(File file) throws FileNotFoundException {
-        reader.loadBeanDefinitions(new InputSource(new FileInputStream(file)));
-
-        return Arrays.stream(beanFactory.getBeanDefinitionNames())
-                .map(name -> ConfigurationDataConverter.getInstance().getConfigurationData(name, beanFactory))
-                .collect(Collectors.toList());
-    }
-
-    BeanDefinitionRegistry getBeanFactory() {
+    public BeanDefinitionRegistry getBeanFactory() {
         return beanFactory;
     }
 }

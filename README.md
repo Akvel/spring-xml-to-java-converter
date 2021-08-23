@@ -22,3 +22,4 @@ TODO standalone run params + manual
 TODO плагин maven
 TODO плагин gradle
 TODO Найти проекты с разными XML и погонять
+TODO Sax wrapper not support comments

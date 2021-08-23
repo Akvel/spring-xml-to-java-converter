@@ -8,4 +8,6 @@ public interface BeanDefinitionElement {
     String ELEMENT_BEAN = "bean";
 
     String ATTR_BEAN_CLASS = "class";
+
+    String ATTR_BEAN_CLASS_NAME = "className";
 }
