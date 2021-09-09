@@ -1,11 +1,11 @@
 package pro.akvel.spring.converter.generator.param;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
 /**
- * FIXME
  *
  * @author akvel
  * @since 12.08.2020

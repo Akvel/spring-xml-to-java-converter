@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NonNull;
 
 /**
- * FIXME
  *
  * @author akvel
  * @since 13.08.2020

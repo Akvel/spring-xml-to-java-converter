@@ -9,12 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * FIXME
- */
 public class XmlConfigurationWriter {
 
-    //FIXME докинуть в новый XML включения сканна аннтоций и где сканить
+    //FIXME докинуть в новый XML включения сканна аннтоций и классы которые были созданы
 
     @SneakyThrows
     public void writeXmlWithoutConvertedBeans(Set<BeanData> beans,

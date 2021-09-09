@@ -34,10 +34,13 @@ import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Java configuration class generator
@@ -46,7 +49,6 @@ import java.util.Optional;
  * @since 12.08.2020
  */
 public class JavaConfigurationGenerator {
-
 
     private static final JCodeModel CODE_MODEL = new JCodeModel();
 
@@ -57,7 +59,7 @@ public class JavaConfigurationGenerator {
                               String outputPath) {
         generateClass(packageName, classConfigurationName,
                 ConfigurationData.builder()
-                        .beans(List.of(beanData))
+                        .beans(Set.of(beanData))
                         .build(),
                 outputPath);
     }
@@ -122,6 +124,9 @@ public class JavaConfigurationGenerator {
             }
         });
 
+        //create out directory if not exists
+        Files.createDirectories(Paths.get(outputPath));
+        //Write config file
         CODE_MODEL.build(new File(outputPath));
     }
 

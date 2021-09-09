@@ -12,7 +12,6 @@ Convertor does not has real bean classes, so it has some limitation:
 * Not implemented factories convert 
 
 
-FIXME проверить что тесты BeanData имеют все тесты генерации кода - в идеале их склеить
 FIXME сделать поддержку генерации с бинами по которые приезжают из Java Conf, т.е. мы не знаем класс
 FIXME <import r
 FIXME оформить в виде плагина gradle + maven
@@ -23,3 +22,5 @@ TODO плагин maven
 TODO плагин gradle
 TODO Найти проекты с разными XML и погонять
 TODO Sax wrapper not support comments
+
+TODO Поправить структуру пакетов 

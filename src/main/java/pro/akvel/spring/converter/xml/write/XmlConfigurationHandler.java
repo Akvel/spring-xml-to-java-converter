@@ -71,7 +71,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
         if (ELEMENT_BEAN.equals(qName)) {
             BeanKey beanKey = BeanKey.getInstance(attributes);
             if (beanKey != null && convertedBeans.contains(beanKey)) {
-                log.info("Skip bean " + XmlUtils.printAll(attributes));
+                log.debug("Skip bean " + XmlUtils.printAll(attributes));
                 write = false;
             }
 
@@ -113,7 +113,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
             counter--;
             if (counter == 0) {
                 write = true;
-                log.info("Continue write");
+                log.debug("Continue write");
             }
         }
     }

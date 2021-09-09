@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * FIXME
  *
  * @author akvel
  * @since 13.08.2020

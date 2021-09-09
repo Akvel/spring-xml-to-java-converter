@@ -226,12 +226,6 @@ class ConfigurationDataConverterTest {
     }
 
     @Test
-    @Disabled
-    public void BeanWithMap() {
-        Assertions.fail();
-    }
-
-    @Test
     public void BeanWithConstructorWithCreateSubBean() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorWithCreateSubBean", reader.getBeanFactory());
@@ -339,24 +333,6 @@ class ConfigurationDataConverterTest {
     }
 
     @Test
-    @Disabled
-    public void BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap() {
-        Assertions.fail();
-    }
-
-    @Test
-    @Disabled
-    public void BeanWithConstructorWithCreateSubBeanWithFactory() {
-        Assertions.fail();
-    }
-
-    @Test
-    @Disabled
-    public void BeanWithConstructorWithCreateSubBeanWithFactoryAndType() {
-        Assertions.fail();
-    }
-
-    @Test
     public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
                 .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory());
@@ -435,18 +411,6 @@ class ConfigurationDataConverterTest {
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
         assertGeneratedConfigClass(actualObject, "BeanWithDependsOnMulti");
-    }
-
-    @Test
-    @Disabled
-    public void BeanWithFactoryBean() {
-        Assertions.fail();
-    }
-
-    @Test
-    @Disabled
-    public void BeanWithConstructorListArg() {
-        Assertions.fail();
     }
 
     @Test

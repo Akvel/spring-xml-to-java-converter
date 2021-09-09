@@ -14,7 +14,6 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
 
         return ConstructorBeanParam.builder()
                 .ref(refBeanName.getBeanName())
-                //FIXME refBeanName.getClass()?
                 .className(context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName()).getBeanClassName())
                 .index(context.getIndex())
                 .build();

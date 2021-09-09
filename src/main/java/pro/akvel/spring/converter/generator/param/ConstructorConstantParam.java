@@ -6,7 +6,6 @@ import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 /**
- * FIXME
  *
  * @author akvel
  * @since 13.08.2020

@@ -16,7 +16,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
         BeanDefinitionHolder value = context.getValue();
 
         if (value.getBeanDefinition().getFactoryBeanName() != null) {
-            //FIXME
+            log.info("getFactoryBeanName not supported");
             return null;
         }
 
@@ -24,8 +24,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
                 context.getBeanDefinitionRegistry(), null);
 
         if (subBean == null) {
-            //FIXME тут надо как-то выдавать наружу чуто бин не получится сделать
-            log.info("subBean return null");
+            log.info("subBean not supported");
             return null;
         }
 
@@ -37,7 +36,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
 
     @Override
     public PropertyParam createPropertyParam(ParamBuildContext<BeanDefinitionHolder> context) {
-        //FIXME
+        log.info("createPropertyParam not supported");
         return null;
     }
 }

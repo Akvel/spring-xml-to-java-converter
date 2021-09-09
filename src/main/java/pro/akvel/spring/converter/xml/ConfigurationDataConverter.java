@@ -13,6 +13,7 @@ import pro.akvel.spring.converter.xml.builder.ParamBuilderProvider;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -114,10 +115,12 @@ public class ConfigurationDataConverter {
     }
 
     public Set<BeanData> getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
-        return Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
-                .map(it -> getConfigurationData(it, beanDefinitionRegistry))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        return Collections.unmodifiableSet(
+                Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
+                        .map(it -> getConfigurationData(it, beanDefinitionRegistry))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet())
+        );
     }
 
     public static ConfigurationDataConverter getInstance() {

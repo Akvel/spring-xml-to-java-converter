@@ -21,13 +21,16 @@ import java.util.stream.Collectors;
  * @author akvel
  * @since 12.08.2020
  */
+
+
+
 public class XmlConfigurationReader {
     @SneakyThrows
     public XmlConfigurationReader(String configurationPath){
         beanFactory = new DefaultListableBeanFactory();
         reader = new XmlBeanDefinitionReader(beanFactory);
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
-        reader.loadBeanDefinitions(new InputSource(new FileInputStream(new File(configurationPath))));
+        reader.loadBeanDefinitions(new InputSource(new FileInputStream(configurationPath)));
     }
 
     private final BeanDefinitionRegistry beanFactory;

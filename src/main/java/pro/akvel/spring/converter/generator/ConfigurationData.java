@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NonNull;
 import org.springframework.beans.factory.config.BeanDefinition;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ConfigurationData
@@ -18,5 +20,5 @@ import java.util.List;
 public class ConfigurationData {
 
     @NonNull
-    private final List<BeanData> beans;
+    private final Set<BeanData> beans;
 }
