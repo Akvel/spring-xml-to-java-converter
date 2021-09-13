@@ -1,17 +1,22 @@
 package pro.akvel.spring.converter.metadata;
 
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.CaseUtils;
 
 import java.io.File;
 
 @UtilityClass
+@Slf4j
 public class JavaConfigurationMetadataBuilder {
 
+    @SneakyThrows
     public JavaConfigurationMetadata getMetadata(String filePath,
                                                  String baseConfigurationPath,
                                                  String basePackageName,
                                                  boolean addXmlPatchToPackageName) {
+        log.debug("Get metadata: filePath={}, baseConfigurationPath={}", filePath, baseConfigurationPath);
         File file = new File(filePath);
 
         return JavaConfigurationMetadata.builder()
@@ -19,7 +24,7 @@ public class JavaConfigurationMetadataBuilder {
                         ? getPackageName(basePackageName,
                         file.getParent(),
                         new File(baseConfigurationPath)
-                                .getAbsolutePath())
+                                .getCanonicalPath())
                         : basePackageName)
                 .javaConfigFileClassName(getClassName(file.getName()))
                 .build();
@@ -36,6 +41,10 @@ public class JavaConfigurationMetadataBuilder {
             throw new IllegalArgumentException("Config file path not absolute " + baseConfigAbsolutePath);
         }
 
+        if (!configFileAbsolutePath.startsWith(baseConfigAbsolutePath)){
+            throw new IllegalArgumentException("Files path should start with base path file:" + configFileAbsolutePath + " base:" + baseConfigAbsolutePath);
+        }
+
 
         String added = configFileAbsolutePath
                 .substring(baseConfigAbsolutePath.length())
@@ -50,7 +59,7 @@ public class JavaConfigurationMetadataBuilder {
         return CaseUtils.toCamelCase(addSpaces(name.split("\\.")[0]),
                 true,
                 ' ', '-', '_', ',');
-                //+ ".java";
+        //+ ".java";
     }
 
     private static String addSpaces(String s) {

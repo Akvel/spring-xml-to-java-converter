@@ -1,6 +1,6 @@
 package pro.akvel.spring.converter.xml;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * @author akvel
  * @since 22.10.2020
  */
-@Log4j
+@Slf4j
 public class ConfigurationDataConverter {
     public static final ConfigurationDataConverter INSTANCE = new ConfigurationDataConverter();
 
@@ -44,7 +44,7 @@ public class ConfigurationDataConverter {
     public BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
                                          @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
                                          @Nullable String beanName) {
-        log.debug("Convert bean definition " + beanDefinition);
+        log.trace("Convert bean definition " + beanDefinition);
 
         if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName)) {
             return null;
@@ -77,8 +77,6 @@ public class ConfigurationDataConverter {
                                 .collect(Collectors.toList()))
                 .propertyParams(beanDefinition.getPropertyValues()
                         .stream().map(it -> {
-                            log.info("Convert param " + ReflectionToStringBuilder.toString(it));
-
                             ParamBuildContext context = new ParamBuildContext(
                                     it.getValue(),
                                     null,
@@ -114,13 +112,32 @@ public class ConfigurationDataConverter {
         return name;
     }
 
-    public Set<BeanData> getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
-        return Collections.unmodifiableSet(
-                Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
-                        .map(it -> getConfigurationData(it, beanDefinitionRegistry))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet())
-        );
+    public ConfigurationData getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+        AtomicInteger skippedBeansCount = new AtomicInteger();
+        AtomicInteger convertedBeansCount = new AtomicInteger();
+
+        return ConfigurationData.builder()
+                .beans(Collections.unmodifiableSet(
+                        Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
+                                .map(it -> {
+                                    var result = getConfigurationData(it, beanDefinitionRegistry);
+
+                                    if (result == null) {
+                                        skippedBeansCount.incrementAndGet();
+                                        log.debug("\tSkipped: {}", it);
+                                    } else {
+                                        convertedBeansCount.incrementAndGet();
+                                        log.debug("\tConverted: {}", it);
+                                    }
+
+                                    return result;
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toSet())
+                ))
+                .convertedBeansCount(convertedBeansCount.get())
+                .skippedBeansCount(skippedBeansCount.get())
+                .build();
     }
 
     public static ConfigurationDataConverter getInstance() {

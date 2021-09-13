@@ -4,16 +4,11 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.util.xml.XmlValidationModeDetector;
 import org.xml.sax.InputSource;
-import pro.akvel.spring.converter.generator.BeanData;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Beans reader
@@ -31,9 +26,13 @@ public class XmlConfigurationReader {
         reader = new XmlBeanDefinitionReader(beanFactory);
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
         reader.loadBeanDefinitions(new InputSource(new FileInputStream(configurationPath)));
+
+        //Load beans from java configurations
+        new ConfigurationClassPostProcessor()
+                .processConfigBeanDefinitions(beanFactory);
     }
 
-    private final BeanDefinitionRegistry beanFactory;
+    private final DefaultListableBeanFactory beanFactory;
 
     private final XmlBeanDefinitionReader reader;
 

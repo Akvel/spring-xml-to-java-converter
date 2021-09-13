@@ -1,6 +1,7 @@
 package pro.akvel.spring.converter.xml.builder;
 
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
@@ -8,7 +9,7 @@ import pro.akvel.spring.converter.generator.param.Param;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 
-@Log4j
+@Slf4j
 public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionHolder> {
 
     @Override
@@ -16,7 +17,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
         BeanDefinitionHolder value = context.getValue();
 
         if (value.getBeanDefinition().getFactoryBeanName() != null) {
-            log.info("getFactoryBeanName not supported");
+            log.debug("getFactoryBeanName not supported");
             return null;
         }
 
@@ -24,7 +25,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
                 context.getBeanDefinitionRegistry(), null);
 
         if (subBean == null) {
-            log.info("subBean not supported");
+            log.debug("subBean not supported");
             return null;
         }
 
@@ -36,7 +37,7 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
 
     @Override
     public PropertyParam createPropertyParam(ParamBuildContext<BeanDefinitionHolder> context) {
-        log.info("createPropertyParam not supported");
+        log.debug("createPropertyParam not supported");
         return null;
     }
 }

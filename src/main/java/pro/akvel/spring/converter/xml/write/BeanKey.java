@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 
 import javax.annotation.Nullable;
@@ -18,7 +19,7 @@ import static pro.akvel.spring.converter.xml.write.BeanDefinitionElement.ATTR_BE
 @Builder
 @EqualsAndHashCode
 @ToString
-@Log4j
+@Slf4j
 public class BeanKey {
     private final String name;
     private final String className;
@@ -28,7 +29,7 @@ public class BeanKey {
     public static BeanKey getInstance(Attributes attributes) {
         if (attributes.getValue(ATTR_BEAN_CLASS) == null
         && attributes.getValue(ATTR_BEAN_CLASS_NAME) == null){
-            log.info("No class attrs " + XmlUtils.printAll(attributes));
+            log.debug("No class attrs " + XmlUtils.printAll(attributes));
             return null;
         }
 

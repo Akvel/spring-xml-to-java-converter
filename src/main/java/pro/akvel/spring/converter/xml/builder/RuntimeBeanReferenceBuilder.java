@@ -1,6 +1,9 @@
 package pro.akvel.spring.converter.xml.builder;
 
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.core.type.MethodMetadata;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
@@ -14,11 +17,27 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
 
         return ConstructorBeanParam.builder()
                 .ref(refBeanName.getBeanName())
-                .className(context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName()).getBeanClassName())
+                .className(getBeanClassName(context, refBeanName))
                 .index(context.getIndex())
                 .build();
 
 
+    }
+
+    private String getBeanClassName(ParamBuildContext<RuntimeBeanReference> context, RuntimeBeanReference refBeanName) {
+        BeanDefinition beanDefinition = context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName());
+
+        if (beanDefinition.getBeanClassName() != null) {
+            return beanDefinition.getBeanClassName();
+        }
+
+        if (beanDefinition instanceof AnnotatedBeanDefinition) {
+            //
+            MethodMetadata factoryMethodData = ((AnnotatedBeanDefinition) beanDefinition).getFactoryMethodMetadata();
+            return factoryMethodData.getReturnTypeName();
+        }
+
+        throw new IllegalStateException("Can not get bean class " + refBeanName.getBeanName());
     }
 
     @Override
@@ -27,7 +46,7 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
 
         return PropertyBeanParam.builder()
                 .ref(refBeanName.getBeanName())
-                .className(context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName()).getBeanClassName())
+                .className(getBeanClassName(context, refBeanName))
                 .name(context.getFieldName())
                 .build();
     }

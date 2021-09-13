@@ -3,6 +3,8 @@
 # spring-xml-to-java-converter
 Tool for convert all Spring xml configurations to Spring java based configurations.
 
+Currently tested only on *java 11*
+
 
 Convertor does not has real bean classes, so it has some limitation:
 * Not convert bean configs with named construct-Args (because converter not used converted project source)
@@ -11,15 +13,12 @@ Convertor does not has real bean classes, so it has some limitation:
 * <context:component-scan /> ignored
 * Not implemented factories convert 
 
-
-FIXME сделать поддержку генерации с бинами по которые приезжают из Java Conf, т.е. мы не знаем класс
-FIXME <import r
 FIXME оформить в виде плагина gradle + maven
 
 TODO генерация XML без сконвертированных бинов
-TODO standalone run params + manual
 TODO плагин maven
 TODO плагин gradle
+TODO плагин IDEA
 TODO Найти проекты с разными XML и погонять
 TODO Sax wrapper not support comments
 

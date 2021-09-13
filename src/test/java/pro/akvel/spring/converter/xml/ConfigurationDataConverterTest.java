@@ -2,8 +2,6 @@ package pro.akvel.spring.converter.xml;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pro.akvel.spring.converter.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.generator.BeanData;
@@ -14,7 +12,6 @@ import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -480,6 +477,39 @@ class ConfigurationDataConverterTest {
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
         assertGeneratedConfigClass(actualObject, "BeanWithDescription");
+    }
+
+    @Test
+    public void BeanWithDependsOnJavaConfiguration() {
+        XmlConfigurationReader reader = new XmlConfigurationReader(
+                root
+                        + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-with-java-configuration.xml"
+        );
+
+        var beanFromJavaConfig = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("testJavaBean", reader.getBeanFactory());
+        //check that bean loaded fron java config
+        Assertions.assertNotNull(reader.getBeanFactory().getBeanDefinition("testJavaBean"));
+        //check that bean not supported for convertation
+        Assertions.assertNull(beanFromJavaConfig);
+
+
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithConstructorJavaBean", reader.getBeanFactory());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithConstructorJavaBean")
+                .className(PACKAGE + "BeanWithConstructorJavaBean")
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("testJavaBean")
+                                .className("java.lang.String")
+                                .build())
+                ).build();
+
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorJavaBeanConfiguration");
     }
 
     @SneakyThrows

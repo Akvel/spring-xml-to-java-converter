@@ -3,10 +3,7 @@ package pro.akvel.spring.converter.generator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import org.springframework.beans.factory.config.BeanDefinition;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,4 +18,8 @@ public class ConfigurationData {
 
     @NonNull
     private final Set<BeanData> beans;
+    @NonNull
+    private final Integer convertedBeansCount;
+    @NonNull
+    private final Integer skippedBeansCount;
 }

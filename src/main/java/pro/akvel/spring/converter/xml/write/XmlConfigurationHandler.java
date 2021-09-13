@@ -2,6 +2,7 @@ package pro.akvel.spring.converter.xml.write;
 
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.Serializer;
@@ -17,7 +18,7 @@ import java.util.Set;
 
 import static pro.akvel.spring.converter.xml.write.BeanDefinitionElement.ELEMENT_BEAN;
 
-@Log4j
+@Slf4j
 public class XmlConfigurationHandler extends DefaultHandler {
 
     private final Set<BeanKey> convertedBeans;
@@ -71,7 +72,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
         if (ELEMENT_BEAN.equals(qName)) {
             BeanKey beanKey = BeanKey.getInstance(attributes);
             if (beanKey != null && convertedBeans.contains(beanKey)) {
-                log.debug("Skip bean " + XmlUtils.printAll(attributes));
+                log.debug("\tNew XML skip bean " + XmlUtils.printAll(attributes));
                 write = false;
             }
 
@@ -113,7 +114,7 @@ public class XmlConfigurationHandler extends DefaultHandler {
             counter--;
             if (counter == 0) {
                 write = true;
-                log.debug("Continue write");
+                log.trace("\tContinue write");
             }
         }
     }

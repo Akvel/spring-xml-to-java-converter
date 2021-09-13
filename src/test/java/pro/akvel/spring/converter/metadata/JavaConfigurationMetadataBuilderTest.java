@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JavaConfigurationMetadataBuilderTest {
@@ -20,51 +21,79 @@ class JavaConfigurationMetadataBuilderTest {
     @Test
     public void getMetadata() {
         String path = root + "/src/test/resources/pro/akvel/spring/converter/metadata/";
-        var metadata =  JavaConfigurationMetadataBuilder
+        var metadata = JavaConfigurationMetadataBuilder
                 .getMetadata(path + "configFile.xml",
                         path,
                         "pro.akvel.test.xml",
                         true);
 
-        assertEquals("ConfigFile.java", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
         assertEquals("pro.akvel.test.xml", metadata.getPackageName());
+    }
+
+    @Test
+    public void getMetadataWithDonts() {
+        String path = root + "/test/dir1/dir2/config-file.xml";
+        var metadata = JavaConfigurationMetadataBuilder
+                .getMetadata(path,
+                        root + "/./test/dir1/../dir1/dir2/",
+                        "pro.akvel.test.xml",
+                        true);
+
+        assertAll("",
+                () -> assertEquals("ConfigFile", metadata.getJavaConfigFileClassName()),
+                () -> assertEquals("pro.akvel.test.xml", metadata.getPackageName())
+        );
+    }
+
+    @Test
+    public void getMetadataWrongFilePath() {
+        String path = root + "/dir2/config-file.xml";
+
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                JavaConfigurationMetadataBuilder
+                        .getMetadata(path,
+                                root + "/dir1",
+                                "pro.akvel.test.xml",
+                                true)
+        );
     }
 
     @Test
     public void getMetadataWithAddFilePath() {
         String path = root + "/src/test/resources/pro/akvel/spring/converter/metadata/";
-        var metadata =  JavaConfigurationMetadataBuilder
+        var metadata = JavaConfigurationMetadataBuilder
                 .getMetadata(path + "/test/configFile.xml",
                         path,
                         "pro.akvel.test.xml",
                         true);
 
-        assertEquals("ConfigFile.java", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
         assertEquals("pro.akvel.test.xml.test", metadata.getPackageName());
     }
 
     @Test
     public void getMetadataWithoutAddFilePath() {
         String path = root + "/src/test/resources/pro/akvel/spring/converter/metadata/";
-        var metadata =  JavaConfigurationMetadataBuilder
+        var metadata = JavaConfigurationMetadataBuilder
                 .getMetadata(path + "/test/configFile.xml",
                         path,
                         "pro.akvel.test.xml",
                         false);
 
-        assertEquals("ConfigFile.java", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
         assertEquals("pro.akvel.test.xml", metadata.getPackageName());
     }
 
 
     @ParameterizedTest
     @CsvSource(value = {
-            "test.xml:Test.java",
-            "tEst.xml:TEst.java",
-            "test:Test.java",
-            "test.:Test.java",
-            "te,st-te_st test.xml:TeStTeStTest.java",
-            "TestConfig.xml:TestConfig.java"
+            "test.xml:Test",
+            "tEst.xml:TEst",
+            "test:Test",
+            "test.:Test",
+            "te,st-te_st test.xml:TeStTeStTest",
+            "TestConfig.xml:TestConfig"
     },
             delimiter = ':')
     public void getClassName(String fileName, String expectedClassName) {

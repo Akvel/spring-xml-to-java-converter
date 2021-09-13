@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class XmlConfigurationWriterTest {
@@ -46,7 +47,7 @@ class XmlConfigurationWriterTest {
         Path expectedFile = Paths.get(root + "/src/test/resources/pro/akvel/spring/converter/xml/write/expected/allConverted.xml");
 
 
-        org.junit.jupiter.api.Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+        assertEquals(getLines(expectedFile), getLines(generatedFile));
     }
 
     @Test
@@ -68,7 +69,7 @@ class XmlConfigurationWriterTest {
         Path expectedFile = Paths.get(root + "/src/test/resources/pro/akvel/spring/converter/xml/write/expected/allSkipped.xml");
 
 
-        org.junit.jupiter.api.Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+        assertEquals(getLines(expectedFile), getLines(generatedFile));
     }
 
     @Test
@@ -80,11 +81,11 @@ class XmlConfigurationWriterTest {
         String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml";
 
         XmlConfigurationReader reader = new XmlConfigurationReader(configFilePath);
-        Set<BeanData> beans = ConfigurationDataConverter.getInstance().getConfigurationData(reader.getBeanFactory());
+        var beansConf = ConfigurationDataConverter.getInstance().getConfigurationData(reader.getBeanFactory());
 
         String newConfigFilePath = OUTPUT_PATH + "/spring-bean-configuration-full.xml";
         writer.writeXmlWithoutConvertedBeans(
-                beans,
+                beansConf.getBeans(),
                 configFilePath,
                 newConfigFilePath
         );
@@ -93,7 +94,7 @@ class XmlConfigurationWriterTest {
         Path expectedFile = Paths.get(root + "/src/test/resources/pro/akvel/spring/converter/xml/write/expected/spring-bean-configuration-full.xml");
 
 
-        org.junit.jupiter.api.Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
+        assertEquals(getLines(expectedFile), getLines(generatedFile));
     }
 
     @SneakyThrows

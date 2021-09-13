@@ -11,8 +11,11 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JVar;
+import javassist.ClassPool;
+import javassist.CtClass;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +24,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import pro.akvel.spring.converter.generator.BeanData;
-import pro.akvel.spring.converter.generator.ConfigurationData;
 import pro.akvel.spring.converter.generator.param.ConstructIndexParam;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
@@ -48,6 +50,7 @@ import java.util.Set;
  * @author akvel
  * @since 12.08.2020
  */
+@Slf4j
 public class JavaConfigurationGenerator {
 
     private static final JCodeModel CODE_MODEL = new JCodeModel();
@@ -57,17 +60,13 @@ public class JavaConfigurationGenerator {
                               String classConfigurationName,
                               BeanData beanData,
                               String outputPath) {
-        generateClass(packageName, classConfigurationName,
-                ConfigurationData.builder()
-                        .beans(Set.of(beanData))
-                        .build(),
-                outputPath);
+        generateClass(packageName, classConfigurationName, Set.of(beanData), outputPath);
     }
 
     @SneakyThrows
     public void generateClass(String packageName,
                               String classConfigurationName,
-                              ConfigurationData configurationData,
+                              Set<BeanData> beansData,
                               String outputPath) {
         // Instantiate a new JCodeModel
 
@@ -77,17 +76,24 @@ public class JavaConfigurationGenerator {
         // Create a new class
         JDefinedClass jc = jp._class(classConfigurationName);
 
+        log.debug("\tCreate config class:{}.{}", packageName, classConfigurationName);
+
         jc.annotate(Configuration.class);
         jc.javadoc().add("Generated Java based configuration");
 
         // Add get beans
-        configurationData.getBeans().forEach(it -> {
+        beansData.forEach(it -> {
+            //JClass only add import if class exists in class path
+            cheatJClassImport(it.getClassName());
+
+            log.debug("\tAdd bean to java config - id:{} class:{}", it.getId(), it.getClassName());
+
             JClass beanClass = CODE_MODEL.ref(it.getClassName());
 
             JMethod method = jc.method(JMod.PUBLIC,
                     CODE_MODEL.ref(it.getClassName()), getMethodName(it.getClassName(), it.getId()));
 
-            addBeanAnnotation(configurationData, method, it);
+            addBeanAnnotation(method, it);
 
             if (!it.getScope().isBlank()) {
                 JAnnotationUse scopeAnnotation = method.annotate(Scope.class);
@@ -124,10 +130,23 @@ public class JavaConfigurationGenerator {
             }
         });
 
-        //create out directory if not exists
+        //create all output directories if not exists
         Files.createDirectories(Paths.get(outputPath));
-        //Write config file
-        CODE_MODEL.build(new File(outputPath));
+        log.info("\tOutput dir: {}", outputPath);
+        CODE_MODEL.build(new File(outputPath), System.err);
+    }
+
+    @SneakyThrows
+    private void cheatJClassImport(String className) {
+        //create fake classes and add they to classLoader
+        //after that JClass find it and make correct imports
+        ClassPool pool = ClassPool.getDefault();
+        try {
+            CtClass cc = pool.makeClass(className);
+            pool.toClass(cc);
+        } catch (RuntimeException e) {
+            log.debug("Add class stub error: {}", className, e);
+        }
     }
 
     private static boolean constructorParamsOnly(BeanData it) {
@@ -258,7 +277,7 @@ public class JavaConfigurationGenerator {
     }
 
 
-    private static void addBeanAnnotation(ConfigurationData configurationData, @Nonnull JMethod method, @Nonnull BeanData beanData) {
+    private static void addBeanAnnotation(@Nonnull JMethod method, @Nonnull BeanData beanData) {
         JAnnotationUse beanAnnotation = method.annotate(Bean.class);
 
         if (beanData.getId() != null) {
