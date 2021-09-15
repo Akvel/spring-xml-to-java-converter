@@ -31,18 +31,18 @@ import java.util.HashSet;
  * @since 12.08.2020
  */
 @Slf4j
-@Generated //need for skip any jococo attemps to scan this file
+@Generated //need for skip any jacoco attempts to scan this file
 public class Convertor {
 
     private static final String ARGS_XML_BASE_PATH = "xp";
     private static final String ARGS_XML_SEARCH_MASK = "xm";
     private static final String ARGS_OUTPUT_DIR = "op";
     private static final String ARGS_BASE_PACKAGE_NAME = "p";
-
-    private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
     private static final String ARGS_PRINT_HELP = "help";
     private static final String ARGS_LOG_LEVEL = "loglevel";
     private static final String ARGS_WRITE_MAIN_CLASS = "xmlmainconfig";
+
+    private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
 
     private static final String PROJECT_PATH = ".";
 
