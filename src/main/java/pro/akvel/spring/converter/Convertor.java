@@ -216,7 +216,7 @@ public class Convertor {
         Runnable r = () -> {
             f.setAccessible(true);
             synchronized (Convertor.class) {
-                Convertor.class.notify();
+                Convertor.class.notifyAll();
             }
         };
         Object errorOutput;
@@ -225,7 +225,7 @@ public class Convertor {
             {
                 new Thread(r).start(); //One of these 2 threads will
                 new Thread(r).start(); //hang, the other will succeed.
-                Convertor.class.wait(); //Wait 1st thread to end.
+                Convertor.class.wait(0, 0); //Wait 1st thread to end.
                 errorOutput = f.get(System.err); //Field is now accessible, set
                 f.set(System.err, null); // it to null to suppress the warning
 

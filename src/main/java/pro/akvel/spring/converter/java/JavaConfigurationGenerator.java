@@ -152,7 +152,7 @@ public class JavaConfigurationGenerator {
         return it.getPropertyParams().isEmpty();
     }
 
-    private void setProperties(JVar newBean, @Nullable List<PropertyParam> propertyParams, JMethod method) {
+    private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method) {
         propertyParams.forEach(it -> {
             if (it instanceof PropertyBeanParam) {
                 PropertyBeanParam beanParam = (PropertyBeanParam) it;
