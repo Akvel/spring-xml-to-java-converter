@@ -1,12 +1,15 @@
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/akvel/spring-xml-to-java-converter?include_prereleases)
 [![Build Status](https://travis-ci.com/Akvel/spring-xml-to-java-converter.svg?branch=master)](https://travis-ci.com/Akvel/spring-xml-to-java-converter)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Akvel_spring-xml-to-java-converter&metric=alert_status)](https://sonarcloud.io/dashboard?id=Akvel_spring-xml-to-java-converter)
+![GitHub all releases](https://img.shields.io/github/downloads/akvel/spring-xml-to-java-converter/total)
+![GitHub](https://img.shields.io/github/license/akvel/spring-xml-to-java-converter)
 
 # spring-xml-to-java-converter
 Tool for convert Spring xml configurations to Spring java based configurations.
 
 Currently tested only on *java 11*
 
-Convertor does not has real bean classes, so it has some limitation:
+Converter does not has real bean classes, so it has some limitation:
 * Not convert bean configs with named construct-Args (because converter doesn't know constructor params order)
 * If constructor-arg does not has type attribute - value will be String type by default. Supported only String, Integer and Long
 * Property tag only support: ref and value 

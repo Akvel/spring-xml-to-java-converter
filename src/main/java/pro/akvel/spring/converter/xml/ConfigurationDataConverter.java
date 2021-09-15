@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Convertor from {@link BeanDefinition} to {@link ConfigurationData}
+ * Converter from {@link BeanDefinition} to {@link ConfigurationData}
  *
  * @author akvel
  * @since 22.10.2020
