@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -30,12 +31,13 @@ import java.util.HashSet;
  * @since 12.08.2020
  */
 @Slf4j
+@Generated //need for skip any jococo attemps to scan this file
 public class Convertor {
 
     private static final String ARGS_XML_BASE_PATH = "xp";
     private static final String ARGS_XML_SEARCH_MASK = "xm";
-    private static final String ARGS_OUTPUT_DIR = "od";
-    private static final String ARGS_BASE_PACKAGE_NAME = "op";
+    private static final String ARGS_OUTPUT_DIR = "op";
+    private static final String ARGS_BASE_PACKAGE_NAME = "p";
 
     private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
     private static final String ARGS_PRINT_HELP = "help";
@@ -61,7 +63,7 @@ public class Convertor {
         Options options = new Options();
         options.addOption(ARGS_XML_BASE_PATH, "xmlbasepath", true, "Directory with XML-s.");
         options.addOption(ARGS_XML_SEARCH_MASK, "xmlfilesearchmask", true, "Files search mask, **/ - search in subdirectories. Default value: " + ConfigurationSearcher.DEFAULT_FILES_MASK);
-        options.addOption(ARGS_OUTPUT_DIR, "outputdir", true, "Java source base directory. Default value: " + DEFAULT_JAVA_CONFIG_FILES_PATH);
+        options.addOption(ARGS_OUTPUT_DIR, "outputpath", true, "Java source base directory. Default value: " + DEFAULT_JAVA_CONFIG_FILES_PATH);
         options.addOption(ARGS_BASE_PACKAGE_NAME, "outputbasepackagename", true, "Java classes base package name. Default value: " + DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
         options.addOption("h", ARGS_PRINT_HELP, false, "Print this help");
         options.addOption("l", ARGS_LOG_LEVEL, true, "Log level (TRACE/DEBUG/INFO/WARN/ERROR). Default value: INFO");

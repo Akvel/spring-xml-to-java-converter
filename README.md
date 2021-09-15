@@ -15,8 +15,11 @@ Convertor does not has real bean classes, so it has some limitation:
 * New XML files do not include any comments (<!-- -->)  
 
 # Usage
+Simple run:
+java -jar spring-xml-to-java-converter.jar -xp <XMLs base path> -op <Java classes base path> -p <Base java package name>
 
-FIXME
+full params list:
+java -jar spring-xml-to-java-converter.jar -h
 
 # Contributing
 

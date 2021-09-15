@@ -91,14 +91,6 @@ jacocoTestReport {
         csv.enabled true
         html.destination file("${buildDir}/jacocoHtml")
     }
-
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                    "pro/akvel/spring/converter/Convertor.class"
-            ])
-        }))
-    }
 }
 
 /*
