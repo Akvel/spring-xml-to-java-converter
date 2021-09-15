@@ -126,6 +126,8 @@ sonarqube {
         property "sonar.projectKey", "Akvel_spring-xml-to-java-converter"
         property "sonar.organization", "akvel"
         property "sonar.host.url", "https://sonarcloud.io"
+        property 'sonar.jacoco.reportPath', "${buildDir}/jacoco/test.exec"
+        property 'sonar.coverage.exclusions', ['**/Main*']
     }
 }
 
