@@ -80,14 +80,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // report is always generated after tests run
 }
 
 jacocoTestReport {
     dependsOn test // tests are required to run before generating the report
 
     reports {
-        xml.enabled false
-        csv.enabled false
+        xml.enabled true
+        csv.enabled true
         html.destination file("${buildDir}/jacocoHtml")
     }
 }
