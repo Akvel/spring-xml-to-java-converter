@@ -1,4 +1,5 @@
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/akvel/spring-xml-to-java-converter?include_prereleases)
+[![Build](https://github.com/Akvel/spring-xml-to-java-converter/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Akvel/spring-xml-to-java-converter/actions/workflows/build.yml)
 [![Build Status](https://travis-ci.com/Akvel/spring-xml-to-java-converter.svg?branch=master)](https://travis-ci.com/Akvel/spring-xml-to-java-converter)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Akvel_spring-xml-to-java-converter&metric=alert_status)](https://sonarcloud.io/dashboard?id=Akvel_spring-xml-to-java-converter)
 ![GitHub](https://img.shields.io/github/license/akvel/spring-xml-to-java-converter)
