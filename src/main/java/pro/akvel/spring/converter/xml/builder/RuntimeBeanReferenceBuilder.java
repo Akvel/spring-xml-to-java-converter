@@ -10,8 +10,6 @@ import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 /**
