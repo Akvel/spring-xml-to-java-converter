@@ -1,14 +1,17 @@
 package pro.akvel.spring.converter.xml.builder;
 
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
-import pro.akvel.spring.converter.generator.param.Param;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @Slf4j
 public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionHolder> {
 

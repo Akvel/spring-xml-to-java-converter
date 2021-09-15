@@ -5,6 +5,11 @@ import pro.akvel.spring.converter.generator.param.PropertyParam;
 
 import java.lang.reflect.ParameterizedType;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 public interface ParamBuilder<TClazz> {
 
     ConstructorParam createConstructorParam(ParamBuildContext<TClazz> context);

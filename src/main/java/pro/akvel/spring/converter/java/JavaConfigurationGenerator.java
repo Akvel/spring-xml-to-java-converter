@@ -1,4 +1,4 @@
-package pro.akvel.spring.converter;
+package pro.akvel.spring.converter.java;
 
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JBlock;
@@ -68,8 +68,6 @@ public class JavaConfigurationGenerator {
                               String classConfigurationName,
                               Set<BeanData> beansData,
                               String outputPath) {
-        // Instantiate a new JCodeModel
-
         // Create a new package
         JPackage jp = CODE_MODEL._package(packageName);
 
@@ -137,15 +135,16 @@ public class JavaConfigurationGenerator {
     }
 
     @SneakyThrows
-    private void cheatJClassImport(String className) {
+    static Class<?> cheatJClassImport(String className) {
         //create fake classes and add they to classLoader
         //after that JClass find it and make correct imports
         ClassPool pool = ClassPool.getDefault();
         try {
             CtClass cc = pool.makeClass(className);
-            pool.toClass(cc);
+            return pool.toClass(cc);
         } catch (RuntimeException e) {
             log.debug("Add class stub error: {}", className, e);
+            return Class.forName(className);
         }
     }
 

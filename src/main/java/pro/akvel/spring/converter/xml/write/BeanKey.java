@@ -16,6 +16,11 @@ import static pro.akvel.spring.converter.xml.write.BeanDefinitionElement.ATTR_BE
 import static pro.akvel.spring.converter.xml.write.BeanDefinitionElement.ATTR_BEAN_ID;
 import static pro.akvel.spring.converter.xml.write.BeanDefinitionElement.ATTR_BEAN_NAME;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @Builder
 @EqualsAndHashCode
 @ToString

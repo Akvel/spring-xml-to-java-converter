@@ -3,9 +3,17 @@ package pro.akvel.spring.converter.metadata;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * @author akvel
+ * @since 12.09.2021
+ */
 @Builder
 @Data
 public class JavaConfigurationMetadata {
-    private final String javaConfigFileClassName;
+    private final String className;
     private final String packageName;
+
+    public String getFullClassName() {
+        return packageName + "." + className;
+    }
 }

@@ -6,15 +6,22 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
+import pro.akvel.spring.converter.java.JavaMainConfigurationGenerator;
+import pro.akvel.spring.converter.metadata.JavaConfigurationMetadata;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadataBuilder;
 import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 import pro.akvel.spring.converter.xml.ConfigurationSearcher;
 import pro.akvel.spring.converter.xml.XmlConfigurationReader;
 import pro.akvel.spring.converter.xml.write.XmlConfigurationWriter;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
 
 /**
  * Standalone convert application
@@ -25,14 +32,15 @@ import java.lang.reflect.Field;
 @Slf4j
 public class Convertor {
 
-    private static final String ARGS_XML_BASE_PATH = "xmlpath";
-    private static final String ARGS_XML_SEARCH_MASK = "xmlmask";
-    private static final String ARGS_OUTPUT_DIR = "odir";
-    private static final String ARGS_BASE_PACKAGE_NAME = "opackage";
+    private static final String ARGS_XML_BASE_PATH = "xp";
+    private static final String ARGS_XML_SEARCH_MASK = "xm";
+    private static final String ARGS_OUTPUT_DIR = "od";
+    private static final String ARGS_BASE_PACKAGE_NAME = "op";
 
     private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
     private static final String ARGS_PRINT_HELP = "help";
     private static final String ARGS_LOG_LEVEL = "loglevel";
+    private static final String ARGS_WRITE_MAIN_CLASS = "xmlmainconfig";
 
     private static String PROJECT_PATH = ".";
 
@@ -56,6 +64,7 @@ public class Convertor {
         options.addOption(ARGS_BASE_PACKAGE_NAME, "outputbasepackagename", true, "Java classes base package name. Default value: " + DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
         options.addOption("h", ARGS_PRINT_HELP, false, "Print this help");
         options.addOption("l", ARGS_LOG_LEVEL, true, "Log level (TRACE/DEBUG/INFO/WARN/ERROR). Default value: INFO");
+        options.addOption("wm", ARGS_WRITE_MAIN_CLASS, true, "Create main config class. Default: true");
 
         try {
             //FIXME проверить запуск со всеми параметрами
@@ -77,14 +86,11 @@ public class Convertor {
                 logger4j.setLevel(org.apache.log4j.Level.toLevel(cmd.getOptionValue(ARGS_LOG_LEVEL)));
             }
 
-            var path = cmd.getOptionValue(ARGS_XML_BASE_PATH)
-                    .replaceAll("\\\\", "/");
-
-
+            var path = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_XML_BASE_PATH));
             var fileMask = cmd.getOptionValue(ARGS_XML_SEARCH_MASK, ConfigurationSearcher.DEFAULT_FILES_MASK);
             var basePackageName = cmd.getOptionValue(ARGS_BASE_PACKAGE_NAME, DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
-            var configsPath = cmd.getOptionValue(ARGS_OUTPUT_DIR, DEFAULT_JAVA_CONFIG_FILES_PATH)
-                    .replaceAll("\\\\", "/");
+            var configsPath = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_OUTPUT_DIR, DEFAULT_JAVA_CONFIG_FILES_PATH));
+            var createMainConfig = Boolean.parseBoolean(cmd.getOptionValue(ARGS_WRITE_MAIN_CLASS, "true"));
 
             log.info("");
             log.info("Start convertation with params:");
@@ -92,8 +98,6 @@ public class Convertor {
             log.info("\t{}={}", ARGS_XML_SEARCH_MASK, fileMask);
             log.info("\t{}={}", ARGS_BASE_PACKAGE_NAME, basePackageName);
             log.info("\t{}={}", ARGS_OUTPUT_DIR, configsPath);
-            //FIXME OVERRIDE
-
 
             log.info("");
             log.info("Search files");
@@ -101,17 +105,27 @@ public class Convertor {
                     new File(path).getAbsolutePath(), fileMask).getConfigurations();
             log.info("Found files count: {}", configs.size());
 
+
+            var configsMeta = new HashSet<JavaConfigurationMetadata>();
+
             for (var file : configs) {
                 log.info("");
                 log.info("Read XML file: {}", file.getAbsolutePath());
                 XmlConfigurationReader reader = new XmlConfigurationReader(file.getAbsolutePath());
-                var beansData = ConfigurationDataConverter.getInstance().getConfigurationData(reader.getBeanFactory());
+
+                var beanFactory = reader.getBeanFactory();
+                if (beanFactory.isEmpty()){
+                    log.info("Bad XML, skipped");
+                    continue;
+                }
+                var beansData = ConfigurationDataConverter.getInstance()
+                        .getConfigurationData(beanFactory.get());
 
                 log.info("Beans converted: {}, skipped: {}",
                         beansData.getConvertedBeansCount(),
                         beansData.getSkippedBeansCount());
 
-                if (beansData.getConvertedBeansCount() == 0){
+                if (beansData.getConvertedBeansCount() == 0) {
                     log.debug("Can not convert any beans in {}. Skip java file generation", file);
                     continue;
                 }
@@ -129,26 +143,40 @@ public class Convertor {
                 log.info("");
                 log.info("Generate java config file: path:{} class:{}",
                         new File(configsPath).getAbsolutePath(),
-                        meta.getJavaConfigFileClassName());
+                        meta.getClassName());
 
                 generator.generateClass(
                         meta.getPackageName(),
-                        meta.getJavaConfigFileClassName(),
+                        meta.getClassName(),
                         beansData.getBeans(),
                         configsPath);
 
-                //FIXME замена файла
-                String newXmlFile = file + ".new";
+
                 log.info("");
+                //backup original XML
+                log.info("Backup XML file: {}", file);
+                Path source = file.toPath();
+                Path target = source.resolveSibling(source.getFileName() + ".backup");
+                Files.move(source, target);
+
+                String newXmlFile = file.getPath();
                 log.info("Write new xml without converted beans: {}", newXmlFile);
                 XmlConfigurationWriter writer = new XmlConfigurationWriter();
 
                 writer.writeXmlWithoutConvertedBeans(
                         beansData.getBeans(),
-                        file.getAbsolutePath(),
-                        newXmlFile
+                        target.toFile().getAbsolutePath(),
+                        newXmlFile,
+                        meta.getFullClassName()
                 );
+                configsMeta.add(meta);
             }
+
+            if (createMainConfig) {
+                log.info("Create main config");
+                createMainConfig(basePackageName, configsPath, configsMeta);
+            }
+
             log.info("Done");
         } catch (Exception e) {
             log.error("Convertaion error", e);
@@ -156,6 +184,29 @@ public class Convertor {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("spring-xml-to-java-converter", options);
         }
+    }
+
+    private static void createMainConfig(String basePackageName, String configsPath, HashSet<JavaConfigurationMetadata> configsMeta) {
+        if(configsMeta.isEmpty()){
+            log.info("\tConfigs empty. No need main config");
+            return;
+        }
+
+        if(configsMeta.size() == 1){
+            log.info("\tOnly one config. No need main config");
+            return;
+        }
+        JavaMainConfigurationGenerator.getInstance()
+                .createMainConfiguration(
+                        basePackageName,
+                        "AkvMainConfiguration",
+                        configsPath,
+                        configsMeta
+                );
+    }
+
+    private static String convertWinPathToUnixPath(@Nonnull String path) {
+        return path.replaceAll("\\\\", "/");
     }
 
     //hide all reflections warning

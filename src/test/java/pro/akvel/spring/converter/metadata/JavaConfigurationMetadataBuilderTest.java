@@ -27,8 +27,9 @@ class JavaConfigurationMetadataBuilderTest {
                         "pro.akvel.test.xml",
                         true);
 
-        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getClassName());
         assertEquals("pro.akvel.test.xml", metadata.getPackageName());
+        assertEquals("pro.akvel.test.xml.ConfigFile", metadata.getFullClassName());
     }
 
     @Test
@@ -41,7 +42,7 @@ class JavaConfigurationMetadataBuilderTest {
                         true);
 
         assertAll("",
-                () -> assertEquals("ConfigFile", metadata.getJavaConfigFileClassName()),
+                () -> assertEquals("ConfigFile", metadata.getClassName()),
                 () -> assertEquals("pro.akvel.test.xml", metadata.getPackageName())
         );
     }
@@ -68,7 +69,7 @@ class JavaConfigurationMetadataBuilderTest {
                         "pro.akvel.test.xml",
                         true);
 
-        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getClassName());
         assertEquals("pro.akvel.test.xml.test", metadata.getPackageName());
     }
 
@@ -81,7 +82,7 @@ class JavaConfigurationMetadataBuilderTest {
                         "pro.akvel.test.xml",
                         false);
 
-        assertEquals("ConfigFile", metadata.getJavaConfigFileClassName());
+        assertEquals("ConfigFile", metadata.getClassName());
         assertEquals("pro.akvel.test.xml", metadata.getPackageName());
     }
 

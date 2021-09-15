@@ -3,6 +3,11 @@ package pro.akvel.spring.converter.xml.write;
 import lombok.experimental.UtilityClass;
 import org.xml.sax.Attributes;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @UtilityClass
 public class XmlUtils {
 

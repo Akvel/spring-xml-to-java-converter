@@ -7,6 +7,11 @@ import org.apache.commons.text.CaseUtils;
 
 import java.io.File;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @UtilityClass
 @Slf4j
 public class JavaConfigurationMetadataBuilder {
@@ -26,7 +31,7 @@ public class JavaConfigurationMetadataBuilder {
                         new File(baseConfigurationPath)
                                 .getCanonicalPath())
                         : basePackageName)
-                .javaConfigFileClassName(getClassName(file.getName()))
+                .className(getClassName(file.getName()))
                 .build();
     }
 

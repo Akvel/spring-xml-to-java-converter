@@ -3,6 +3,11 @@ package pro.akvel.spring.converter.xml.builder;
 import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 public class ParamBuildContext<TObject> {
 
     private final TObject value;
@@ -11,7 +16,6 @@ public class ParamBuildContext<TObject> {
 
     private final Integer index;
 
-    //FIXME может можно ограничить?
     private final BeanDefinitionRegistry beanDefinitionRegistry;
 
     private final String type;

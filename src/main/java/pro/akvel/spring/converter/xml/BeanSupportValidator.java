@@ -1,6 +1,5 @@
 package pro.akvel.spring.converter.xml;
 
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.Mergeable;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -13,6 +12,11 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @Slf4j
 public class BeanSupportValidator {
 

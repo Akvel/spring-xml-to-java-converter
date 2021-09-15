@@ -12,6 +12,9 @@
 
     <context:annotation-config/>
 
+    <context:annotation-config/>
+    <bean class="pro.akvel.text.MainConfig"/>
+
 
     <bean id="BeanWithConstructorParamsWithNames"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithNames">

@@ -1,6 +1,5 @@
 package pro.akvel.spring.converter.xml.builder;
 
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
@@ -10,6 +9,11 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 @Slf4j
 public class ParamBuilderProvider {
     public static final String PACKAGE_WITH_BUILDERS = "pro.akvel.spring.converter.xml.builder";

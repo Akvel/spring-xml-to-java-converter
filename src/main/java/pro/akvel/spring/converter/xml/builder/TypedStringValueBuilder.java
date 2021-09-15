@@ -7,6 +7,11 @@ import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 public class TypedStringValueBuilder implements ParamBuilder<TypedStringValue> {
 
     public static final String DEFAULT_VALUE_TYPE = "java.lang.String";

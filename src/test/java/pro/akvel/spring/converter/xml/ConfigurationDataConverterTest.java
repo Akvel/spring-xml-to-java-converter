@@ -3,7 +3,7 @@ package pro.akvel.spring.converter.xml;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pro.akvel.spring.converter.JavaConfigurationGenerator;
+import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
@@ -46,7 +46,7 @@ class ConfigurationDataConverterTest {
         String beanName = PACKAGE + "BeanWithoutId#0";
 
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData(beanName, reader.getBeanFactory());
+                .getConfigurationData(beanName, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .className(PACKAGE + "BeanWithoutId")
@@ -61,7 +61,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithIdOnly() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithIdOnly", reader.getBeanFactory());
+                .getConfigurationData("BeanWithIdOnly", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithIdOnly")
@@ -76,7 +76,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorParams() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParams", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorParams", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParams")
@@ -104,7 +104,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorParamsWithNames() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParamsWithNames", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorParamsWithNames", reader.getBeanFactory().get());
 
         Assertions.assertEquals(null, actualObject);
     }
@@ -112,7 +112,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorParamsWithNull() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParamsWithNull", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorParamsWithNull", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParamsWithNull")
@@ -130,7 +130,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorParamsWithIndex() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParamsWithIndex", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorParamsWithIndex", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorParamsWithIndex")
@@ -160,7 +160,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithProperty() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithProperty", reader.getBeanFactory());
+                .getConfigurationData("BeanWithProperty", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithProperty")
@@ -187,7 +187,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorConstArgs() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorConstArgs", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorConstArgs", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorConstArgs")
@@ -225,7 +225,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorWithCreateSubBean() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBean", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorWithCreateSubBean", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBean")
@@ -256,7 +256,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithSubBean() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithSubBean", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithSubBean", reader.getBeanFactory().get());
 
 
         var expectedObject = BeanData.builder()
@@ -299,7 +299,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithSubBeanWithProperty() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithSubBeanWithProperty", reader.getBeanFactory());
+                .getConfigurationData("BeanWithSubBeanWithProperty", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithSubBeanWithProperty")
@@ -332,7 +332,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorWithCreateSubBeanWithConstArg")
@@ -364,7 +364,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithInitDestroyMethod() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithInitDestroyMethod", reader.getBeanFactory());
+                .getConfigurationData("BeanWithInitDestroyMethod", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithInitDestroyMethod")
@@ -381,7 +381,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithDependsOn() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDependsOn", reader.getBeanFactory());
+                .getConfigurationData("BeanWithDependsOn", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDependsOn")
@@ -397,7 +397,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithDependsOnMulti() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDependsOnMulti", reader.getBeanFactory());
+                .getConfigurationData("BeanWithDependsOnMulti", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDependsOnMulti")
@@ -413,7 +413,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithScope() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithScope", reader.getBeanFactory());
+                .getConfigurationData("BeanWithScope", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithScope")
@@ -429,7 +429,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithPrimary() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithPrimary", reader.getBeanFactory());
+                .getConfigurationData("BeanWithPrimary", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithPrimary")
@@ -448,7 +448,7 @@ class ConfigurationDataConverterTest {
                 + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-defaultInitDestroyMethods.xml");
 
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("testDefaultInitDestroyBean", testReader.getBeanFactory());
+                .getConfigurationData("testDefaultInitDestroyBean", testReader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("testDefaultInitDestroyBean")
@@ -466,7 +466,7 @@ class ConfigurationDataConverterTest {
     @Test
     public void BeanWithDescription() {
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDescription", reader.getBeanFactory());
+                .getConfigurationData("BeanWithDescription", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithDescription")
@@ -487,15 +487,15 @@ class ConfigurationDataConverterTest {
         );
 
         var beanFromJavaConfig = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("testJavaBean", reader.getBeanFactory());
+                .getConfigurationData("testJavaBean", reader.getBeanFactory().get());
         //check that bean loaded fron java config
-        Assertions.assertNotNull(reader.getBeanFactory().getBeanDefinition("testJavaBean"));
+        Assertions.assertNotNull(reader.getBeanFactory().get().getBeanDefinition("testJavaBean"));
         //check that bean not supported for convertation
         Assertions.assertNull(beanFromJavaConfig);
 
 
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorJavaBean", reader.getBeanFactory());
+                .getConfigurationData("BeanWithConstructorJavaBean", reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
                 .id("BeanWithConstructorJavaBean")

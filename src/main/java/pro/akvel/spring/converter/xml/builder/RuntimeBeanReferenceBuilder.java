@@ -9,6 +9,11 @@ import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 
+/**
+ *
+ * @author akvel
+ * @since 12.09.2021
+ */
 public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanReference> {
 
     @Override

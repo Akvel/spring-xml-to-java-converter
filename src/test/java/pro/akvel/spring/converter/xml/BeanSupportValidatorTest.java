@@ -26,7 +26,7 @@ class BeanSupportValidatorTest {
     @Test
     public void validBean(){
         String beanName = "BeanWithConstructorParams";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertTrue(validator.isBeanSupport(definition, "test"));
     }
 
@@ -34,14 +34,14 @@ class BeanSupportValidatorTest {
     @Test
     public void beanWithFactory(){
         String beanName = "BeanWithFactoryBean";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithParamFactory(){
         String beanName = "BeanWithConstructorWithCreateSubBeanWithFactoryAndType";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
@@ -49,63 +49,63 @@ class BeanSupportValidatorTest {
     @Test
     public void beanWithMap(){
         String beanName = "BeanWithMap";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithList(){
         String beanName = "BeanWithConstructorListArg";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithNamedConstructorParams() {
         String beanName = "BeanWithConstructorParamsWithNames";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithExpressionConstructorParams() {
         String beanName = "BeanWithConstructorParamsFromCode";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithExpressionPropertyParams() {
         String beanName = "BeanWithPropertyParamsFromCode";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithMissedParamIndex() {
         String beanName = "BeanWithMissedIndex";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void beanWithMixedIndexAndNonIndexParams() {
         String beanName = "beanWithMixedIndexAndNonIndexParams";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void subBeanWithNoSupportedTypeMap(){
         String beanName = "BeanWithConstructorWithCreateSubBeanWithSubBeanAndMap";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 
     @Test
     public void subBeanWithNoSupportedTypeFactory(){
         String beanName = "BeanWithConstructorWithCreateSubBeanWithFactory";
-        BeanDefinition definition = reader.getBeanFactory().getBeanDefinition(beanName);
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
         Assertions.assertFalse(validator.isBeanSupport(definition, "test"));
     }
 }

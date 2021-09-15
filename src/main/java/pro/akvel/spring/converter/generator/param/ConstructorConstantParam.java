@@ -1,6 +1,5 @@
 package pro.akvel.spring.converter.generator.param;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
