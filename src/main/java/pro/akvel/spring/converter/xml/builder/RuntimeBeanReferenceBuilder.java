@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml.builder;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -29,6 +30,7 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
 
     }
 
+    @NonNull
     private String getBeanClassName(ParamBuildContext<RuntimeBeanReference> context, RuntimeBeanReference refBeanName) {
         BeanDefinition beanDefinition = context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName());
 
@@ -39,7 +41,11 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
         if (beanDefinition instanceof AnnotatedBeanDefinition) {
             //
             MethodMetadata factoryMethodData = ((AnnotatedBeanDefinition) beanDefinition).getFactoryMethodMetadata();
-            return factoryMethodData.getReturnTypeName();
+            if (factoryMethodData != null) {
+                return factoryMethodData.getReturnTypeName();
+            }else {
+                throw new IllegalStateException("Can not get factory " + refBeanName.getBeanName());
+            }
         }
 
         throw new IllegalStateException("Can not get bean class " + refBeanName.getBeanName());

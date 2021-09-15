@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Convertor from {@link BeanDefinition} to {@link ConfigurationData}
  *
@@ -44,15 +46,17 @@ public class ConfigurationDataConverter {
     public BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
                                          @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
                                          @Nullable String beanName) {
-        log.trace("Convert bean definition " + beanDefinition);
+        log.debug("Convert bean definition " + beanDefinition);
 
         if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName)) {
             return null;
         }
 
+        var beanClassName = requireNonNull(beanDefinition.getBeanClassName(), "Class name can not be null");
+
         return BeanData.builder()
-                .id(getBeanId(beanName, beanDefinition.getBeanClassName()))
-                .className(beanDefinition.getBeanClassName())
+                .id(getBeanId(beanName, beanClassName))
+                .className(beanClassName)
                 .constructorParams(
                         Stream.concat(
                                         beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues()

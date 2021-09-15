@@ -7,6 +7,10 @@ import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
+
 /**
  *
  * @author akvel
@@ -28,7 +32,7 @@ public class TypedStringValueBuilder implements ParamBuilder<TypedStringValue> {
             return ConstructorConstantParam.builder()
                     .index(context.getIndex())
                     .type(context.getType() != null ? context.getType() : DEFAULT_VALUE_TYPE)
-                    .value(value.getValue())
+                    .value(requireNonNull(value.getValue(), "value"))
                     .build();
         }
     }

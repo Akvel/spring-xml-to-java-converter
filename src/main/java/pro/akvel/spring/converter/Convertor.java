@@ -53,7 +53,7 @@ public class Convertor {
     public static void main(String[] args) {
         try {
             suppressWarning();
-        } catch (Exception e) {
+        } catch (NoSuchFieldException | InterruptedException | IllegalAccessException e) {
             log.debug("suppressWarning error", e);
         }
 
@@ -114,7 +114,7 @@ public class Convertor {
                 XmlConfigurationReader reader = new XmlConfigurationReader(file.getAbsolutePath());
 
                 var beanFactory = reader.getBeanFactory();
-                if (beanFactory.isEmpty()){
+                if (beanFactory.isEmpty()) {
                     log.info("Bad XML, skipped");
                     continue;
                 }
@@ -187,12 +187,12 @@ public class Convertor {
     }
 
     private static void createMainConfig(String basePackageName, String configsPath, HashSet<JavaConfigurationMetadata> configsMeta) {
-        if(configsMeta.isEmpty()){
+        if (configsMeta.isEmpty()) {
             log.info("\tConfigs empty. No need main config");
             return;
         }
 
-        if(configsMeta.size() == 1){
+        if (configsMeta.size() == 1) {
             log.info("\tOnly one config. No need main config");
             return;
         }
