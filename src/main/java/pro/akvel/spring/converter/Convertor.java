@@ -50,10 +50,10 @@ public class Convertor {
     public static final String PRINT_PARAMS_FORMATTER = "\t{}={}";
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         try {
             suppressWarning();
-        } catch (NoSuchFieldException | InterruptedException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             log.debug("suppressWarning error", e);
         }
 

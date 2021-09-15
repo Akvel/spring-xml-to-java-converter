@@ -10,6 +10,10 @@ import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
+
 /**
  *
  * @author akvel
@@ -35,7 +39,7 @@ public class RuntimeBeanReferenceBuilder implements ParamBuilder<RuntimeBeanRefe
         BeanDefinition beanDefinition = context.getBeanDefinitionRegistry().getBeanDefinition(refBeanName.getBeanName());
 
         if (beanDefinition.getBeanClassName() != null) {
-            return beanDefinition.getBeanClassName();
+            return requireNonNull(beanDefinition.getBeanClassName());
         }
 
         if (beanDefinition instanceof AnnotatedBeanDefinition) {
