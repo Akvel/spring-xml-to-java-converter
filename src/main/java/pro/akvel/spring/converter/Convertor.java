@@ -42,18 +42,19 @@ public class Convertor {
     private static final String ARGS_LOG_LEVEL = "loglevel";
     private static final String ARGS_WRITE_MAIN_CLASS = "xmlmainconfig";
 
-    private static String PROJECT_PATH = ".";
+    private static final String PROJECT_PATH = ".";
 
-    private static String DEFAULT_JAVA_CONFIG_FILES_PATH = PROJECT_PATH + "/src/main/java/";
+    private static final String DEFAULT_JAVA_CONFIG_FILES_PATH = PROJECT_PATH + "/src/main/java/";
 
-    private static boolean JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS = true;
+    private static final boolean JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS = true;
+    public static final String PRINT_PARAMS_FORMATTER = "\t{}={}";
 
 
     public static void main(String[] args) {
         try {
             suppressWarning();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug("suppressWarning error", e);
         }
 
 
@@ -67,7 +68,6 @@ public class Convertor {
         options.addOption("wm", ARGS_WRITE_MAIN_CLASS, true, "Create main config class. Default: true");
 
         try {
-            //FIXME проверить запуск со всеми параметрами
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
@@ -94,10 +94,10 @@ public class Convertor {
 
             log.info("");
             log.info("Start convertation with params:");
-            log.info("\t{}={}", ARGS_XML_BASE_PATH, path);
-            log.info("\t{}={}", ARGS_XML_SEARCH_MASK, fileMask);
-            log.info("\t{}={}", ARGS_BASE_PACKAGE_NAME, basePackageName);
-            log.info("\t{}={}", ARGS_OUTPUT_DIR, configsPath);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_BASE_PATH, path);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_SEARCH_MASK, fileMask);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_BASE_PACKAGE_NAME, basePackageName);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_OUTPUT_DIR, configsPath);
 
             log.info("");
             log.info("Search files");
@@ -211,7 +211,7 @@ public class Convertor {
 
     //hide all reflections warning
     //https://stackoverflow.com/a/61700723/442050
-    private static void suppressWarning() throws Exception {
+    private static void suppressWarning() throws NoSuchFieldException, InterruptedException, IllegalAccessException {
         Field f = FilterOutputStream.class.getDeclaredField("out");
         Runnable r = () -> {
             f.setAccessible(true);
