@@ -17,10 +17,14 @@ Convertor does not has real bean classes, so it has some limitation:
 
 # Usage
 Simple run:
+```
 java -jar spring-xml-to-java-converter.jar -xp <XMLs base path> -op <Java classes base path> -p <Base java package name>
+```
 
-full params list:
+Full params list:
+```
 java -jar spring-xml-to-java-converter.jar -h
+```
 
 # Contributing
 
