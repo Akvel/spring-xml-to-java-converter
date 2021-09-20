@@ -4,21 +4,28 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Akvel_spring-xml-to-java-converter&metric=alert_status)](https://sonarcloud.io/dashboard?id=Akvel_spring-xml-to-java-converter)
 ![GitHub](https://img.shields.io/github/license/akvel/spring-xml-to-java-converter)
 
-# spring-xml-to-java-converter
-Tool for convert Spring xml configurations to Spring java based configurations.
+# Spring-xml-to-java-converter
+The tool for convert Spring XML configurations to Spring Java-Based configurations.
 
-Currently tested only on *java 11*
+Just set parameters input path (-xp), output path(-op) and package name(-p) and the tool convert all supported types to Java class and
+remove they from XML.
 
-Converter does not has real bean classes, so it has some limitation:
-* Not convert bean configs with named construct-Args (because converter doesn't know constructor params order)
-* If constructor-arg does not has type attribute - value will be String type by default. Supported only String, Integer and Long
-* Property tag only support: ref and value 
-* <context:component-scan /> ignored
+# Limitation
+
+Converter does not has access to your classes, so it has some limitation.
+
+* If your XML configuration miss any constructor params - will be generate beans without they (You will see compilations error and must fix it manually)
+* Skips bean elements with named construct-Args. Because converter doesn't know real constructor params order
+* If constructor-arg does not has type attribute - value will be set as String type. (Supported only String, Integer and Long)
+* Property tags only support: ref and value
 * Not implemented factories convert
 * Not implemented convertation beans that uses factories and Mergeable types (Map, List, Set...)
-* New XML files do not include any comments (<!-- -->)  
+* New XML files do not include any comments (<!-- -->)
 
 # Usage
+
+You need *java 11* for run this tool.
+
 Simple run:
 ```
 java -jar spring-xml-to-java-converter.jar -xp <XMLs base path> -op <Java classes base path> -p <Base java package name>
