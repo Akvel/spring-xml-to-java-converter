@@ -5,26 +5,26 @@
 ![GitHub](https://img.shields.io/github/license/akvel/spring-xml-to-java-converter)
 
 # Spring-xml-to-java-converter
-The tool for convert Spring XML configurations to Spring Java-Based configurations.
+The tool for converting Spring XML configuration to Spring Java-Based configuration.
 
-Just set parameters input path (-xp), output path(-op) and package name(-p) and the tool convert all supported types to Java class and
-remove they from XML.
+Just set parameters input path (-xp), output path(-op) and package name(-p) and the tool converts all supported types to Java class and
+remove them from XML.
 
-# Limitation
+# Limitations
 
-Converter does not has access to your classes, so it has some limitation.
+Converter does not have access to your classes, so it has some limitation.
 
-* If your XML configuration miss any constructor params - will be generate beans without they (You will see compilations error and must fix it manually)
-* Skips bean elements with named construct-Args. Because converter doesn't know real constructor params order
-* If constructor-arg does not has type attribute - value will be set as String type. (Supported only String, Integer and Long)
+* If your XML configuration misses any constructor params - the beans will be generated without them (You will see compilation error and you will need to fix it manually)
+* Skips bean elements named construct-Args. Because converter doesn't know real constructor params order
+* If constructor-arg does not has type attribute - value will be set to String type. (Supported only String, Integer and Long)
 * Property tags only support: ref and value
-* Not implemented factories convert
-* Not implemented convertation beans that uses factories and Mergeable types (Map, List, Set...)
+* No implemented factories convert
+* No implemented convertation beans that use factories and Mergeable types (Map, List, Set...)
 * New XML files do not include any comments (<!-- -->)
 
 # Usage
 
-You need *java 11* for run this tool.
+You need *java 11* to run this tool.
 
 Simple run:
 ```
@@ -38,7 +38,7 @@ java -jar spring-xml-to-java-converter.jar -h
 
 # Contributing
 
-If I've made any errors anywhere in the implementation, please do let me know by raising an issue. If there's any cool addition you want to introduce, all PRs appreciated!
+If I've made any errors anywhere in the implementation, please do let me know by raising an issue. If there's any cool addition you want to introduce, all PRs are appreciated!
 
 # License
 
