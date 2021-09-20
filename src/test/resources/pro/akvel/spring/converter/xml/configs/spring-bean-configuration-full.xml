@@ -287,4 +287,26 @@
         <description>Bean with description</description>
     </bean>
 
+    <!-- Not supported -->
+    <bean id="inheritedTestBeanWithoutClass" abstract="true">
+        <property name="name" value="parent"/>
+        <property name="age" value="1"/>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="inheritsWithClass" class="org.springframework.beans.DerivedTestBean"
+          parent="inheritedTestBeanWithoutClass">
+        <property name="name" value="override"/>
+        <!-- age will inherit the value of 1 from the parent bean definition-->
+    </bean>
+
+    <bean id="beanWithMissedRef" class="org.springframework.beans.InvalidRef">
+        <property name="key" value="123"/>
+        <property name="userDetailsService" ref="memberMng"/>
+    </bean>
+
+    <bean id="beanWithMissedRefConst" class="org.springframework.beans.InvalidRef">
+        <constructor-arg name="param1" ref="memberMng"/>
+    </bean>
+
 </beans>
