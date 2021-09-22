@@ -146,5 +146,36 @@
         </constructor-arg>
     </bean>
 
+    <bean id="inheritedTestBeanWithoutClass" abstract="true">
+        <property name="name" value="parent"/>
+        <property name="age" value="1"/>
+    </bean>
+    <bean id="inheritsWithClass"
+          class="org.springframework.beans.DerivedTestBean"
+          parent="inheritedTestBeanWithoutClass">
+        <property name="name" value="override"/>
+    </bean>
+
+    <bean id="beanWithMissedRef" class="org.springframework.beans.InvalidRef">
+        <property name="key" value="123"/>
+        <property name="userDetailsService" ref="memberMng"/>
+    </bean>
+
+    <bean id="beanWithMissedRefConst" class="org.springframework.beans.InvalidRef">
+        <constructor-arg name="param1" ref="memberMng"/>
+    </bean>
+
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+    </bean>
+
+    <bean id="beanPropertyWithExpr" class="org.springframework.beans.PropertyWithExpr">
+        <property name="driverClass" value="${jdbc.driverClassName}" />
+    </bean>
+
+    <bean id="beanPropertyWithClassPath" class="org.springframework.beans.PropertyWithClassPath">
+        <property name="driverClass" value="classpath:test.xml" />
+    </bean>
+
 
 </beans>

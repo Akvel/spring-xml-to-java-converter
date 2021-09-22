@@ -10,5 +10,11 @@
            http://www.springframework.org/schema/context/spring-context.xsd">
     <context:annotation-config/>
 
-    <bean class="pro.akvel.spring.converter.testbean.BeanWithoutId"/>
+    <context:property-placeholder location="classpath:init_test.properties" />
+    <context:component-scan base-package="com.wtlib.service" />
+    <property name="port" value="587" />
+
+    <bean class="pro.akvel.spring.converter.testbean.BeanWithoutId">
+        <constructor-arg name="param1" ref="bean1"/>
+    </bean>
 </beans>

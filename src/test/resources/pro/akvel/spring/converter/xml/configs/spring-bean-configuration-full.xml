@@ -300,13 +300,52 @@
         <!-- age will inherit the value of 1 from the parent bean definition-->
     </bean>
 
+    <!-- Not supported -->
     <bean id="beanWithMissedRef" class="org.springframework.beans.InvalidRef">
         <property name="key" value="123"/>
         <property name="userDetailsService" ref="memberMng"/>
     </bean>
 
+    <!-- Not supported -->
     <bean id="beanWithMissedRefConst" class="org.springframework.beans.InvalidRef">
         <constructor-arg name="param1" ref="memberMng"/>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="BeanWithLazyAnnotation"
+          class="pro.akvel.spring.converter.testbean.BeanWithLazyAnnotation"
+          lazy-init="true"/>
+
+    <bean id="BeanWithQualifier"
+          class="pro.akvel.spring.converter.testbean.BeanWithQualifier">
+        <qualifier value="contentCount" type="org.springframework.beans.factory.annotation.Qualifier"/>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="beanPropertyWithExpr" class="org.springframework.beans.PropertyWithExpr">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+    </bean>
+
+    <bean id="BeanWithInt" class="pro.akvel.spring.converter.testbean.BeanWithInt">
+        <constructor-arg type="int" index="0">
+            <value>255</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- Not supported -->
+    <bean id="beanPropertyWithClassPath" class="org.springframework.beans.PropertyWithClassPath">
+        <property name="driverClass" value="classpath:test.xml"/>
+    </bean>
+
+    <bean id="BeanWithSubBeanProperty" class="pro.akvel.spring.converter.testbean.BeanWithSubBeanProperty">
+        <property name="param1">
+            <bean class="pro.akvel.spring.converter.SubBean"/>
+        </property>
     </bean>
 
 </beans>

@@ -11,6 +11,7 @@ import org.xml.sax.InputSource;
 
 import java.io.FileInputStream;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Beans reader
@@ -22,25 +23,38 @@ import java.util.Optional;
 public class XmlConfigurationReader {
     private DefaultListableBeanFactory beanFactory;
 
+    public XmlConfigurationReader(String configurationPath){
+        this(Set.of(configurationPath));
+    }
+
     @SneakyThrows
-    public XmlConfigurationReader(String configurationPath) {
+    public XmlConfigurationReader(Set<String> configurationPath) {
         beanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
-        try {
-            reader.loadBeanDefinitions(new InputSource(new FileInputStream(configurationPath)));
-            //Load beans from java configurations
-            new ConfigurationClassPostProcessor()
-                    .processConfigBeanDefinitions(beanFactory);
-        } catch (Exception e) {
-            log.debug("Error", e);
-            beanFactory = null;
-        }
+
+
+        configurationPath.forEach(it -> {
+                    try {
+                        //FIXME получается что у импортов тоже будет ресур основного файла?
+                        reader.loadBeanDefinitions(new InputSource(new FileInputStream(it)), it);
+                        //Load beans from java configurations
+                        new ConfigurationClassPostProcessor()
+                                .processConfigBeanDefinitions(beanFactory);
+                    } catch (Exception e) {
+                        log.debug("Error {}", e.getMessage());
+                        log.trace("Exception", e);
+                        if (configurationPath.size() == 1) {
+                            beanFactory = null;
+                        }
+                    }
+                }
+        );
 
 
     }
 
-    public Optional<BeanDefinitionRegistry> getBeanFactory() {
+    public Optional<DefaultListableBeanFactory> getBeanFactory() {
         return Optional.ofNullable(beanFactory);
     }
 }

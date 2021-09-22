@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.ConfigurationData;
@@ -12,9 +13,10 @@ import pro.akvel.spring.converter.xml.builder.ParamBuilderProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,59 +50,75 @@ public class ConfigurationDataConverter {
                                          @Nullable String beanName) {
         log.debug("Convert bean definition " + beanDefinition);
 
-        if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName)) {
+        if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName, beanDefinitionRegistry)) {
             return null;
         }
 
         var beanClassName = requireNonNull(beanDefinition.getBeanClassName(), "Class name can not be null");
 
-        return BeanData.builder()
-                .id(getBeanId(beanName, beanClassName))
-                .className(beanClassName)
-                .constructorParams(
-                        Stream.concat(
-                                        beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues()
-                                                .entrySet()
-                                                .stream(),
-                                        beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().stream()
-                                                .map(value -> Pair.of(Integer.MAX_VALUE, value)))
-                                .map(
-                                        arg -> {
-                                            log.debug("Convert param " + ReflectionToStringBuilder.toString(arg.getValue()));
+            return BeanData.builder()
+                    .id(getBeanId(beanName, beanClassName))
+                    .className(beanClassName)
+                    .constructorParams(
+                            Stream.concat(
+                                            beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues()
+                                                    .entrySet()
+                                                    .stream(),
+                                            beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().stream()
+                                                    .map(value -> Pair.of(Integer.MAX_VALUE, value)))
+                                    .map(
+                                            arg -> {
+                                                log.debug("Convert param " + ReflectionToStringBuilder.toString(arg.getValue()));
 
-                                            ParamBuildContext context = new ParamBuildContext(
-                                                    arg.getValue().getValue(),
-                                                    arg.getKey() != Integer.MAX_VALUE ? arg.getKey() : null,
-                                                    beanDefinitionRegistry,
-                                                    null,
-                                                    arg.getValue().getType());
+                                                ParamBuildContext context = new ParamBuildContext(
+                                                        arg.getValue().getValue(),
+                                                        arg.getKey() != Integer.MAX_VALUE ? arg.getKey() : null,
+                                                        beanDefinitionRegistry,
+                                                        null,
+                                                        arg.getValue().getType());
 
-                                            return paramBuilderProvider.createConstructorParam(context);
-                                        }
-                                )
-                                .collect(Collectors.toList()))
-                .propertyParams(beanDefinition.getPropertyValues()
-                        .stream().map(it -> {
-                            ParamBuildContext context = new ParamBuildContext(
-                                    it.getValue(),
-                                    null,
-                                    beanDefinitionRegistry,
-                                    it.getName(),
-                                    null);
+                                                return paramBuilderProvider.createConstructorParam(context, beanName);
+                                            }
+                                    )
+                                    .collect(Collectors.toList()))
+                    .propertyParams(beanDefinition.getPropertyValues()
+                            .stream().map(it -> {
+                                ParamBuildContext context = new ParamBuildContext(
+                                        it.getValue(),
+                                        null,
+                                        beanDefinitionRegistry,
+                                        it.getName(),
+                                        null);
 
-                            return paramBuilderProvider.createPropertyParam(context);
+                                return paramBuilderProvider.createPropertyParam(context, beanName);
 
-                        })
-                        .collect(Collectors.toList()))
-                .initMethodName(beanDefinition.getInitMethodName())
-                .destroyMethodName(beanDefinition.getDestroyMethodName())
-                .dependsOn(beanDefinition.getDependsOn())
-                .description(beanDefinition.getDescription())
-                .scope(beanDefinition.getScope())
-                .primary(beanDefinition.isPrimary())
-                .build();
+                            })
+                            .collect(Collectors.toList()))
+                    .initMethodName(beanDefinition.getInitMethodName())
+                    .destroyMethodName(beanDefinition.getDestroyMethodName())
+                    .dependsOn(beanDefinition.getDependsOn())
+                    .description(beanDefinition.getDescription())
+                    .scope(beanDefinition.getScope())
+                    .primary(beanDefinition.isPrimary())
+                    .lazyInit(beanDefinition.isLazyInit())
+                    .qualifierName(getQualifier(beanDefinition))
+                    .build();
+    }
 
+    @Nullable
+    private static Set<String> getQualifier(@Nonnull BeanDefinition beanDefinition) {
+        if (beanDefinition instanceof AbstractBeanDefinition){
+            if (((AbstractBeanDefinition) beanDefinition).getQualifiers().isEmpty()){
+                return null;
+            }
 
+            return ((AbstractBeanDefinition) beanDefinition).getQualifiers()
+                    .stream().map(it -> it.getAttribute("value"))
+                    .map(it -> (String) it)
+                    .collect(Collectors.toSet());
+        }
+
+        return null;
     }
 
     @Nullable
@@ -116,15 +134,20 @@ public class ConfigurationDataConverter {
         return name;
     }
 
-    public ConfigurationData getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+    /*public ConfigurationData getConfigurationData(@Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+
+    }*/
+
+    public ConfigurationData getConfigurationData(@Nonnull Map<String, BeanDefinition> beanDefinitions,
+                                                  @Nonnull BeanDefinitionRegistry allBeansDefinition) {
         AtomicInteger skippedBeansCount = new AtomicInteger();
         AtomicInteger convertedBeansCount = new AtomicInteger();
 
         return ConfigurationData.builder()
                 .beans(Collections.unmodifiableSet(
-                        Arrays.stream(beanDefinitionRegistry.getBeanDefinitionNames())
+                        beanDefinitions.entrySet().stream()
                                 .map(it -> {
-                                    var result = getConfigurationData(it, beanDefinitionRegistry);
+                                    var result = getConfigurationData(it.getValue(), allBeansDefinition, it.getKey());
 
                                     if (result == null) {
                                         skippedBeansCount.incrementAndGet();

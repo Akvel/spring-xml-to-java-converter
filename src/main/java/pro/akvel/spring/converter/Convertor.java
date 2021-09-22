@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.springframework.beans.factory.config.BeanDefinition;
 import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.java.JavaMainConfigurationGenerator;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadata;
@@ -22,7 +23,10 @@ import java.io.FilterOutputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Standalone convert application
@@ -110,18 +114,35 @@ public class Convertor {
 
             var configsMeta = new HashSet<JavaConfigurationMetadata>();
 
+            //we need know about all bean for convert not imported parts
+            var allBeans = new XmlConfigurationReader(configs.stream()
+                    .map(it -> it.getAbsolutePath())
+                    .collect(Collectors.toSet()))
+                    .getBeanFactory();
+
+
             for (var file : configs) {
                 log.info("");
                 log.info("Read XML file: {}", file.getAbsolutePath());
-                XmlConfigurationReader reader = new XmlConfigurationReader(file.getAbsolutePath());
 
-                var beanFactory = reader.getBeanFactory();
-                if (beanFactory.isEmpty()) {
+
+                Map<String, BeanDefinition> beanFromFile =
+                        Arrays.stream(allBeans.get().getBeanDefinitionNames())
+                                .filter(it ->
+                                        file.getAbsolutePath().equals(
+                                                allBeans.get().getBeanDefinition(it).getResourceDescription()))
+                                .collect(Collectors.toMap(
+                                                it -> it,
+                                                it -> allBeans.get().getBeanDefinition(it)
+                                        )
+                                );
+
+                if (beanFromFile.isEmpty()) {
                     log.info("Bad XML, skipped");
                     continue;
                 }
                 var beansData = ConfigurationDataConverter.getInstance()
-                        .getConfigurationData(beanFactory.get());
+                        .getConfigurationData(beanFromFile, allBeans.get());
 
                 log.info("Beans converted: {}, skipped: {}",
                         beansData.getConvertedBeansCount(),

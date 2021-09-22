@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 class ConfigurationSearcherTest {
 
@@ -16,7 +17,7 @@ class ConfigurationSearcherTest {
     @Test
     public void shouldAllFindXmls() {
         ConfigurationSearcher scanner = new ConfigurationSearcher(root + "/src/test/resources/pro/akvel/spring/converter/xml/search/all");
-        List<File> files = scanner.getConfigurations();
+        Set<File> files = scanner.getConfigurations();
 
         Assertions.assertEquals(2, files.size());
         Assertions.assertTrue(files.stream().anyMatch(it -> it.getName().equals("1.xml")));
@@ -27,7 +28,7 @@ class ConfigurationSearcherTest {
     @Test
     public void shouldReturnEmpty() {
         ConfigurationSearcher scanner = new ConfigurationSearcher(root + "/src/test/resources/pro/akvel/spring/converter/xml/search/empty");
-        List<File> files = scanner.getConfigurations();
+        Set<File> files = scanner.getConfigurations();
 
         Assertions.assertTrue(files.isEmpty());
     }

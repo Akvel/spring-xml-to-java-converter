@@ -21,6 +21,7 @@ Converter does not have access to your classes, so it has some limitation.
 * No implemented factories convert
 * No implemented convertation beans that use factories and Mergeable types (Map, List, Set...)
 * New XML files do not include any comments (<!-- -->)
+* Tag <qualifier/> must have attribute type="org.springframework.beans.factory.annotation.Qualifier"
 
 # Usage
 

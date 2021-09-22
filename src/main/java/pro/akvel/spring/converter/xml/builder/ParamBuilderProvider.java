@@ -36,28 +36,28 @@ public class ParamBuilderProvider {
     }
 
     @Nonnull
-    private ParamBuilder getParamBuilder(@Nonnull ParamBuildContext<?> obj) {
+    private ParamBuilder getParamBuilder(@Nonnull ParamBuildContext<?> obj, String beanId) {
         return builders.stream().filter(it -> it.applicable(obj))
                 .collect(Collectors.collectingAndThen(
                         Collectors.toList(),
                         list -> {
                             if (list.size() == 0) {
-                                throw new IllegalStateException("Builder not found " + obj.getClass());
+                                throw new IllegalStateException("Builder not found: " + obj.getValue().getClass() + " bean:" + beanId);
                             }
                             if (list.size() > 1) {
                                 log.debug("builders: " + list);
-                                throw new IllegalStateException("Found more then one builder " + obj.getClass());
+                                throw new IllegalStateException("Found more then one builder: " + obj.getValue().getClass() + " bean:" + beanId);
                             }
                             return list.get(0);
                         }
                 ));
     }
 
-    public <T> ConstructorParam createConstructorParam(ParamBuildContext<T> value) {
-        return getParamBuilder(value).createConstructorParam(value);
+    public <T> ConstructorParam createConstructorParam(ParamBuildContext<T> value, String beanId) {
+        return getParamBuilder(value, beanId).createConstructorParam(value);
     }
 
-    public <T> PropertyParam createPropertyParam(ParamBuildContext<T> context) {
-        return getParamBuilder(context).createPropertyParam(context);
+    public <T> PropertyParam createPropertyParam(ParamBuildContext<T> context, String beanId) {
+        return getParamBuilder(context, beanId).createPropertyParam(context);
     }
 }

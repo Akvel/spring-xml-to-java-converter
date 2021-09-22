@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ class XmlConfigurationWriterTest {
         BeanData bean = Mockito.mock(BeanData.class);
         when(bean.getClassName()).thenReturn("AnotherClass");
 
-        String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/write/allConverted.xml";
+        String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/write/allSkipped.xml";
         String newConfigFilePath = OUTPUT_PATH + "/allSkipped.xml";
         writer.writeXmlWithoutConvertedBeans(
                 Set.of(bean),
@@ -71,15 +72,19 @@ class XmlConfigurationWriterTest {
     }
 
     @Test
-    public void testFullXml(){
+    public void testFullXml() {
         XmlConfigurationWriter writer = new XmlConfigurationWriter();
-
 
 
         String configFilePath = root + "/src/test/resources/pro/akvel/spring/converter/xml/configs/spring-bean-configuration-full.xml";
 
         XmlConfigurationReader reader = new XmlConfigurationReader(configFilePath);
-        var beansConf = ConfigurationDataConverter.getInstance().getConfigurationData(reader.getBeanFactory().get());
+        var beansConf = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(Arrays.stream(reader.getBeanFactory().get()
+                                        .getBeanDefinitionNames())
+                                .collect(Collectors.toMap(it -> it,
+                                        it -> reader.getBeanFactory().get().getBeanDefinition(it))),
+                        reader.getBeanFactory().get());
 
         String newConfigFilePath = OUTPUT_PATH + "/spring-bean-configuration-full.xml";
         writer.writeXmlWithoutConvertedBeans(

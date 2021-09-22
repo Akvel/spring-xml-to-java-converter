@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import pro.akvel.spring.converter.generator.BeanData;
@@ -31,6 +32,7 @@ import pro.akvel.spring.converter.generator.param.ConstructorNullParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
+import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 
 import javax.annotation.Nonnull;
@@ -93,6 +95,18 @@ public class JavaConfigurationGenerator {
 
             addBeanAnnotation(method, it);
 
+            if (it.getQualifierName() != null) {
+                it.getQualifierName().forEach(itt -> {
+                    //add all for show all in class
+                    JAnnotationUse scopeAnnotation = method.annotate(Qualifier.class);
+                    scopeAnnotation.param("value", itt);
+                });
+            }
+
+            if (it.isLazyInit()) {
+                JAnnotationUse scopeAnnotation = method.annotate(Lazy.class);
+            }
+
             if (!it.getScope().isBlank()) {
                 JAnnotationUse scopeAnnotation = method.annotate(Scope.class);
                 scopeAnnotation.param("value", it.getScope());
@@ -142,7 +156,7 @@ public class JavaConfigurationGenerator {
         try {
             CtClass cc = pool.makeClass(className);
             return pool.toClass(cc);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.debug("Add class stub error: {}", className, e);
             return Class.forName(className);
         }
@@ -167,6 +181,28 @@ public class JavaConfigurationGenerator {
                 PropertyValueParam valueParam = (PropertyValueParam) it;
                 JInvocation invocation = method.body().invoke(newBean, getSetterName(valueParam.getName()));
                 invocation.arg(JExpr.lit(valueParam.getValue()));
+            }
+
+            if (it instanceof PropertySubBeanParam){
+                PropertySubBeanParam subBeanData = (PropertySubBeanParam) it;
+
+                JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
+                JInvocation subBeanNew = JExpr._new(subBeanClass);
+                if (constructorParamsOnly(subBeanData.getBeanData())) {
+                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+
+                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName()));
+                    invocation.arg(subBeanNew);
+                } else {
+                    JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
+                    setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
+                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+
+                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName()));
+                    invocation.arg(subBeanNew);
+                }
+
+
             }
         });
     }
@@ -216,9 +252,11 @@ public class JavaConfigurationGenerator {
                     if (arg instanceof ConstructorConstantParam) {
                         ConstructorConstantParam constant = (ConstructorConstantParam) arg;
 
-                        if (Integer.class.getName().equals(constant.getType())) {
+                        if (Integer.class.getName().equals(constant.getType())
+                                || constant.getType().equals("int")) {
                             aNew.arg(JExpr.lit(Integer.parseInt(constant.getValue())));
-                        } else if (Long.class.getName().equals(constant.getType())) {
+                        } else if (Long.class.getName().equals(constant.getType())
+                                || constant.getType().equals("long")) {
                             aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
                         } else {
                             aNew.arg(JExpr.lit(constant.getValue()));
@@ -294,6 +332,8 @@ public class JavaConfigurationGenerator {
         if (beanData.getDestroyMethodName() != null) {
             beanAnnotation.param("destroyMethod", beanData.getDestroyMethodName());
         }
+
+
     }
 
 

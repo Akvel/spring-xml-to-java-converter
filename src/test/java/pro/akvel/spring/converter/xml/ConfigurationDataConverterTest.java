@@ -3,6 +3,7 @@ package pro.akvel.spring.converter.xml;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -480,6 +482,84 @@ class ConfigurationDataConverterTest {
     }
 
     @Test
+    public void BeanWithLazyAnnotation() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithLazyAnnotation", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithLazyAnnotation")
+                .className(PACKAGE + "BeanWithLazyAnnotation")
+                .lazyInit(true)
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithLazyAnnotation");
+    }
+
+    @Test
+    public void BeanWithQualifier() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithQualifier", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithQualifier")
+                .className(PACKAGE + "BeanWithQualifier")
+                .qualifierName(Set.of("contentCount"))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithQualifier");
+    }
+
+    @Test
+    public void BeanWithInt() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithInt", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithInt")
+                .className(PACKAGE + "BeanWithInt")
+                .constructorParams(List.of(
+                        ConstructorConstantParam.builder()
+                                .type("int")
+                                .value("255")
+                                .index(0)
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithInt");
+    }
+
+    @Test
+    public void BeanWithSubBeanProperty() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithSubBeanProperty", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithSubBeanProperty")
+                .className(PACKAGE + "BeanWithSubBeanProperty")
+                .propertyParams(List.of(
+                        PropertySubBeanParam.builder()
+                                .name("param1")
+                                .beanData(BeanData.builder()
+                                        .className("pro.akvel.spring.converter.SubBean")
+                                        .build())
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithSubBeanProperty");
+    }
+
+
+    @Test
     public void BeanWithDependsOnJavaConfiguration() {
         XmlConfigurationReader reader = new XmlConfigurationReader(
                 root
@@ -516,7 +596,7 @@ class ConfigurationDataConverterTest {
     private static List<String> getLines(Path expectedFile) {
         return Files.readAllLines(expectedFile, StandardCharsets.UTF_8)
                 .stream()
-                .map(it -> it.replaceAll("[^;*@.()\\[\\]a-zA-Z0-9]", ""))
+                .map(it -> it.replaceAll("[^\"';*@.()\\[\\]a-zA-Z0-9]", ""))
                 .collect(Collectors.toList());
     }
 

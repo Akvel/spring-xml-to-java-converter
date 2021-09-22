@@ -6,6 +6,7 @@ import org.apache.tools.ant.DirectoryScanner;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +34,7 @@ public class ConfigurationSearcher {
         this.fileMask = fileMask;
     }
 
-    public List<File> getConfigurations() {
+    public Set<File> getConfigurations() {
         log.debug("Path: " + path + ", mask: " + fileMask);
 
         if (!new File(path).isDirectory()) {
@@ -51,6 +52,6 @@ public class ConfigurationSearcher {
 
         return Arrays.stream(files)
                 .map(it -> new File(path + "/" + it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }

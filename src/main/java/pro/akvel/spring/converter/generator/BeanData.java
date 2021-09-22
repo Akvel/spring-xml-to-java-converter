@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
@@ -11,6 +12,7 @@ import pro.akvel.spring.converter.generator.param.PropertyParam;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Bean definition model
@@ -80,4 +82,15 @@ public class BeanData {
      * {@link BeanDefinition#getDescription()}
      */
     private final String description;
+
+    /**
+     * {@link BeanDefinition#isLazyInit()}
+     */
+    private final boolean lazyInit;
+
+    /**
+     * {@link AbstractBeanDefinition#getQualifier(String)}
+      */
+    @Nullable
+    private final Set<String> qualifierName;
 }

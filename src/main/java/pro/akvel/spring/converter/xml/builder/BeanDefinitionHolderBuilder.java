@@ -5,6 +5,7 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
+import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 
 /**
@@ -40,7 +41,24 @@ public class BeanDefinitionHolderBuilder implements ParamBuilder<BeanDefinitionH
 
     @Override
     public PropertyParam createPropertyParam(ParamBuildContext<BeanDefinitionHolder> context) {
-        log.debug("createPropertyParam not supported");
-        return null;
+        BeanDefinitionHolder value = context.getValue();
+
+        if (value.getBeanDefinition().getFactoryBeanName() != null) {
+            log.debug("getFactoryBeanName not supported");
+            return null;
+        }
+
+        var subBean = ConfigurationDataConverter.getInstance().getConfigurationData(value.getBeanDefinition(),
+                context.getBeanDefinitionRegistry(), null);
+
+        if (subBean == null) {
+            log.debug("subBean not supported");
+            return null;
+        }
+
+        return PropertySubBeanParam.builder()
+                .beanData(subBean)
+                .name(context.getFieldName())
+                .build();
     }
 }
