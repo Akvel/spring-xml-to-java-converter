@@ -30,7 +30,7 @@ public class BeanSupportValidator {
             .map(MergeableParam.Type::getSupportedClasses)
             .collect(Collectors.toSet());
 
-    private static final Pattern EXPRESSION_LANGUAGE = Pattern.compile("classpath:.*|[#$]\\{.*\\}");
+    private static final Pattern EXPRESSION_LANGUAGE = Pattern.compile("classpath:.+|[#$]\\{.+\\}");
 
     public boolean isBeanSupport(BeanDefinition beanDefinition, String name, BeanDefinitionRegistry beanDefinitionRegistry) {
         return isBeanSupport(beanDefinition, name, new HashSet<>(), beanDefinitionRegistry);
@@ -106,7 +106,7 @@ public class BeanSupportValidator {
         if (getConstructorParamsStream(beanDefinition)
                 .filter(it -> it.getValue() instanceof TypedStringValue)
                 .map(it -> (TypedStringValue) it.getValue())
-                .anyMatch(it -> EXPRESSION_LANGUAGE.matcher("" + it.getValue()).matches())) {
+                .anyMatch(it -> EXPRESSION_LANGUAGE.matcher("" + it.getValue()).find())) {
             log.debug("Skipped" + name + ". Expression language in constructor args not supported");
             return false;
         }
@@ -115,7 +115,7 @@ public class BeanSupportValidator {
                 .stream()
                 .filter(it -> it.getValue() instanceof TypedStringValue)
                 .map(it -> (TypedStringValue) it.getValue())
-                .anyMatch(it -> EXPRESSION_LANGUAGE.matcher("" + it.getValue()).matches())) {
+                .anyMatch(it -> EXPRESSION_LANGUAGE.matcher("" + it.getValue()).find())) {
             log.debug("Skipped" + name + ". Expression language in property args not supported");
             return false;
         }

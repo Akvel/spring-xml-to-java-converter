@@ -67,6 +67,15 @@ class BeanSupportValidatorTest {
     }
 
     @Test
+    public void BeanWithPropertyParamsFromCode1() {
+        String beanName = "BeanWithPropertyParamsFromCode1";
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
+        Assertions.assertFalse(validator.isBeanSupport(definition, "test", mockRegistry));
+    }
+
+
+
+    @Test
     public void beanWithNamedConstructorParams() {
         String beanName = "BeanWithConstructorParamsWithNames";
         BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);

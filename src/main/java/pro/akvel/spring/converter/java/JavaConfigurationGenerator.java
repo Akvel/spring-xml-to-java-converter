@@ -147,7 +147,7 @@ public class JavaConfigurationGenerator {
                 body._return(aNew);
             } else {
                 JVar newBean = body.decl(beanClass, "bean", aNew);
-                setProperties(newBean, it.getPropertyParams(), method);
+                setProperties(newBean, it.getPropertyParams(), method, true);
                 body._return(newBean);
             }
         });
@@ -179,18 +179,18 @@ public class JavaConfigurationGenerator {
                         .noneMatch(it -> it instanceof MergeableParam);
     }
 
-    private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method) {
+    private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method, boolean setter) {
         propertyParams.forEach(it -> {
             if (it instanceof PropertyBeanParam) {
                 PropertyBeanParam beanParam = (PropertyBeanParam) it;
 
-                JInvocation invocation = method.body().invoke(newBean, getSetterName(beanParam.getName()));
+                JInvocation invocation = method.body().invoke(newBean, getSetterName(beanParam.getName(), setter));
                 invocation.arg(method.params().stream()
                         .filter(itt -> itt.name().equals(beanParam.getRef()))
-                        .findFirst().orElseThrow(() -> new IllegalStateException("Bean param not found " + beanParam.getRef())));
+                        .findFirst().orElseThrow(() -> new IllegalStateException("Bean method param not found: " + beanParam.getRef())));
             } else if (it instanceof PropertyValueParam) {
                 PropertyValueParam valueParam = (PropertyValueParam) it;
-                JInvocation invocation = method.body().invoke(newBean, getSetterName(valueParam.getName()));
+                JInvocation invocation = method.body().invoke(newBean, getSetterName(valueParam.getName(), setter));
                 invocation.arg(JExpr.lit(valueParam.getValue()));
             } else if (it instanceof PropertySubBeanParam) {
                 PropertySubBeanParam subBeanData = (PropertySubBeanParam) it;
@@ -200,15 +200,15 @@ public class JavaConfigurationGenerator {
                 if (constructorParamsOnly(subBeanData.getBeanData())) {
                     addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
 
-                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName()));
+                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName(), setter));
                     invocation.arg(subBeanNew);
                 } else {
-                    JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
-                    setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
+                    JVar newBeanVar = method.body().decl(subBeanClass, "bean" + fieldIndex++, subBeanNew);
+                    setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true);
                     addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
 
-                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName()));
-                    invocation.arg(subBeanNew);
+                    JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName(), setter));
+                    invocation.arg(newBeanVar);
                 }
             } else if (it instanceof PropertyMergeableParam) {
                 PropertyMergeableParam listParam = (PropertyMergeableParam) it;
@@ -218,10 +218,10 @@ public class JavaConfigurationGenerator {
                 JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
 
                 listParam.getValues().forEach(itt -> {
-                    setProperties(listVar, List.of(itt), method);
+                    setProperties(listVar, List.of(itt), method, false);
                 });
 
-                JInvocation invocation = method.body().invoke(newBean, getSetterName(listParam.getName()));
+                JInvocation invocation = method.body().invoke(newBean, getSetterName(listParam.getName(), setter));
                 invocation.arg(listVar);
             } else {
                 throw new IllegalArgumentException("Unknown property type " + it.getClass());
@@ -230,8 +230,8 @@ public class JavaConfigurationGenerator {
     }
 
     @NonNull
-    private String getSetterName(String fieldName) {
-        return "set" + StringUtils.capitalize(fieldName);
+    private String getSetterName(String fieldName, boolean setter) {
+        return setter ? "set" + StringUtils.capitalize(fieldName) : fieldName;
     }
 
 
@@ -269,8 +269,8 @@ public class JavaConfigurationGenerator {
                 addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
                 aNew.arg(subBeanNew);
             } else {
-                JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
-                setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
+                JVar newBeanVar = method.body().decl(subBeanClass, "bean" + fieldIndex++, subBeanNew);
+                setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true);
                 addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
                 aNew.arg(newBeanVar);
             }
@@ -290,7 +290,7 @@ public class JavaConfigurationGenerator {
             }
         }
 
-        if (arg instanceof ConstructorMergeableParam){
+        if (arg instanceof ConstructorMergeableParam) {
             var listParam = (ConstructorMergeableParam) arg;
 
             JClass listClass = CODE_MODEL.ref(listParam.getType().getOutputClass());
@@ -298,7 +298,7 @@ public class JavaConfigurationGenerator {
             JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
 
             listParam.getValues().forEach(itt -> {
-                setProperties(listVar, List.of(itt), method);
+                setProperties(listVar, List.of(itt), method, false);
             });
 
             aNew.arg(listVar);
@@ -331,6 +331,9 @@ public class JavaConfigurationGenerator {
             guard.add(getGuardKey(arg));
         } else if (param instanceof ConstructorSubBeanParam) {
             var arg = (ConstructorSubBeanParam) param;
+            addMethodParams(arg.getBeanData(), method, guard);
+        } else if (param instanceof PropertySubBeanParam) {
+            var arg = (PropertySubBeanParam) param;
             addMethodParams(arg.getBeanData(), method, guard);
         } else if (param instanceof PropertyBeanParam) {
             var arg = (PropertyBeanParam) param;

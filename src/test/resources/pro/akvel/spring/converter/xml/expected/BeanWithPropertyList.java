@@ -26,17 +26,17 @@ public class BeanWithPropertyList {
                     BeanWithIdOnly2 bean2) {
         pro.akvel.spring.converter.testbean.BeanWithPropertyList bean = new pro.akvel.spring.converter.testbean.BeanWithPropertyList();
         ArrayList list0 = new ArrayList();
-        list0 .setAdd(bean1);
-        list0 .setAdd(bean2);
+        list0 .add(bean1);
+        list0 .add(bean2);
         bean.setProp1(list0);
         ArrayList list1 = new ArrayList();
-        list1 .setAdd(bean1);
+        list1 .add(bean1);
         bean.setProp2(list1);
         HashSet set2 = new HashSet();
-        set2 .setAdd(bean1);
+        set2 .add(bean1);
         bean.setProp3(set2);
         HashSet set3 = new HashSet();
-        set3 .setAdd(bean1);
+        set3 .add(bean1);
         bean.setProp4(set3);
         return bean;
     }

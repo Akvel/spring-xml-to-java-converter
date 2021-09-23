@@ -98,6 +98,13 @@
         <property name="property2" ref="bean1"/>
     </bean>
 
+    <!-- Not Supported -->
+    <bean id="BeanWithPropertyParamsFromCode1"
+          class="pro.akvel.spring.converter.testbean.BeanWithProperty">
+        <property name="property1" value="${getObject('param')}/123"/>
+        <property name="property2" ref="bean1"/>
+    </bean>
+
     <!-- Done -->
     <bean id="BeanWithProperty"
           class="pro.akvel.spring.converter.testbean.BeanWithProperty">

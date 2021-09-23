@@ -25,12 +25,12 @@ public class BeanWithConstructorListArg {
         @Qualifier("bean2")
         BeanWithIdOnly2 bean2) {
         ArrayList list0 = new ArrayList();
-        list0 .setAdd(bean1);
-        list0 .setAdd(bean2);
-        list0 .setAdd(bean2);
+        list0 .add(bean1);
+        list0 .add(bean2);
+        list0 .add(bean2);
         HashSet set1 = new HashSet();
-        set1 .setAdd(bean1);
-        set1 .setAdd(bean2);
+        set1 .add(bean1);
+        set1 .add(bean2);
         pro.akvel.spring.converter.testbean.BeanWithConstructorListArg bean = new pro.akvel.spring.converter.testbean.BeanWithConstructorListArg(list0, set1);
         return bean;
     }

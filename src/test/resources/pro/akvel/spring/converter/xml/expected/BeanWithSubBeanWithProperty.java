@@ -19,10 +19,10 @@ public class BeanWithSubBeanWithProperty {
     public pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty BeanWithSubBeanWithProperty(
         @Qualifier("BeanWithIdOnly")
         pro.akvel.spring.converter.testbean.BeanWithIdOnly BeanWithIdOnly) {
-        SubBeanWithSubBeanWithProperty bean = new SubBeanWithSubBeanWithProperty();
-        bean.setProperty1("value1");
-        bean.setProperty2(BeanWithIdOnly);
-        return new pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty(bean);
+        SubBeanWithSubBeanWithProperty bean0 = new SubBeanWithSubBeanWithProperty();
+        bean0.setProperty1("value1");
+        bean0.setProperty2(BeanWithIdOnly);
+        return new pro.akvel.spring.converter.testbean.BeanWithSubBeanWithProperty(bean0);
     }
 
 }
