@@ -29,6 +29,12 @@
         <constructor-arg ref="bean2"/>
     </bean>
 
+    <bean id="BeanWithConstructorAndPropsParams"
+          class="pro.akvel.spring.converter.testbean.BeanWithConstructorAndPropsParams">
+        <constructor-arg ref="bean1"/>
+        <property name="property2" ref="bean2"/>
+    </bean>
+
     <!-- Not supported -->
     <bean id="BeanWithConstructorParamsWithNames"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorParamsWithNames">
@@ -97,6 +103,9 @@
           class="pro.akvel.spring.converter.testbean.BeanWithProperty">
         <property name="property1" value="value1"/>
         <property name="property2" ref="bean1"/>
+        <property name="property3">
+            <value>value3</value>
+        </property>
     </bean>
 
 
@@ -127,6 +136,32 @@
                 <ref bean="bean2"/>
             </set>
         </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithPropertyList"
+          class="pro.akvel.spring.converter.testbean.BeanWithPropertyList">
+        <property name="prop1">
+            <list>
+                <ref bean="bean1"/>
+                <ref bean="bean2"/>
+            </list>
+        </property>
+        <property name="prop2">
+            <list>
+                <ref bean="bean1"/>
+            </list>
+        </property>
+        <property name="prop3">
+            <set>
+                <ref bean="bean1"/>
+            </set>
+        </property>
+        <property name="prop4">
+            <set>
+                <ref bean="bean1"/>
+                <ref bean="bean1"/>
+            </set>
+        </property>
     </bean>
 
     <!-- Done -->
@@ -263,14 +298,20 @@
         <task:scheduled ref="taskSchedulerBeanWithCron" method="run" cron="0 * 0/1 * * *"/>
     </task:scheduled-tasks>
 
-    <!-- Not supported -->
     <bean id="BeanWithConstructorListArg"
           class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg">
-        <constructor-arg name="param1" ref="bean1"/>
-        <constructor-arg name="param2">
-            <set>
+        <constructor-arg>
+            <list>
+                <ref bean="bean1"/>
                 <ref bean="bean2"/>
-                <ref bean="bean3"/>
+                <ref bean="bean2"/>
+            </list>
+        </constructor-arg>
+        <constructor-arg>
+            <set>
+                <ref bean="bean1"/>
+                <ref bean="bean2"/>
+                <ref bean="bean2"/>
             </set>
         </constructor-arg>
     </bean>
@@ -347,5 +388,8 @@
             <bean class="pro.akvel.spring.converter.SubBean"/>
         </property>
     </bean>
+
+    <!-- Not supported -->
+    <bean id="BeanWithAutowire" class="org.springframework.beans.BeanWithAutowire" autowire="constructor"/>
 
 </beans>

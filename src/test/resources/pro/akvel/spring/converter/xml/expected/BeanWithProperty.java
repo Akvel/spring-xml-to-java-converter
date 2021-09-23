@@ -22,6 +22,7 @@ public class BeanWithProperty {
         pro.akvel.spring.converter.testbean.BeanWithProperty bean = new pro.akvel.spring.converter.testbean.BeanWithProperty();
         bean.setProperty1("value1");
         bean.setProperty2(bean1);
+        bean.setProperty3("value3");
         return bean;
     }
 

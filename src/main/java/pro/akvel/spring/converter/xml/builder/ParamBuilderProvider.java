@@ -19,7 +19,9 @@ public class ParamBuilderProvider {
     public static final String PACKAGE_WITH_BUILDERS = "pro.akvel.spring.converter.xml.builder";
     private final Set<ParamBuilder> builders;
 
-    public ParamBuilderProvider() {
+    private static ParamBuilderProvider INSTANCE = new ParamBuilderProvider();
+
+    private ParamBuilderProvider() {
         //maybe I am already need Spring? ;)
         Reflections reflections = new Reflections(PACKAGE_WITH_BUILDERS);
 
@@ -59,5 +61,9 @@ public class ParamBuilderProvider {
 
     public <T> PropertyParam createPropertyParam(ParamBuildContext<T> context, String beanId) {
         return getParamBuilder(context, beanId).createPropertyParam(context);
+    }
+
+    public static ParamBuilderProvider getInstance(){
+        return INSTANCE;
     }
 }

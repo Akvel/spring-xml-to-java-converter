@@ -34,7 +34,7 @@ public class ConfigurationDataConverter {
     public static final ConfigurationDataConverter INSTANCE = new ConfigurationDataConverter();
 
 
-    private final ParamBuilderProvider paramBuilderProvider = new ParamBuilderProvider();
+    private final ParamBuilderProvider paramBuilderProvider = ParamBuilderProvider.getInstance();
     private final BeanSupportValidator beanSupportValidator = new BeanSupportValidator();
 
     @Nullable

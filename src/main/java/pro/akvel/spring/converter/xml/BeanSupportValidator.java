@@ -2,16 +2,21 @@ package pro.akvel.spring.converter.xml;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.Mergeable;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import pro.akvel.spring.converter.generator.param.MergeableParam;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -20,6 +25,10 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class BeanSupportValidator {
+
+    private static final Set<Class> ALLOWED_MERGEABLE_CLASSES = Arrays.stream(MergeableParam.Type.values())
+            .map(MergeableParam.Type::getSupportedClasses)
+            .collect(Collectors.toSet());
 
     private static final Pattern EXPRESSION_LANGUAGE = Pattern.compile("classpath:.*|[#$]\\{.*\\}");
 
@@ -47,6 +56,18 @@ public class BeanSupportValidator {
             return false;
         }
 
+        if ((beanDefinition instanceof AbstractBeanDefinition)
+                && ((AbstractBeanDefinition) beanDefinition).getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE) {
+            log.debug("Skipped" + name + ". Beans with AUTOWIRE_BY_TYPE not supported");
+            return false;
+        }
+
+        if ((beanDefinition instanceof AbstractBeanDefinition)
+                && ((AbstractBeanDefinition) beanDefinition).getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR) {
+            log.debug("Skipped" + name + ". Beans with AUTOWIRE_CONSTRUCTOR not supported");
+            return false;
+        }
+
         if (!beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues().isEmpty()
                 && !beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().isEmpty()) {
             log.debug("Skipped" + name + ". Mixed constructor params with \"index\" attr and without not supported");
@@ -66,13 +87,18 @@ public class BeanSupportValidator {
         }
 
         if (getConstructorParamsStream(beanDefinition)
-                .anyMatch(it -> it.getValue() instanceof Mergeable)) {
+                .anyMatch(it -> it.getValue() instanceof Mergeable
+                        && ALLOWED_MERGEABLE_CLASSES
+                        .stream()
+                        .noneMatch(itt -> itt.isAssignableFrom(it.getValue().getClass())))) {
             log.debug("Skipped" + name + ". Convert bean with constructor param List, Set, Array, Properties, Map not supported");
             return false;
         }
-
         if (beanDefinition.getPropertyValues().stream()
-                .anyMatch(it -> it.getValue() instanceof Mergeable)) {
+                .anyMatch(it -> it.getValue() instanceof Mergeable
+                        && ALLOWED_MERGEABLE_CLASSES
+                        .stream()
+                        .noneMatch(itt -> itt.isAssignableFrom(it.getValue().getClass())))) {
             log.debug("Skipped" + name + ". Convert bean with property List, Set, Array, Properties, Map not supported");
             return false;
         }

@@ -36,7 +36,6 @@ public class XmlConfigurationReader {
 
         configurationPath.forEach(it -> {
                     try {
-                        //FIXME получается что у импортов тоже будет ресур основного файла?
                         reader.loadBeanDefinitions(new InputSource(new FileInputStream(it)), it);
                         //Load beans from java configurations
                         new ConfigurationClassPostProcessor()

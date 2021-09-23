@@ -28,9 +28,13 @@ import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructIndexParam;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
+import pro.akvel.spring.converter.generator.param.ConstructorMergeableParam;
 import pro.akvel.spring.converter.generator.param.ConstructorNullParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
+import pro.akvel.spring.converter.generator.param.MergeableParam;
+import pro.akvel.spring.converter.generator.param.Param;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
+import pro.akvel.spring.converter.generator.param.PropertyMergeableParam;
 import pro.akvel.spring.converter.generator.param.PropertyParam;
 import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
@@ -42,6 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -56,6 +61,8 @@ import java.util.Set;
 public class JavaConfigurationGenerator {
 
     private static final JCodeModel CODE_MODEL = new JCodeModel();
+
+    private static int fieldIndex = 0;
 
 
     public void generateClass(String packageName,
@@ -93,6 +100,9 @@ public class JavaConfigurationGenerator {
             JMethod method = jc.method(JMod.PUBLIC,
                     CODE_MODEL.ref(it.getClassName()), getMethodName(it.getClassName(), it.getId()));
 
+            //reset for each method
+            fieldIndex = 0;
+
             addBeanAnnotation(method, it);
 
             if (it.getQualifierName() != null) {
@@ -126,17 +136,17 @@ public class JavaConfigurationGenerator {
                 method.annotate(Primary.class);
             }
 
-            addMethodParams(it, method);
-
+            addMethodParams(it, method, new HashSet<>());
 
             JBlock body = method.body();
 
+
+            JInvocation aNew = JExpr._new(beanClass);
+            addParamToBeanConstructor(it, method, aNew);
             if (constructorParamsOnly(it)) {
-                JInvocation aNew = JExpr._new(beanClass);
-                addParamToBeanConstructor(it, method, aNew);
                 body._return(aNew);
             } else {
-                JVar newBean = body.decl(beanClass, "bean", JExpr._new(beanClass));
+                JVar newBean = body.decl(beanClass, "bean", aNew);
                 setProperties(newBean, it.getPropertyParams(), method);
                 body._return(newBean);
             }
@@ -162,8 +172,11 @@ public class JavaConfigurationGenerator {
         }
     }
 
-    private static boolean constructorParamsOnly(BeanData it) {
-        return it.getPropertyParams().isEmpty();
+    private static boolean constructorParamsOnly(BeanData beanData) {
+        return beanData.getPropertyParams().isEmpty() &&
+                beanData.getConstructorParams()
+                        .stream()
+                        .noneMatch(it -> it instanceof MergeableParam);
     }
 
     private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method) {
@@ -174,16 +187,12 @@ public class JavaConfigurationGenerator {
                 JInvocation invocation = method.body().invoke(newBean, getSetterName(beanParam.getName()));
                 invocation.arg(method.params().stream()
                         .filter(itt -> itt.name().equals(beanParam.getRef()))
-                        .findFirst().orElseThrow());
-            }
-
-            if (it instanceof PropertyValueParam) {
+                        .findFirst().orElseThrow(() -> new IllegalStateException("Bean param not found " + beanParam.getRef())));
+            } else if (it instanceof PropertyValueParam) {
                 PropertyValueParam valueParam = (PropertyValueParam) it;
                 JInvocation invocation = method.body().invoke(newBean, getSetterName(valueParam.getName()));
                 invocation.arg(JExpr.lit(valueParam.getValue()));
-            }
-
-            if (it instanceof PropertySubBeanParam){
+            } else if (it instanceof PropertySubBeanParam) {
                 PropertySubBeanParam subBeanData = (PropertySubBeanParam) it;
 
                 JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
@@ -201,8 +210,21 @@ public class JavaConfigurationGenerator {
                     JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName()));
                     invocation.arg(subBeanNew);
                 }
+            } else if (it instanceof PropertyMergeableParam) {
+                PropertyMergeableParam listParam = (PropertyMergeableParam) it;
 
+                JClass listClass = CODE_MODEL.ref(listParam.getType().getOutputClass());
+                JInvocation list = JExpr._new(listClass);
+                JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
 
+                listParam.getValues().forEach(itt -> {
+                    setProperties(listVar, List.of(itt), method);
+                });
+
+                JInvocation invocation = method.body().invoke(newBean, getSetterName(listParam.getName()));
+                invocation.arg(listVar);
+            } else {
+                throw new IllegalArgumentException("Unknown property type " + it.getClass());
             }
         });
     }
@@ -221,82 +243,119 @@ public class JavaConfigurationGenerator {
                 .sorted(Comparator.comparingInt(v ->
                         Optional.ofNullable(v.getIndex()).orElse(Integer.MAX_VALUE)))
                 .forEach(arg -> {
-                    if (arg instanceof ConstructorBeanParam) {
-                        ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;
-
-                        aNew.arg(method.params().stream()
-                                .filter(itt -> itt.name().equals(beanParam.getRef()))
-                                .findFirst().orElseThrow());
-                    }
-
-                    if (arg instanceof ConstructorNullParam) {
-                        aNew.arg(JExpr._null());
-                    }
-
-                    if (arg instanceof ConstructorSubBeanParam) {
-                        ConstructorSubBeanParam subBeanData = (ConstructorSubBeanParam) arg;
-
-                        JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
-                        JInvocation subBeanNew = JExpr._new(subBeanClass);
-                        if (constructorParamsOnly(subBeanData.getBeanData())) {
-                            addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
-                            aNew.arg(subBeanNew);
-                        } else {
-                            JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
-                            setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
-                            addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
-                            aNew.arg(newBeanVar);
-                        }
-                    }
-
-                    if (arg instanceof ConstructorConstantParam) {
-                        ConstructorConstantParam constant = (ConstructorConstantParam) arg;
-
-                        if (Integer.class.getName().equals(constant.getType())
-                                || constant.getType().equals("int")) {
-                            aNew.arg(JExpr.lit(Integer.parseInt(constant.getValue())));
-                        } else if (Long.class.getName().equals(constant.getType())
-                                || constant.getType().equals("long")) {
-                            aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
-                        } else {
-                            aNew.arg(JExpr.lit(constant.getValue()));
-                        }
-                    }
+                    processConstructor(method, aNew, arg);
                 });
     }
 
-    private void addMethodParams(BeanData beanData, JMethod method) {
+    private void processConstructor(JMethod method, JInvocation aNew, ConstructIndexParam arg) {
+        if (arg instanceof ConstructorBeanParam) {
+            ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;
 
-        beanData.getConstructorParams().stream()
-                .filter(it -> it instanceof ConstructorBeanParam)
-                .map(it -> (ConstructorBeanParam) it)
+            aNew.arg(method.params().stream()
+                    .filter(itt -> itt.name().equals(beanParam.getRef()))
+                    .findFirst().orElseThrow(() -> new IllegalStateException("Bean ref not found " + beanParam.getRef())));
+        }
+
+        if (arg instanceof ConstructorNullParam) {
+            aNew.arg(JExpr._null());
+        }
+
+        if (arg instanceof ConstructorSubBeanParam) {
+            ConstructorSubBeanParam subBeanData = (ConstructorSubBeanParam) arg;
+
+            JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
+            JInvocation subBeanNew = JExpr._new(subBeanClass);
+            if (constructorParamsOnly(subBeanData.getBeanData())) {
+                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                aNew.arg(subBeanNew);
+            } else {
+                JVar newBeanVar = method.body().decl(subBeanClass, "bean", subBeanNew);
+                setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method);
+                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                aNew.arg(newBeanVar);
+            }
+        }
+
+        if (arg instanceof ConstructorConstantParam) {
+            ConstructorConstantParam constant = (ConstructorConstantParam) arg;
+
+            if (Integer.class.getName().equals(constant.getType())
+                    || constant.getType().equals("int")) {
+                aNew.arg(JExpr.lit(Integer.parseInt(constant.getValue())));
+            } else if (Long.class.getName().equals(constant.getType())
+                    || constant.getType().equals("long")) {
+                aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
+            } else {
+                aNew.arg(JExpr.lit(constant.getValue()));
+            }
+        }
+
+        if (arg instanceof ConstructorMergeableParam){
+            var listParam = (ConstructorMergeableParam) arg;
+
+            JClass listClass = CODE_MODEL.ref(listParam.getType().getOutputClass());
+            JInvocation list = JExpr._new(listClass);
+            JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
+
+            listParam.getValues().forEach(itt -> {
+                setProperties(listVar, List.of(itt), method);
+            });
+
+            aNew.arg(listVar);
+        }
+    }
+
+    private void addMethodParams(BeanData beanData, JMethod method, Set<String> guard) {
+        beanData.getConstructorParams()
                 .forEach(arg -> {
-                    JVar param = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
-                    if (arg.getRef() != null) {
-                        param.annotate(Qualifier.class).param("value", arg.getRef());
-                    }
+                    process(arg, method, guard);
                 });
 
-        //add all refs from subBeans
-        beanData.getConstructorParams().stream()
-                .filter(it -> it instanceof ConstructorSubBeanParam)
-                .map(it -> (ConstructorSubBeanParam) it)
-                .forEach(it ->
-                        addMethodParams(it.getBeanData(), method)
-                );
-
-
-        beanData.getPropertyParams().stream()
-                .filter(it -> it instanceof PropertyBeanParam)
-                .map(it -> (PropertyBeanParam) it)
+        beanData.getPropertyParams()
                 .forEach(arg -> {
-                    JVar param = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
-                    if (arg.getRef() != null) {
-                        param.annotate(Qualifier.class).param("value", arg.getRef());
-                    }
+                    process(arg, method, guard);
                 });
+    }
 
 
+    private void process(Param param, JMethod method, Set<String> guard) {
+        if (param instanceof ConstructorBeanParam) {
+            var arg = (ConstructorBeanParam) param;
+
+            if (guard.contains(getGuardKey(arg))) {
+                return;
+            }
+
+            JVar paramVar = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
+            paramVar.annotate(Qualifier.class).param("value", arg.getRef());
+            guard.add(getGuardKey(arg));
+        } else if (param instanceof ConstructorSubBeanParam) {
+            var arg = (ConstructorSubBeanParam) param;
+            addMethodParams(arg.getBeanData(), method, guard);
+        } else if (param instanceof PropertyBeanParam) {
+            var arg = (PropertyBeanParam) param;
+
+            if (guard.contains(getGuardKey(arg))) {
+                return;
+            }
+
+            JVar paramVar = method.param(CODE_MODEL.ref(arg.getClassName()), arg.getRef());
+            paramVar.annotate(Qualifier.class).param("value", arg.getRef());
+            guard.add(getGuardKey(arg));
+        } else if (param instanceof MergeableParam) {
+            var arg = (MergeableParam<Param>) param;
+            arg.getValues().forEach(it -> process(it, method, guard));
+        }
+    }
+
+    @NonNull
+    private String getGuardKey(ConstructorBeanParam arg) {
+        return arg.getClassName() + arg.getRef();
+    }
+
+    @NonNull
+    private String getGuardKey(PropertyBeanParam arg) {
+        return arg.getClassName() + arg.getRef();
     }
 
     private String getMethodName(@Nonnull String className, @Nullable String id) {

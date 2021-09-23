@@ -63,7 +63,7 @@ class BeanSupportValidatorTest {
     public void beanWithList() {
         String beanName = "BeanWithConstructorListArg";
         BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
-        Assertions.assertFalse(validator.isBeanSupport(definition, "test", mockRegistry));
+        Assertions.assertTrue(validator.isBeanSupport(definition, "test", mockRegistry));
     }
 
     @Test
@@ -102,7 +102,12 @@ class BeanSupportValidatorTest {
     }
 
 
-
+    @Test
+    public void BeanWithAutowire() {
+        String beanName = "BeanWithAutowire";
+        BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
+        Assertions.assertFalse(validator.isBeanSupport(definition, "test", mockRegistry));
+    }
 
     @Test
     public void beanWithMissedParamIndex() {

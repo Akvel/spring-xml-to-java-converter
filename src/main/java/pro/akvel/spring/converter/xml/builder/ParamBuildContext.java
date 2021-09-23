@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml.builder;
 
+import lombok.Builder;
 import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 

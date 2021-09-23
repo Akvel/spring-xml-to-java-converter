@@ -3,15 +3,18 @@ package pro.akvel.spring.converter.xml;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
-import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.generator.BeanData;
 import pro.akvel.spring.converter.generator.param.ConstructorBeanParam;
 import pro.akvel.spring.converter.generator.param.ConstructorConstantParam;
+import pro.akvel.spring.converter.generator.param.ConstructorMergeableParam;
 import pro.akvel.spring.converter.generator.param.ConstructorNullParam;
 import pro.akvel.spring.converter.generator.param.ConstructorSubBeanParam;
+import pro.akvel.spring.converter.generator.param.MergeableParam;
 import pro.akvel.spring.converter.generator.param.PropertyBeanParam;
+import pro.akvel.spring.converter.generator.param.PropertyMergeableParam;
+import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
+import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -177,6 +180,11 @@ class ConfigurationDataConverterTest {
                                 .name("property2")
                                 .className(CLASS_BEAN_1)
                                 .ref("bean1")
+                                .build(),
+
+                        PropertyValueParam.builder()
+                                .name("property3")
+                                .value("value3")
                                 .build()
                 ))
                 .build();
@@ -185,6 +193,156 @@ class ConfigurationDataConverterTest {
 
         assertGeneratedConfigClass(actualObject, "BeanWithProperty");
     }
+
+
+    @Test
+    public void BeanWithPropertyList() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithPropertyList", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithPropertyList")
+                .className(PACKAGE + "BeanWithPropertyList")
+                .propertyParams(List.of(
+                        PropertyMergeableParam.builder()
+                                .name("prop1")
+                                .type(MergeableParam.Type.LIST)
+                                .values(List.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build(),
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean2")
+                                                .className(CLASS_BEAN_2)
+                                                .build()
+                                ))
+                                .build(),
+                        PropertyMergeableParam.builder()
+                                .name("prop2")
+                                .type(MergeableParam.Type.LIST)
+                                .values(List.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build()
+                                ))
+                                .build(),
+                        PropertyMergeableParam.builder()
+                                .name("prop3")
+                                .type(MergeableParam.Type.SET)
+                                .values(Set.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build()
+                                ))
+                                .build(),
+                        PropertyMergeableParam.builder()
+                                .name("prop4")
+                                .type(MergeableParam.Type.SET)
+                                .values(Set.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build()
+                                ))
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithPropertyList");
+    }
+
+
+    @Test
+    public void BeanWithConstructorListArg() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithConstructorListArg", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithConstructorListArg")
+                .className(PACKAGE + "BeanWithConstructorListArg")
+                .constructorParams(List.of(
+                        ConstructorMergeableParam.builder()
+                                .type(MergeableParam.Type.LIST)
+                                .values(List.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build(),
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean2")
+                                                .className(CLASS_BEAN_2)
+                                                .build(),
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean2")
+                                                .className(CLASS_BEAN_2)
+                                                .build()
+                                ))
+                                .build(),
+                        ConstructorMergeableParam.builder()
+                                .type(MergeableParam.Type.SET)
+                                .values(Set.of(
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean1")
+                                                .className(CLASS_BEAN_1)
+                                                .build(),
+                                        PropertyBeanParam.builder()
+                                                .name("add")
+                                                .ref("bean2")
+                                                .className(CLASS_BEAN_2)
+                                                .build()
+                                ))
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorListArg");
+    }
+
+
+    @Test
+    public void BeanWithConstructorAndPropsParams() {
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData("BeanWithConstructorAndPropsParams", reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id("BeanWithConstructorAndPropsParams")
+                .className(PACKAGE + "BeanWithConstructorAndPropsParams")
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("bean1")
+                                .className(CLASS_BEAN_1)
+                                .build()
+                ))
+                .propertyParams(List.of(
+                        PropertyBeanParam.builder()
+                                .name("property2")
+                                .className(CLASS_BEAN_2)
+                                .ref("bean2")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithConstructorAndPropsParams");
+    }
+
 
     @Test
     public void BeanWithConstructorConstArgs() {

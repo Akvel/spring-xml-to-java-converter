@@ -135,17 +135,6 @@
         <task:scheduled ref="taskSchedulerBeanWithCron" method="run" cron="0 * 0/1 * * *"/>
     </task:scheduled-tasks>
 
-    <bean id="BeanWithConstructorListArg"
-          class="pro.akvel.spring.converter.testbean.BeanWithConstructorListArg">
-        <constructor-arg name="param1" ref="bean1"/>
-        <constructor-arg name="param2">
-            <set>
-                <ref bean="bean2"/>
-                <ref bean="bean3"/>
-            </set>
-        </constructor-arg>
-    </bean>
-
     <bean id="inheritedTestBeanWithoutClass" abstract="true">
         <property name="name" value="parent"/>
         <property name="age" value="1"/>
@@ -177,5 +166,6 @@
         <property name="driverClass" value="classpath:test.xml" />
     </bean>
 
+    <bean id="BeanWithAutowire" class="org.springframework.beans.BeanWithAutowire" autowire="constructor" />
 
 </beans>
