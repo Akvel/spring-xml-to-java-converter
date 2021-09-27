@@ -268,7 +268,7 @@ public class JavaConfigurationGenerator {
 
             log.trace("Found placeholder {} = {}", placeholder, placeHolderValue);
 
-            String fieldName = CaseUtils.toCamelCase(placeHolderValue, false);
+            String fieldName = CaseUtils.toCamelCase(placeHolderValue, false, '.', '-');
             if (!clazz.fields().containsKey(fieldName)) {
                 var field = clazz.field(JMod.PRIVATE, String.class, fieldName);
                 var annotationValue = field.annotate(Value.class);
@@ -305,7 +305,7 @@ public class JavaConfigurationGenerator {
 
                 String field = fields.get(i);
                 if (field != null) {
-                    log.debug("Get {} {}", i, field);
+                    log.trace("Get {} {}", i, field);
                     if (resultExpression != null) {
                         resultExpression = resultExpression.plus(JExpr.ref(field));
                     }else {
