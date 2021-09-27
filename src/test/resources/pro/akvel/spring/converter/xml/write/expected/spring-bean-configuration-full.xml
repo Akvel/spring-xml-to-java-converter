@@ -54,14 +54,6 @@
         <property name="property2" ref="bean1"/>
     </bean>
 
-    <bean id="BeanWithPropertyParamsFromCode1"
-          class="pro.akvel.spring.converter.testbean.BeanWithProperty">
-        <property name="property1" value="${getObject('param')}/123"/>
-        <property name="property2" ref="bean1"/>
-    </bean>
-
-
-
 
     <bean id="BeanWithMap" class="pro.akvel.spring.converter.testbean.BeanWithMap">
         <constructor-arg>
@@ -158,14 +150,6 @@
 
     <bean id="beanWithMissedRefConst" class="org.springframework.beans.InvalidRef">
         <constructor-arg name="param1" ref="memberMng"/>
-    </bean>
-
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-        <property name="driverClass" value="${jdbc.driverClassName}"/>
-    </bean>
-
-    <bean id="beanPropertyWithExpr" class="org.springframework.beans.PropertyWithExpr">
-        <property name="driverClass" value="${jdbc.driverClassName}" />
     </bean>
 
     <bean id="beanPropertyWithClassPath" class="org.springframework.beans.PropertyWithClassPath">

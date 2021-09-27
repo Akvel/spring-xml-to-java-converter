@@ -6,6 +6,7 @@ import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
@@ -17,7 +18,9 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -46,10 +49,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Java configuration class generator
@@ -61,15 +68,23 @@ import java.util.Set;
 public class JavaConfigurationGenerator {
 
     private static final JCodeModel CODE_MODEL = new JCodeModel();
+    public static final String PLACEHOLDER_VARIABLE = "${}";
 
     private static int fieldIndex = 0;
+    private final JavaGeneratorParams params;
+
+    public JavaConfigurationGenerator(JavaGeneratorParams params) {
+        this.params = params;
+    }
 
 
     public void generateClass(String packageName,
                               String classConfigurationName,
                               BeanData beanData,
                               String outputPath) {
-        generateClass(packageName, classConfigurationName, Set.of(beanData), outputPath);
+        generateClass(packageName, classConfigurationName,
+                Set.of(beanData),
+                outputPath);
     }
 
     @SneakyThrows
@@ -142,12 +157,12 @@ public class JavaConfigurationGenerator {
 
 
             JInvocation aNew = JExpr._new(beanClass);
-            addParamToBeanConstructor(it, method, aNew);
+            addParamToBeanConstructor(it, method, aNew, jc);
             if (constructorParamsOnly(it)) {
                 body._return(aNew);
             } else {
                 JVar newBean = body.decl(beanClass, "bean", aNew);
-                setProperties(newBean, it.getPropertyParams(), method, true);
+                setProperties(newBean, it.getPropertyParams(), method, true, jc);
                 body._return(newBean);
             }
         });
@@ -179,7 +194,9 @@ public class JavaConfigurationGenerator {
                         .noneMatch(it -> it instanceof MergeableParam);
     }
 
-    private void setProperties(JVar newBean, List<PropertyParam> propertyParams, JMethod method, boolean setter) {
+    private void setProperties(JVar newBean, List<PropertyParam> propertyParams,
+                               JMethod method, boolean setter,
+                               JDefinedClass classDescription) {
         propertyParams.forEach(it -> {
             if (it instanceof PropertyBeanParam) {
                 PropertyBeanParam beanParam = (PropertyBeanParam) it;
@@ -191,21 +208,26 @@ public class JavaConfigurationGenerator {
             } else if (it instanceof PropertyValueParam) {
                 PropertyValueParam valueParam = (PropertyValueParam) it;
                 JInvocation invocation = method.body().invoke(newBean, getSetterName(valueParam.getName(), setter));
-                invocation.arg(JExpr.lit(valueParam.getValue()));
+
+                if (isTrueFalseAsBoolean(valueParam.getValue())) {
+                    invocation.arg(JExpr.lit(Boolean.parseBoolean(valueParam.getValue())));
+                } else {
+                    invocation.arg(createValue(valueParam.getValue(), classDescription));
+                }
             } else if (it instanceof PropertySubBeanParam) {
                 PropertySubBeanParam subBeanData = (PropertySubBeanParam) it;
 
                 JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
                 JInvocation subBeanNew = JExpr._new(subBeanClass);
                 if (constructorParamsOnly(subBeanData.getBeanData())) {
-                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew, classDescription);
 
                     JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName(), setter));
                     invocation.arg(subBeanNew);
                 } else {
                     JVar newBeanVar = method.body().decl(subBeanClass, "bean" + fieldIndex++, subBeanNew);
-                    setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true);
-                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                    setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true, classDescription);
+                    addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew, classDescription);
 
                     JInvocation invocation = method.body().invoke(newBean, getSetterName(subBeanData.getName(), setter));
                     invocation.arg(newBeanVar);
@@ -218,7 +240,7 @@ public class JavaConfigurationGenerator {
                 JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
 
                 listParam.getValues().forEach(itt -> {
-                    setProperties(listVar, List.of(itt), method, false);
+                    setProperties(listVar, List.of(itt), method, false, classDescription);
                 });
 
                 JInvocation invocation = method.body().invoke(newBean, getSetterName(listParam.getName(), setter));
@@ -229,13 +251,89 @@ public class JavaConfigurationGenerator {
         });
     }
 
+    private static JExpression createValue(String value, JDefinedClass clazz) {
+        var pattern = Pattern.compile("(\\$\\{(.+?)\\})");
+
+        Matcher matcher = pattern.matcher(value);
+
+        var result = value;
+        Map<Integer, String> fields = new HashMap<>();
+        int index = 0;
+
+        while (matcher.find()) {
+            //${value}
+            var placeholder = matcher.group(1);
+            //value
+            var placeHolderValue = matcher.group(2);
+
+            log.trace("Found placeholder {} = {}", placeholder, placeHolderValue);
+
+            String fieldName = CaseUtils.toCamelCase(placeHolderValue, false);
+            if (!clazz.fields().containsKey(fieldName)) {
+                var field = clazz.field(JMod.PRIVATE, String.class, fieldName);
+                var annotationValue = field.annotate(Value.class);
+                annotationValue.param("value", placeholder);
+                log.trace("Add field {}", fieldName);
+            }
+            fields.put(index++, fieldName);
+
+            result = result.replace(placeholder, PLACEHOLDER_VARIABLE);
+        }
+
+        if (!fields.isEmpty()) {
+            JExpression resultExpression = null;
+            String[] split = result.split("\\$\\{\\}");
+
+            if (result.equals(PLACEHOLDER_VARIABLE)){
+                if (fields.size() != 1){
+                    throw new IllegalStateException("Plaseholder filed not one value " + value);
+                }
+
+                return JExpr.ref(fields.get(0));
+            }
+
+            //replace placeholders in row
+            for (int i = 0, splitLength = split.length; i < splitLength; i++) {
+                String s = split[i];
+                if (!s.isEmpty()) {
+                    if (resultExpression == null) {
+                        resultExpression = JExpr.lit(s);
+                    }else {
+                        resultExpression = resultExpression.plus(JExpr.lit(s));
+                    }
+                }
+
+                String field = fields.get(i);
+                if (field != null) {
+                    log.debug("Get {} {}", i, field);
+                    if (resultExpression != null) {
+                        resultExpression = resultExpression.plus(JExpr.ref(field));
+                    }else {
+                        resultExpression = JExpr.ref(field);
+                    }
+                }
+            }
+
+            return resultExpression;
+        } else {
+            return JExpr.lit(value);
+        }
+    }
+
+    private boolean isTrueFalseAsBoolean(String value) {
+        return params.isTrueFalseAsBoolean() &&
+                ("false".equals(value) || "true".equals(value));
+    }
+
     @NonNull
     private String getSetterName(String fieldName, boolean setter) {
         return setter ? "set" + StringUtils.capitalize(fieldName) : fieldName;
     }
 
 
-    private void addParamToBeanConstructor(BeanData it, JMethod method, JInvocation aNew) {
+    private void addParamToBeanConstructor(BeanData it, JMethod method,
+                                           JInvocation aNew,
+                                           JDefinedClass classDescription) {
         it.getConstructorParams()
                 .stream()
                 .filter(itt -> itt instanceof ConstructIndexParam)
@@ -243,11 +341,14 @@ public class JavaConfigurationGenerator {
                 .sorted(Comparator.comparingInt(v ->
                         Optional.ofNullable(v.getIndex()).orElse(Integer.MAX_VALUE)))
                 .forEach(arg -> {
-                    processConstructor(method, aNew, arg);
+                    processConstructor(method, aNew, arg, classDescription);
                 });
     }
 
-    private void processConstructor(JMethod method, JInvocation aNew, ConstructIndexParam arg) {
+    private void processConstructor(JMethod method,
+                                    JInvocation aNew,
+                                    ConstructIndexParam arg,
+                                    JDefinedClass classDescription) {
         if (arg instanceof ConstructorBeanParam) {
             ConstructorBeanParam beanParam = (ConstructorBeanParam) arg;
 
@@ -266,18 +367,19 @@ public class JavaConfigurationGenerator {
             JClass subBeanClass = CODE_MODEL.ref(subBeanData.getBeanData().getClassName());
             JInvocation subBeanNew = JExpr._new(subBeanClass);
             if (constructorParamsOnly(subBeanData.getBeanData())) {
-                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew, classDescription);
                 aNew.arg(subBeanNew);
             } else {
                 JVar newBeanVar = method.body().decl(subBeanClass, "bean" + fieldIndex++, subBeanNew);
-                setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true);
-                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew);
+                setProperties(newBeanVar, subBeanData.getBeanData().getPropertyParams(), method, true, classDescription);
+                addParamToBeanConstructor(subBeanData.getBeanData(), method, subBeanNew, classDescription);
                 aNew.arg(newBeanVar);
             }
         }
 
         if (arg instanceof ConstructorConstantParam) {
             ConstructorConstantParam constant = (ConstructorConstantParam) arg;
+
 
             if (Integer.class.getName().equals(constant.getType())
                     || constant.getType().equals("int")) {
@@ -286,7 +388,11 @@ public class JavaConfigurationGenerator {
                     || constant.getType().equals("long")) {
                 aNew.arg(JExpr.lit(Long.parseLong(constant.getValue())));
             } else {
-                aNew.arg(JExpr.lit(constant.getValue()));
+                if (isTrueFalseAsBoolean(constant.getValue())) {
+                    aNew.arg(JExpr.lit(Boolean.parseBoolean(constant.getValue())));
+                } else {
+                    aNew.arg(JExpr.lit(constant.getValue()));
+                }
             }
         }
 
@@ -298,7 +404,7 @@ public class JavaConfigurationGenerator {
             JVar listVar = method.body().decl(listClass, listParam.getType().name().toLowerCase() + fieldIndex++, list);
 
             listParam.getValues().forEach(itt -> {
-                setProperties(listVar, List.of(itt), method, false);
+                setProperties(listVar, List.of(itt), method, false, classDescription);
             });
 
             aNew.arg(listVar);

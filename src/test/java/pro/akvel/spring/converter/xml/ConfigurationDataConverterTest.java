@@ -15,6 +15,7 @@ import pro.akvel.spring.converter.generator.param.PropertyMergeableParam;
 import pro.akvel.spring.converter.generator.param.PropertySubBeanParam;
 import pro.akvel.spring.converter.generator.param.PropertyValueParam;
 import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
+import pro.akvel.spring.converter.java.JavaGeneratorParams;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +45,11 @@ class ConfigurationDataConverterTest {
     public static final String PACKAGE_NAME = "pro.akvel.spring.converter.generator";
     public static final String EXPECTED_CLASS_PATH = "src/test/resources/pro/akvel/spring/converter/xml/expected/";
 
-    private JavaConfigurationGenerator classGenerator = new JavaConfigurationGenerator();
+    private JavaConfigurationGenerator classGenerator = new JavaConfigurationGenerator(
+            JavaGeneratorParams.builder()
+                    .trueFalseAsBoolean(true)
+                    .build()
+    );
 
     @Test
     public void BeanWithoutId() {
@@ -65,27 +70,29 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithIdOnly() {
+        String bean = "BeanWithIdOnly";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithIdOnly", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithIdOnly")
-                .className(PACKAGE + "BeanWithIdOnly")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithIdOnly");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithConstructorParams() {
+        String bean = "BeanWithConstructorParams";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParams", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorParams")
-                .className(PACKAGE + "BeanWithConstructorParams")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("bean1")
@@ -100,7 +107,7 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParams");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     /**
@@ -116,30 +123,31 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithConstructorParamsWithNull() {
+        String bean = "BeanWithConstructorParamsWithNull";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParamsWithNull", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorParamsWithNull")
-                .className(PACKAGE + "BeanWithConstructorParamsWithNull")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorNullParam.builder().build()
                 ))
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
-
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParamsWithNull");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithConstructorParamsWithIndex() {
+        String bean = "BeanWithConstructorParamsWithIndex";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorParamsWithIndex", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorParamsWithIndex")
-                .className(PACKAGE + "BeanWithConstructorParamsWithIndex")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .index(0)
@@ -159,17 +167,18 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorParamsWithIndex");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithProperty() {
+        String bean = "BeanWithProperty";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithProperty", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithProperty")
-                .className(PACKAGE + "BeanWithProperty")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .propertyParams(List.of(
                         PropertyValueParam.builder()
                                 .name("property1")
@@ -191,18 +200,19 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithProperty");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
 
     @Test
     public void BeanWithPropertyList() {
+        String bean = "BeanWithPropertyList";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithPropertyList", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithPropertyList")
-                .className(PACKAGE + "BeanWithPropertyList")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .propertyParams(List.of(
                         PropertyMergeableParam.builder()
                                 .name("prop1")
@@ -258,18 +268,19 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithPropertyList");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
 
     @Test
     public void BeanWithConstructorListArg() {
+        String beanWithConstructorListArg = "BeanWithConstructorListArg";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorListArg", reader.getBeanFactory().get());
+                .getConfigurationData(beanWithConstructorListArg, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorListArg")
-                .className(PACKAGE + "BeanWithConstructorListArg")
+                .id(beanWithConstructorListArg)
+                .className(PACKAGE + beanWithConstructorListArg)
                 .constructorParams(List.of(
                         ConstructorMergeableParam.builder()
                                 .type(MergeableParam.Type.LIST)
@@ -311,18 +322,19 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorListArg");
+        assertGeneratedConfigClass(actualObject, beanWithConstructorListArg);
     }
 
 
     @Test
     public void BeanWithConstructorAndPropsParams() {
+        String bean = "BeanWithConstructorAndPropsParams";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorAndPropsParams", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorAndPropsParams")
-                .className(PACKAGE + "BeanWithConstructorAndPropsParams")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("bean1")
@@ -340,18 +352,19 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorAndPropsParams");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
 
     @Test
     public void BeanWithConstructorConstArgs() {
+        String bean = "BeanWithConstructorConstArgs";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorConstArgs", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorConstArgs")
-                .className(PACKAGE + "BeanWithConstructorConstArgs")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorConstantParam.builder()
                                 .type("java.lang.String")
@@ -379,17 +392,18 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorConstArgs");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithConstructorWithCreateSubBean() {
+        String bean = "BeanWithConstructorWithCreateSubBean";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBean", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorWithCreateSubBean")
-                .className(PACKAGE + "BeanWithConstructorWithCreateSubBean")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorSubBeanParam.builder().beanData(
                                 BeanData.builder()
@@ -410,20 +424,20 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBean");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithConstructorWithCreateSubBeanWithSubBean() {
+        String bean = "BeanWithConstructorWithCreateSubBeanWithSubBean";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithSubBean", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorWithCreateSubBeanWithSubBean")
-                .className(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithSubBean")
-                .constructorParams(List.of(
-                        ConstructorSubBeanParam.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .constructorParams(List.of(ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
                                         .className(PACKAGE + "SubBeanWithSubBean")
                                         .constructorParams(List.of(
@@ -440,30 +454,28 @@ class ConfigurationDataConverterTest {
                                                                                                 .className(CLASS_BEAN_2)
                                                                                                 .build()
                                                                                 )
-                                                                        )
-                                                                        .build()
-                                                                )
-                                                                .build()
+                                                                        ).build()
+                                                                ).build()
                                                 )
-                                        )
-                                        .build())
+                                        ).build())
                                 .build()
-                ))
-                .build();
+                        )
+                ).build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBeanWithSubBean");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithSubBeanWithProperty() {
+        String bean = "BeanWithSubBeanWithProperty";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithSubBeanWithProperty", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithSubBeanWithProperty")
-                .className(PACKAGE + "BeanWithSubBeanWithProperty")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorSubBeanParam.builder()
                                 .beanData(BeanData.builder()
@@ -486,17 +498,95 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithSubBeanWithProperty");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
-    public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
+    public void BeanWithTrueFalse() {
+        String bean = "BeanWithTrueFalse";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorWithCreateSubBeanWithConstArg", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorWithCreateSubBeanWithConstArg")
-                .className(PACKAGE + "BeanWithConstructorWithCreateSubBeanWithConstArg")
+                .id(bean)
+                .className(PACKAGE + bean)
+                .constructorParams(List.of(
+                        ConstructorConstantParam.builder()
+                                .value("true")
+                                .type("java.lang.String")
+                                .build(),
+                        ConstructorConstantParam.builder()
+                                .value("false")
+                                .type("java.lang.String")
+                                .build()
+                ))
+                .propertyParams(List.of(
+                        PropertyValueParam.builder()
+                                .name("property1")
+                                .value("true")
+                                .build(),
+                        PropertyValueParam.builder()
+                                .name("property2")
+                                .value("false")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+    @Test
+    public void BeanWithPlaceholder() {
+        String bean = "BeanWithPlaceholder";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .constructorParams(List.of(
+                        ConstructorConstantParam.builder()
+                                .value("test${pl1}passed")
+                                .type("java.lang.String")
+                                .build(),
+                        ConstructorConstantParam.builder()
+                                .value("${pl2}")
+                                .type("java.lang.String")
+                                .build()
+                ))
+                .propertyParams(List.of(
+                        PropertyValueParam.builder()
+                                .name("property1")
+                                .value("test${pl1}passed")
+                                .build(),
+                        PropertyValueParam.builder()
+                                .name("property2")
+                                .value("${pl2}")
+                                .build(),
+                        PropertyValueParam.builder()
+                                .name("property3")
+                                .value("${pl1} and ${pl2}")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+
+    @Test
+    public void BeanWithConstructorWithCreateSubBeanWithConstArg() {
+        String bean = "BeanWithConstructorWithCreateSubBeanWithConstArg";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("bean1")
@@ -518,16 +608,17 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithConstructorWithCreateSubBeanWithConstArg");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithInitDestroyMethod() {
+        String bean = "BeanWithInitDestroyMethod";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithInitDestroyMethod", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithInitDestroyMethod")
+                .id(bean)
                 .className(PACKAGE + "BeanWithInitMethod")
                 .initMethodName("initMethod")
                 .destroyMethodName("destroyMethod")
@@ -535,71 +626,75 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithInitDestroyMethod");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithDependsOn() {
+        String bean = "BeanWithDependsOn";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDependsOn", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithDependsOn")
-                .className(PACKAGE + "BeanWithDependsOn")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .dependsOn(new String[]{"bean1"})
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithDependsOn");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithDependsOnMulti() {
+        String bean = "BeanWithDependsOnMulti";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDependsOnMulti", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithDependsOnMulti")
+                .id(bean)
                 .className(PACKAGE + "BeanWithDependsOn")
                 .dependsOn(new String[]{"bean1", "bean2"})
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithDependsOnMulti");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithScope() {
+        String bean = "BeanWithScope";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithScope", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithScope")
-                .className(PACKAGE + "BeanWithScope")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .scope("singleton")
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithScope");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithPrimary() {
+        String bean = "BeanWithPrimary";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithPrimary", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithPrimary")
-                .className(PACKAGE + "BeanWithPrimary")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .primary(true)
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithPrimary");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
@@ -625,60 +720,64 @@ class ConfigurationDataConverterTest {
 
     @Test
     public void BeanWithDescription() {
+        String bean = "BeanWithDescription";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithDescription", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithDescription")
-                .className(PACKAGE + "BeanWithDescription")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .description("Bean with description")
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithDescription");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithLazyAnnotation() {
+        String bean = "BeanWithLazyAnnotation";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithLazyAnnotation", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithLazyAnnotation")
-                .className(PACKAGE + "BeanWithLazyAnnotation")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .lazyInit(true)
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithLazyAnnotation");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithQualifier() {
+        String bean = "BeanWithQualifier";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithQualifier", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithQualifier")
-                .className(PACKAGE + "BeanWithQualifier")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .qualifierName(Set.of("contentCount"))
                 .build();
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithQualifier");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithInt() {
+        String bean = "BeanWithInt";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithInt", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithInt")
-                .className(PACKAGE + "BeanWithInt")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorConstantParam.builder()
                                 .type("int")
@@ -690,17 +789,18 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithInt");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
     @Test
     public void BeanWithSubBeanProperty() {
+        String bean = "BeanWithSubBeanProperty";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithSubBeanProperty", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithSubBeanProperty")
-                .className(PACKAGE + "BeanWithSubBeanProperty")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .propertyParams(List.of(
                         PropertySubBeanParam.builder()
                                 .name("param1")
@@ -713,7 +813,7 @@ class ConfigurationDataConverterTest {
 
         assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
 
-        assertGeneratedConfigClass(actualObject, "BeanWithSubBeanProperty");
+        assertGeneratedConfigClass(actualObject, bean);
     }
 
 
@@ -732,12 +832,13 @@ class ConfigurationDataConverterTest {
         Assertions.assertNull(beanFromJavaConfig);
 
 
+        String bean = "BeanWithConstructorJavaBean";
         BeanData actualObject = ConfigurationDataConverter.getInstance()
-                .getConfigurationData("BeanWithConstructorJavaBean", reader.getBeanFactory().get());
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
         var expectedObject = BeanData.builder()
-                .id("BeanWithConstructorJavaBean")
-                .className(PACKAGE + "BeanWithConstructorJavaBean")
+                .id(bean)
+                .className(PACKAGE + bean)
                 .constructorParams(List.of(
                         ConstructorBeanParam.builder()
                                 .ref("testJavaBean")
@@ -776,6 +877,5 @@ class ConfigurationDataConverterTest {
 
         Assertions.assertEquals(getLines(expectedFile), getLines(generatedFile));
     }
-
 
 }

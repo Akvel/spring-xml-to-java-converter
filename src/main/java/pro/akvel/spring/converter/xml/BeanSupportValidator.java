@@ -30,7 +30,7 @@ public class BeanSupportValidator {
             .map(MergeableParam.Type::getSupportedClasses)
             .collect(Collectors.toSet());
 
-    private static final Pattern EXPRESSION_LANGUAGE = Pattern.compile("classpath:.+|[#$]\\{.+\\}");
+    private static final Pattern EXPRESSION_LANGUAGE = Pattern.compile("classpath:.+|[#]\\{.+\\}");
 
     public boolean isBeanSupport(BeanDefinition beanDefinition, String name, BeanDefinitionRegistry beanDefinitionRegistry) {
         return isBeanSupport(beanDefinition, name, new HashSet<>(), beanDefinitionRegistry);

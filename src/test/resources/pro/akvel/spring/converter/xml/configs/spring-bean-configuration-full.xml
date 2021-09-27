@@ -98,13 +98,6 @@
         <property name="property2" ref="bean1"/>
     </bean>
 
-    <!-- Not Supported -->
-    <bean id="BeanWithPropertyParamsFromCode1"
-          class="pro.akvel.spring.converter.testbean.BeanWithProperty">
-        <property name="property1" value="${getObject('param')}/123"/>
-        <property name="property2" ref="bean1"/>
-    </bean>
-
     <!-- Done -->
     <bean id="BeanWithProperty"
           class="pro.akvel.spring.converter.testbean.BeanWithProperty">
@@ -113,6 +106,23 @@
         <property name="property3">
             <value>value3</value>
         </property>
+    </bean>
+
+    <bean id="BeanWithTrueFalse"
+          class="pro.akvel.spring.converter.testbean.BeanWithTrueFalse">
+        <constructor-arg value="true"/>
+        <constructor-arg value="false"/>
+        <property name="property1" value="true"/>
+        <property name="property2" value="false"/>
+    </bean>
+
+    <bean id="BeanWithPlaceholder"
+          class="pro.akvel.spring.converter.testbean.BeanWithPlaceholder">
+        <constructor-arg value="test${pl1}passed"/>
+        <constructor-arg value="${pl2}"/>
+        <property name="property1" value="test${pl1}passed"/>
+        <property name="property2" value="${pl2}"/>
+        <property name="property3" value="${pl1} and ${pl2}"/>
     </bean>
 
 
@@ -360,11 +370,6 @@
     </bean>
 
     <!-- Not supported -->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-        <property name="driverClass" value="${jdbc.driverClassName}"/>
-    </bean>
-
-    <!-- Not supported -->
     <bean id="BeanWithLazyAnnotation"
           class="pro.akvel.spring.converter.testbean.BeanWithLazyAnnotation"
           lazy-init="true"/>
@@ -374,10 +379,6 @@
         <qualifier value="contentCount" type="org.springframework.beans.factory.annotation.Qualifier"/>
     </bean>
 
-    <!-- Not supported -->
-    <bean id="beanPropertyWithExpr" class="org.springframework.beans.PropertyWithExpr">
-        <property name="driverClass" value="${jdbc.driverClassName}"/>
-    </bean>
 
     <bean id="BeanWithInt" class="pro.akvel.spring.converter.testbean.BeanWithInt">
         <constructor-arg type="int" index="0">

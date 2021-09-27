@@ -9,6 +9,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.springframework.beans.factory.config.BeanDefinition;
 import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
+import pro.akvel.spring.converter.java.JavaGeneratorParams;
 import pro.akvel.spring.converter.java.JavaMainConfigurationGenerator;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadata;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadataBuilder;
@@ -161,7 +162,9 @@ public class Convertor {
                 );
 
 
-                JavaConfigurationGenerator generator = new JavaConfigurationGenerator();
+                JavaConfigurationGenerator generator = new JavaConfigurationGenerator(JavaGeneratorParams.builder()
+                        .trueFalseAsBoolean(true)
+                        .build());
 
                 log.info("");
                 log.info("Generate java config file: path:{} class:{}",
