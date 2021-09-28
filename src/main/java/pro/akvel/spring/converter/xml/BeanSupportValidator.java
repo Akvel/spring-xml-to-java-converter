@@ -79,6 +79,11 @@ public class BeanSupportValidator {
             return false;
         }
 
+        if (beanDefinition.getFactoryMethodName() != null) {
+            log.debug("Skipped" + name + ". Convert bean with factory method no supported");
+            return false;
+        }
+
         for (int index = 0; index < beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues().size(); index++) {
             if (!beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues().containsKey(index)) {
                 log.debug("Skipped" + name + ". Missed index " + index);

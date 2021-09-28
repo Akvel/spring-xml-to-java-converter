@@ -158,4 +158,9 @@
 
     <bean id="BeanWithAutowire" class="org.springframework.beans.BeanWithAutowire" autowire="constructor" />
 
+    <bean id="BeanWithSubBeanWithFactory" class="org.springframework.beans.BeanWithSubBeanWithFactory" >
+        <constructor-arg>
+            <bean class="org.springframework.beans.ManagementServerNode" factory-method="getManagementServerId" />
+        </constructor-arg>
+    </bean>
 </beans>
