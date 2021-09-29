@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -50,7 +51,9 @@ public class ConfigurationDataConverter {
                                          @Nullable String beanName) {
         log.debug("Convert bean definition " + beanDefinition);
 
-        if (!beanSupportValidator.isBeanSupport(beanDefinition, beanName, beanDefinitionRegistry)) {
+        Optional<BeanSupportValidator.NotSupportBeanType> support = beanSupportValidator.isBeanSupport(beanDefinition, beanName, beanDefinitionRegistry, false);
+        if (support.isPresent()) {
+            log.debug("Bean skipped {}", support.get());
             return null;
         }
 

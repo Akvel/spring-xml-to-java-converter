@@ -63,7 +63,7 @@
                 <entry key="key2" value-ref="BeanWithIdOnly"/>
             </map>
         </constructor-arg>
-        <constructor-arg name="handlers">
+        <constructor-arg>
             <set>
                 <ref bean="bean1"/>
                 <ref bean="bean2"/>
@@ -149,7 +149,7 @@
     </bean>
 
     <bean id="beanWithMissedRefConst" class="org.springframework.beans.InvalidRef">
-        <constructor-arg name="param1" ref="memberMng"/>
+        <constructor-arg ref="memberMng"/>
     </bean>
 
     <bean id="beanPropertyWithClassPath" class="org.springframework.beans.PropertyWithClassPath">
@@ -162,5 +162,13 @@
         <constructor-arg>
             <bean class="org.springframework.beans.ManagementServerNode" factory-method="getManagementServerId" />
         </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithRefBeanWithFactoryConst" class="org.springframework.beans.BeanWithRefBeanWithFactoryConst" >
+        <constructor-arg ref="BeanWithFactoryBean"/>
+    </bean>
+
+    <bean id="BeanWithRefBeanWithFactoryProp" class="org.springframework.beans.BeanWithRefBeanWithFactoryProp" >
+        <property name="test" ref="BeanWithFactoryBean"/>
     </bean>
 </beans>

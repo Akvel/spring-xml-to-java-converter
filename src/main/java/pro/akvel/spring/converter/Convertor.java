@@ -66,7 +66,7 @@ public class Convertor {
 
 
         Options options = new Options();
-        options.addOption(ARGS_XML_BASE_PATH, "xmlbasepath", true, "Directory with XML-s.");
+        options.addOption(ARGS_XML_BASE_PATH, "xmlbasepath", true, "Directory with ALL XML configs. You can specify more then one directory separate it by comma (,) ");
         options.addOption(ARGS_XML_SEARCH_MASK, "xmlfilesearchmask", true, "Files search mask, **/ - search in subdirectories. Default value: " + ConfigurationSearcher.DEFAULT_FILES_MASK);
         options.addOption(ARGS_OUTPUT_DIR, "outputpath", true, "Java source base directory. Default value: " + DEFAULT_JAVA_CONFIG_FILES_PATH);
         options.addOption(ARGS_BASE_PACKAGE_NAME, "outputbasepackagename", true, "Java classes base package name. Default value: " + DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
@@ -93,7 +93,7 @@ public class Convertor {
                 logger4j.setLevel(org.apache.log4j.Level.toLevel(cmd.getOptionValue(ARGS_LOG_LEVEL)));
             }
 
-            var path = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_XML_BASE_PATH));
+            var paths = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_XML_BASE_PATH));
             var fileMask = cmd.getOptionValue(ARGS_XML_SEARCH_MASK, ConfigurationSearcher.DEFAULT_FILES_MASK);
             var basePackageName = cmd.getOptionValue(ARGS_BASE_PACKAGE_NAME, DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
             var configsPath = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_OUTPUT_DIR, DEFAULT_JAVA_CONFIG_FILES_PATH));
@@ -101,7 +101,7 @@ public class Convertor {
 
             log.info("");
             log.info("Start convertation with params:");
-            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_BASE_PATH, path);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_BASE_PATH, paths);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_SEARCH_MASK, fileMask);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_BASE_PACKAGE_NAME, basePackageName);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_OUTPUT_DIR, configsPath);
@@ -109,7 +109,11 @@ public class Convertor {
             log.info("");
             log.info("Search files");
             var configs = new ConfigurationSearcher(
-                    new File(path).getAbsolutePath(), fileMask).getConfigurations();
+                    Arrays.stream(paths.split(","))
+                            .map(String::trim)
+                            .map(path -> new File(path).getAbsolutePath())
+                            .collect(Collectors.toSet())
+                    , fileMask).getConfigurations();
             log.info("Found files count: {}", configs.size());
 
 
@@ -117,12 +121,18 @@ public class Convertor {
 
             //we need know about all bean for convert not imported parts
             var allBeans = new XmlConfigurationReader(configs.stream()
-                    .map(it -> it.getAbsolutePath())
+                    .map(it -> it.getPath().getAbsolutePath())
                     .collect(Collectors.toSet()))
                     .getBeanFactory();
 
+            if (allBeans.isEmpty()) {
+                log.info("Not found any valid configurations. Job done");
+                return;
+            }
 
-            for (var file : configs) {
+
+            for (var configData : configs) {
+                var file = configData.getPath();
                 log.info("");
                 log.info("Read XML file: {}", file.getAbsolutePath());
 
@@ -156,7 +166,7 @@ public class Convertor {
 
                 var meta = JavaConfigurationMetadataBuilder.getMetadata(
                         file.getAbsolutePath(),
-                        new File(path).getAbsolutePath(),
+                        new File(configData.getSourcePath()).getAbsolutePath(),
                         basePackageName,
                         JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS
                 );
