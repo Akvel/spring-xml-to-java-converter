@@ -85,7 +85,7 @@ class BeanSupportValidatorTest {
     public void BeanWithSubBeanWithFactory() {
         String beanName = "BeanWithSubBeanWithFactory";
         BeanDefinition definition = reader.getBeanFactory().get().getBeanDefinition(beanName);
-        assertEquals(Optional.of(NotSupportBeanType.BEAT_WITH_FACTORY),
+        assertEquals(Optional.empty(),
                 validator.isBeanSupport(definition, "test", mockRegistry, false));
     }
 

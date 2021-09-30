@@ -93,4 +93,10 @@ public class BeanData {
       */
     @Nullable
     private final Set<String> qualifierName;
+
+    /**
+     * {@link AbstractBeanDefinition#getFactoryMethodName()}
+     */
+    @Nullable
+    private final String factoryMethodName;
 }

@@ -105,6 +105,7 @@ public class ConfigurationDataConverter {
                     .primary(beanDefinition.isPrimary())
                     .lazyInit(beanDefinition.isLazyInit())
                     .qualifierName(getQualifier(beanDefinition))
+                    .factoryMethodName(beanDefinition.getFactoryMethodName())
                     .build();
     }
 

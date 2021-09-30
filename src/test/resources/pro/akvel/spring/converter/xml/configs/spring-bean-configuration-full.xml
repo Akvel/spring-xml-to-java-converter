@@ -401,11 +401,16 @@
     <bean id="BeanWithAutowire" class="org.springframework.beans.BeanWithAutowire" autowire="constructor"/>
 
 
-    <!-- Not supported -->
-    <bean id="BeanWithSubBeanWithFactory" class="org.springframework.beans.BeanWithSubBeanWithFactory" >
+    <bean id="BeanWithSubBeanWithFactory" class="pro.akvel.spring.converter.testbean.BeanWithSubBeanWithFactory" >
         <constructor-arg>
             <bean class="org.springframework.beans.ManagementServerNode" factory-method="getManagementServerId" />
         </constructor-arg>
+    </bean>
+
+    <bean id="BeanWithSubBeanWithFactoryProp" class="pro.akvel.spring.converter.testbean.BeanWithSubBeanWithFactoryProp" >
+        <property name="param1">
+            <bean class="org.springframework.beans.ManagementServerNode" factory-method="getManagementServerId" />
+        </property>
     </bean>
 
     <!-- Not supported -->
@@ -416,5 +421,14 @@
     <!-- Not supported -->
     <bean id="BeanWithRefBeanWithFactoryProp" class="org.springframework.beans.BeanWithRefBeanWithFactoryProp" >
         <property name="test" ref="BeanWithFactoryBean"/>
+    </bean>
+
+
+    <bean id="BeanWithFactoryMethod" class="pro.akvel.spring.converter.testbean.BeanWithFactoryMethod" factory-method="getBean">
+        <constructor-arg value="param"/>
+    </bean>
+
+    <bean id="BeanWithFactoryMethodParamRef" class="pro.akvel.spring.converter.testbean.BeanWithFactoryMethodParamRef" factory-method="getBean">
+        <constructor-arg ref="bean1"/>
     </bean>
 </beans>

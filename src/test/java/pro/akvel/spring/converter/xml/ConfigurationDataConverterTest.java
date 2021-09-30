@@ -816,6 +816,102 @@ class ConfigurationDataConverterTest {
         assertGeneratedConfigClass(actualObject, bean);
     }
 
+    @Test
+    public void BeanWithFactoryMethod() {
+        String bean = "BeanWithFactoryMethod";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .factoryMethodName("getBean")
+                .constructorParams(List.of(
+                        ConstructorConstantParam.builder()
+                                .type("java.lang.String")
+                                .value("param")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+    @Test
+    public void BeanWithFactoryMethodParamRef() {
+        String bean = "BeanWithFactoryMethodParamRef";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .factoryMethodName("getBean")
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("bean1")
+                                .className(CLASS_BEAN_1)
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+    @Test
+    public void BeanWithSubBeanWithFactory() {
+        String bean = "BeanWithSubBeanWithFactory";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .constructorParams(List.of(
+                        ConstructorSubBeanParam.builder()
+                                .beanData(BeanData.builder()
+                                        .className("org.springframework.beans.ManagementServerNode")
+                                        .factoryMethodName("getManagementServerId")
+                                        .build())
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+    @Test
+    public void BeanWithSubBeanWithFactoryProp() {
+        String bean = "BeanWithSubBeanWithFactoryProp";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .propertyParams(List.of(
+                        PropertySubBeanParam.builder()
+                                .name("param1")
+                                .beanData(BeanData.builder()
+                                        .className("org.springframework.beans.ManagementServerNode")
+                                        .factoryMethodName("getManagementServerId")
+                                        .build())
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
+
+
 
     @Test
     public void BeanWithDependsOnJavaConfiguration() {

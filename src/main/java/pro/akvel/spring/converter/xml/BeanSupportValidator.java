@@ -42,15 +42,15 @@ public class BeanSupportValidator {
     }
 
     private Optional<NotSupportBeanType> isBeanSupport(BeanDefinition beanDefinition,
-                                   String name,
-                                   Set<BeanDefinition> guard,
-                                   BeanDefinitionRegistry beanDefinitionRegistry, boolean subCheck) {
+                                                       String name,
+                                                       Set<BeanDefinition> guard,
+                                                       BeanDefinitionRegistry beanDefinitionRegistry, boolean subCheck) {
 
         //pass all beans read from Java configurations
-        if (beanDefinition instanceof AnnotatedBeanDefinition){
+        if (beanDefinition instanceof AnnotatedBeanDefinition) {
             if (subCheck) {
                 return Optional.empty();
-            }else {
+            } else {
                 log.debug("Skipped annotated bean {}", name);
                 return Optional.of(NotSupportBeanType.ANNOTATED_BEAN);
             }
@@ -68,27 +68,26 @@ public class BeanSupportValidator {
         }
 
         if (beanDefinition.getParentName() != null) {
-            log.debug("Skipped" + name + ". Beans with parent not supported");
+            log.debug("Skipped {}. Beans with parent not supported", name);
             return Optional.of(NotSupportBeanType.BEAN_WITH_PARENT);
         }
 
         if ((beanDefinition instanceof AbstractBeanDefinition)
                 && ((AbstractBeanDefinition) beanDefinition).getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE) {
-            log.debug("Skipped {}. Beans with AUTOWIRE_BY_TYPE not supported {}",
-                    name,
+            log.debug("Skipped {}. Beans with AUTOWIRE_BY_TYPE not supported {}", name,
                     ((AbstractBeanDefinition) beanDefinition).getAutowireMode());
             return Optional.of(NotSupportBeanType.BEAT_WITH_NOT_SUPPORTED_AUTOWIRE_BY_TYPE);
         }
 
         if ((beanDefinition instanceof AbstractBeanDefinition)
                 && ((AbstractBeanDefinition) beanDefinition).getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR) {
-            log.debug("Skipped" + name + ". Beans with AUTOWIRE_CONSTRUCTOR not supported");
+            log.debug("Skipped {}. Beans with AUTOWIRE_CONSTRUCTOR not supported", name);
             return Optional.of(NotSupportBeanType.BEAT_WITH_NOT_SUPPORTED_AUTOWIRE_CONSTRUCTOR);
         }
 
         if (!beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues().isEmpty()
                 && !beanDefinition.getConstructorArgumentValues().getGenericArgumentValues().isEmpty()) {
-            log.debug("Skipped" + name + ". Mixed constructor params with \"index\" attr and without not supported");
+            log.debug("Skipped {}. Mixed constructor params with \"index\" attr and without not supported", name);
             return Optional.of(NotSupportBeanType.BEAT_WITH_MIXED_CONSTRUCTO_PARAM);
         }
 
@@ -179,7 +178,8 @@ public class BeanSupportValidator {
                     return isBeanSupport(it.getBeanDefinition(), it.getBeanName(), newGuard, beanDefinitionRegistry, true);
                 })
                 .filter(Optional::isPresent)
-                .findAny();;
+                .findAny();
+        ;
         if (checkBeanDefinition.isPresent()) {
             log.debug("Skipped {}. Found sub bean type that not supported - {}", name, checkBeanDefinition.get());
             return checkBeanDefinition.get();
@@ -200,7 +200,18 @@ public class BeanSupportValidator {
     }
 
     private boolean isBeanHashFactory(BeanDefinition beanDefinition) {
-        return beanDefinition.getFactoryBeanName() != null || beanDefinition.getFactoryMethodName() != null;
+        if (beanDefinition.getFactoryBeanName() != null) {
+            log.debug("Bean with factory bean");
+            return true;
+        }
+
+        if (beanDefinition.getFactoryMethodName() != null &&
+                !beanDefinition.getPropertyValues().isEmpty()) {
+            log.debug("Bean with factory method and properties not supported");
+            return true;
+        }
+
+        return false;
     }
 
     private Optional<NotSupportBeanType> isRefBeanValid(BeanDefinition beanDefinition, Set<BeanDefinition> guard, BeanDefinitionRegistry beanDefinitionRegistry, RuntimeBeanReference it) {
