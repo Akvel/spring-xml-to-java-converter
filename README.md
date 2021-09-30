@@ -20,8 +20,8 @@ Converter does not have access to your classes, so it has some limitation.
 * Property tags only support: ref and value
 * No implemented factories convert
 * No implemented convertation beans that use factories and only Mergeable (except types List and Set)
-* New XML files do not include any comments (<!-- -->)
-* Tag <qualifier/> must have attribute type="org.springframework.beans.factory.annotation.Qualifier"
+* New XML files do not include any comments (&lt;!-- --&gt;)
+* Tag &lt;qualifier/&gt; must have attribute type="org.springframework.beans.factory.annotation.Qualifier"
 * Not supported attrs xmlns:c="http://www.springframework.org/schema/c" and xmlns:p="http://www.springframework.org/schema/p"
 * Not supported EL expressions #{}
 
