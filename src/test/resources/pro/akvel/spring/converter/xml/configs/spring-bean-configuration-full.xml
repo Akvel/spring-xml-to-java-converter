@@ -431,4 +431,9 @@
     <bean id="BeanWithFactoryMethodParamRef" class="pro.akvel.spring.converter.testbean.BeanWithFactoryMethodParamRef" factory-method="getBean">
         <constructor-arg ref="bean1"/>
     </bean>
+
+    <!-- bean with good ref but ref bean with bad ref -->
+    <bean id="BeanWithGoodRef" class="pro.akvel.spring.converter.testbean.BeanWithGoodRef">
+        <constructor-arg ref="BeanWithRefBeanWithFactoryConst"/>
+    </bean>
 </beans>

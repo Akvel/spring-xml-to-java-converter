@@ -18,7 +18,7 @@ Converter does not have access to your classes, so it has some limitation.
 * Skips bean elements named construct-Args. Because converter doesn't know real constructor params order
 * If constructor-arg does not has type attribute - value will be set to String type. (Supported only String, Integer and Long)
 * Property tags only support: ref and value
-* No implemented factories convert
+* No implemented factories convert (XML factory, FactoryBean)
 * No implemented convertation beans that use factories and only Mergeable (except types List and Set)
 * New XML files do not include any comments (&lt;!-- --&gt;)
 * Tag &lt;qualifier/&gt; must have attribute type="org.springframework.beans.factory.annotation.Qualifier"

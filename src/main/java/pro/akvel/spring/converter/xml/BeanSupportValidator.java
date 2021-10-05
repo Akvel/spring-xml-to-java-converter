@@ -44,7 +44,8 @@ public class BeanSupportValidator {
     private Optional<NotSupportBeanType> isBeanSupport(BeanDefinition beanDefinition,
                                                        String name,
                                                        Set<BeanDefinition> guard,
-                                                       BeanDefinitionRegistry beanDefinitionRegistry, boolean subCheck) {
+                                                       BeanDefinitionRegistry beanDefinitionRegistry,
+                                                       boolean subCheck) {
 
         //pass all beans read from Java configurations
         if (beanDefinition instanceof AnnotatedBeanDefinition) {
@@ -150,7 +151,7 @@ public class BeanSupportValidator {
         var checkConstructorRefs = getConstructorParamsStream(beanDefinition)
                 .filter(it -> it.getValue() instanceof RuntimeBeanReference)
                 .map(it -> (RuntimeBeanReference) it.getValue())
-                .map(it -> isRefBeanValid(beanDefinition, guard, beanDefinitionRegistry, it))
+                .map(it -> isRefBeanValid(beanDefinitionRegistry, it))
                 .filter(Optional::isPresent)
                 .findAny();
         if (checkConstructorRefs.isPresent()) {
@@ -161,7 +162,7 @@ public class BeanSupportValidator {
         var checkPropertyRefs = beanDefinition.getPropertyValues().stream()
                 .filter(it -> it.getValue() instanceof RuntimeBeanReference)
                 .map(it -> (RuntimeBeanReference) it.getValue())
-                .map(it -> isRefBeanValid(beanDefinition, guard, beanDefinitionRegistry, it))
+                .map(it -> isRefBeanValid(beanDefinitionRegistry, it))
                 .filter(Optional::isPresent)
                 .findAny();
         if (checkPropertyRefs.isPresent()) {
@@ -175,7 +176,7 @@ public class BeanSupportValidator {
                 .map(it -> {
                     Set<BeanDefinition> newGuard = new HashSet<>(guard);
                     newGuard.add(beanDefinition);
-                    return isBeanSupport(it.getBeanDefinition(), it.getBeanName(), newGuard, beanDefinitionRegistry, true);
+                    return isBeanSupport(it.getBeanDefinition(), it.getBeanName(), newGuard, beanDefinitionRegistry, true) ;
                 })
                 .filter(Optional::isPresent)
                 .findAny();
@@ -200,6 +201,10 @@ public class BeanSupportValidator {
     }
 
     private boolean isBeanHashFactory(BeanDefinition beanDefinition) {
+        if (beanDefinition instanceof AnnotatedBeanDefinition) {
+            return false;
+        }
+
         if (beanDefinition.getFactoryBeanName() != null) {
             log.debug("Bean with factory bean");
             return true;
@@ -214,17 +219,27 @@ public class BeanSupportValidator {
         return false;
     }
 
-    private Optional<NotSupportBeanType> isRefBeanValid(BeanDefinition beanDefinition, Set<BeanDefinition> guard, BeanDefinitionRegistry beanDefinitionRegistry, RuntimeBeanReference it) {
+    private Optional<NotSupportBeanType> isRefBeanValid(BeanDefinitionRegistry beanDefinitionRegistry,
+                                                        RuntimeBeanReference it) {
         var rez = beanDefinitionRegistry.containsBeanDefinition(it.getBeanName());
         if (!rez) {
             log.debug("Bean not found {}", it.getBeanName());
             return Optional.of(NotSupportBeanType.BEAT_WITH_MISSED_REF);
         }
+        //we can not autowire bean if we don't know bean Class
+        if (isBeanHashFactory(beanDefinitionRegistry.getBeanDefinition(it.getBeanName()))) {
+            log.debug("Bean by ref is bean with factory {}", it.getBeanName());
+            return Optional.of(NotSupportBeanType.BEAT_WITH_FACTORY);
+        }
 
-        var beanDef = beanDefinitionRegistry.getBeanDefinition(it.getBeanName());
+        return Optional.empty();
+
+
+      /*  var beanDef = beanDefinitionRegistry.getBeanDefinition(it.getBeanName());
         Set<BeanDefinition> newGuard = new HashSet<>(guard);
         newGuard.add(beanDefinition);
-        return isBeanSupport(beanDef, it.getBeanName(), newGuard, beanDefinitionRegistry, true);
+        return deepCheck ? isBeanSupport(beanDef, it.getBeanName(), newGuard, beanDefinitionRegistry, true, false)
+                : Optional.empty();*/
     }
 
     private Stream<ConstructorArgumentValues.ValueHolder> getConstructorParamsStream(BeanDefinition beanDefinition) {

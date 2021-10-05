@@ -13,6 +13,7 @@ import pro.akvel.spring.converter.java.JavaGeneratorParams;
 import pro.akvel.spring.converter.java.JavaMainConfigurationGenerator;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadata;
 import pro.akvel.spring.converter.metadata.JavaConfigurationMetadataBuilder;
+import pro.akvel.spring.converter.xml.ConfigData;
 import pro.akvel.spring.converter.xml.ConfigurationDataConverter;
 import pro.akvel.spring.converter.xml.ConfigurationSearcher;
 import pro.akvel.spring.converter.xml.XmlConfigurationReader;
@@ -27,6 +28,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +48,7 @@ public class Convertor {
     private static final String ARGS_PRINT_HELP = "help";
     private static final String ARGS_LOG_LEVEL = "loglevel";
     private static final String ARGS_WRITE_MAIN_CLASS = "xmlmainconfig";
+    private static final String ARGS_XML_FILE = "xmlfile";
 
     private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
 
@@ -73,6 +76,8 @@ public class Convertor {
         options.addOption("h", ARGS_PRINT_HELP, false, "Print this help");
         options.addOption("l", ARGS_LOG_LEVEL, true, "Log level (TRACE/DEBUG/INFO/WARN/ERROR). Default value: INFO");
         options.addOption("wm", ARGS_WRITE_MAIN_CLASS, true, "Create main config class. Default: true");
+        options.addOption("xf", ARGS_XML_FILE, true, "Path to XML file. Convert only one configuration. xmlbasepath also needed to find all refs");
+
 
         try {
             CommandLineParser parser = new DefaultParser();
@@ -98,6 +103,9 @@ public class Convertor {
             var basePackageName = cmd.getOptionValue(ARGS_BASE_PACKAGE_NAME, DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
             var configsPath = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_OUTPUT_DIR, DEFAULT_JAVA_CONFIG_FILES_PATH));
             var createMainConfig = Boolean.parseBoolean(cmd.getOptionValue(ARGS_WRITE_MAIN_CLASS, "true"));
+            var xmlfile = cmd.getOptionValue(ARGS_XML_FILE, null);
+
+            var xmlStucture = JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS;
 
             log.info("");
             log.info("Start convertation with params:");
@@ -105,6 +113,8 @@ public class Convertor {
             log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_SEARCH_MASK, fileMask);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_BASE_PACKAGE_NAME, basePackageName);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_OUTPUT_DIR, configsPath);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_FILE, xmlfile);
+
 
             log.info("");
             log.info("Search files");
@@ -130,8 +140,28 @@ public class Convertor {
                 return;
             }
 
+            final Set<ConfigData> convertedConfigs;
+            if (xmlfile != null) {
+                log.info("Convert one file {}", xmlfile);
+                File file = new File(xmlfile);
 
-            for (var configData : configs) {
+                if (!file.exists()){
+                    log.error("XML file not found {}. Stop", xmlfile);
+                    return;
+                }
+
+                convertedConfigs = Set.of(ConfigData.builder()
+                        .path(file)
+                        .sourcePath("")
+                        .build());
+
+                //Output classes to base output directory
+                xmlStucture = false;
+            } else {
+                convertedConfigs = configs;
+            }
+
+            for (var configData : convertedConfigs) {
                 var file = configData.getPath();
                 log.info("");
                 log.info("Read XML file: {}", file.getAbsolutePath());
@@ -168,9 +198,8 @@ public class Convertor {
                         file.getAbsolutePath(),
                         new File(configData.getSourcePath()).getAbsolutePath(),
                         basePackageName,
-                        JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS
+                        xmlStucture
                 );
-
 
                 JavaConfigurationGenerator generator = new JavaConfigurationGenerator(JavaGeneratorParams.builder()
                         .trueFalseAsBoolean(true)

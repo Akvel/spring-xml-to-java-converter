@@ -911,7 +911,27 @@ class ConfigurationDataConverterTest {
         assertGeneratedConfigClass(actualObject, bean);
     }
 
+    @Test
+    public void BeanWithGoodRef() {
+        String bean = "BeanWithGoodRef";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
 
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + bean)
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("BeanWithRefBeanWithFactoryConst")
+                                .className("org.springframework.beans.BeanWithRefBeanWithFactoryConst")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, bean);
+    }
 
     @Test
     public void BeanWithDependsOnJavaConfiguration() {
