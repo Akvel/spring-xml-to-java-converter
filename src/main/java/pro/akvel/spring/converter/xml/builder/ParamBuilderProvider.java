@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml.builder;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import pro.akvel.spring.converter.generator.param.ConstructorParam;
@@ -37,8 +38,8 @@ public class ParamBuilderProvider {
                 .collect(Collectors.toSet());
     }
 
-    @Nonnull
-    private ParamBuilder getParamBuilder(@Nonnull ParamBuildContext<?> obj, String beanId) {
+    @NonNull
+    private ParamBuilder getParamBuilder(@NonNull ParamBuildContext<?> obj, String beanId) {
         return builders.stream().filter(it -> it.applicable(obj))
                 .collect(Collectors.collectingAndThen(
                         Collectors.toList(),

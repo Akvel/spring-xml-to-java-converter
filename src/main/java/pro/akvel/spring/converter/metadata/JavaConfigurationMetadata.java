@@ -12,6 +12,7 @@ import lombok.Data;
 public class JavaConfigurationMetadata {
     private final String className;
     private final String packageName;
+    private final String configsPath;
 
     public String getFullClassName() {
         return packageName + "." + className;

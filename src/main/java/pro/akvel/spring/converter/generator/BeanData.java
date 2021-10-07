@@ -32,7 +32,7 @@ public class BeanData {
     /**
      * Full class name, with package
      */
-    @Nonnull
+    @NonNull
     private final String className;
 
     /**

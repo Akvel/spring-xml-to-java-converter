@@ -1,13 +1,17 @@
 package pro.akvel.spring.converter;
 
 import lombok.Generated;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.tools.ant.types.resources.Resources;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import pro.akvel.spring.converter.java.JavaConfigurationGenerator;
 import pro.akvel.spring.converter.java.JavaGeneratorParams;
 import pro.akvel.spring.converter.java.JavaMainConfigurationGenerator;
@@ -19,15 +23,18 @@ import pro.akvel.spring.converter.xml.ConfigurationSearcher;
 import pro.akvel.spring.converter.xml.XmlConfigurationReader;
 import pro.akvel.spring.converter.xml.write.XmlConfigurationWriter;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,12 +59,8 @@ public class Convertor {
 
     private static final String DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE = "configs";
 
-    private static final String PROJECT_PATH = ".";
-
-    private static final String DEFAULT_JAVA_CONFIG_FILES_PATH = PROJECT_PATH + "/src/main/java/";
-
-    private static final boolean JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS = true;
     public static final String PRINT_PARAMS_FORMATTER = "\t{}={}";
+    public static final String ARGS_STRICT_MODE = "strict";
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -71,12 +74,13 @@ public class Convertor {
         Options options = new Options();
         options.addOption(ARGS_XML_BASE_PATH, "xmlbasepath", true, "Directory with ALL XML configs. You can specify more then one directory separate it by comma (,) ");
         options.addOption(ARGS_XML_SEARCH_MASK, "xmlfilesearchmask", true, "Files search mask, **/ - search in subdirectories. Default value: " + ConfigurationSearcher.DEFAULT_FILES_MASK);
-        options.addOption(ARGS_OUTPUT_DIR, "outputpath", true, "Java source base directory. Default value: " + DEFAULT_JAVA_CONFIG_FILES_PATH);
+        options.addOption(ARGS_OUTPUT_DIR, "outputpath", true, "Java source base directory. Default value: java folder or file folder");
         options.addOption(ARGS_BASE_PACKAGE_NAME, "outputbasepackagename", true, "Java classes base package name. Default value: " + DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
         options.addOption("h", ARGS_PRINT_HELP, false, "Print this help");
         options.addOption("l", ARGS_LOG_LEVEL, true, "Log level (TRACE/DEBUG/INFO/WARN/ERROR). Default value: INFO");
         options.addOption("wm", ARGS_WRITE_MAIN_CLASS, true, "Create main config class. Default: true");
         options.addOption("xf", ARGS_XML_FILE, true, "Path to XML file. Convert only one configuration. xmlbasepath also needed to find all refs");
+        options.addOption("s", ARGS_STRICT_MODE, false,"Stop process in any errors");
 
 
         try {
@@ -101,11 +105,12 @@ public class Convertor {
             var paths = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_XML_BASE_PATH));
             var fileMask = cmd.getOptionValue(ARGS_XML_SEARCH_MASK, ConfigurationSearcher.DEFAULT_FILES_MASK);
             var basePackageName = cmd.getOptionValue(ARGS_BASE_PACKAGE_NAME, DEFAULT_OUTPUT_CONFIGS_BASE_PACKAGE);
-            var configsPath = convertWinPathToUnixPath(cmd.getOptionValue(ARGS_OUTPUT_DIR, DEFAULT_JAVA_CONFIG_FILES_PATH));
+            var configsPath = Optional.ofNullable(cmd.getOptionValue(ARGS_OUTPUT_DIR))
+                    .map(Convertor::convertWinPathToUnixPath)
+                    .orElse(null);
             var createMainConfig = Boolean.parseBoolean(cmd.getOptionValue(ARGS_WRITE_MAIN_CLASS, "true"));
-            var xmlfile = cmd.getOptionValue(ARGS_XML_FILE, null);
-
-            var xmlStucture = JAVA_CONFIGS_SAME_STRUCTURE_AS_XMLS;
+            var xmlFile = cmd.getOptionValue(ARGS_XML_FILE, null);
+            var strictMode = cmd.hasOption(ARGS_STRICT_MODE);
 
             log.info("");
             log.info("Start convertation with params:");
@@ -113,8 +118,9 @@ public class Convertor {
             log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_SEARCH_MASK, fileMask);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_BASE_PACKAGE_NAME, basePackageName);
             log.info(PRINT_PARAMS_FORMATTER, ARGS_OUTPUT_DIR, configsPath);
-            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_FILE, xmlfile);
+            log.info(PRINT_PARAMS_FORMATTER, ARGS_XML_FILE, xmlFile);
 
+            printClasspath();
 
             log.info("");
             log.info("Search files");
@@ -132,7 +138,7 @@ public class Convertor {
             //we need know about all bean for convert not imported parts
             var allBeans = new XmlConfigurationReader(configs.stream()
                     .map(it -> it.getPath().getAbsolutePath())
-                    .collect(Collectors.toSet()))
+                    .collect(Collectors.toSet()), strictMode)
                     .getBeanFactory();
 
             if (allBeans.isEmpty()) {
@@ -141,12 +147,12 @@ public class Convertor {
             }
 
             final Set<ConfigData> convertedConfigs;
-            if (xmlfile != null) {
-                log.info("Convert one file {}", xmlfile);
-                File file = new File(xmlfile);
+            if (xmlFile != null) {
+                log.info("Convert one file {}", xmlFile);
+                File file = new File(xmlFile);
 
-                if (!file.exists()){
-                    log.error("XML file not found {}. Stop", xmlfile);
+                if (!file.exists()) {
+                    log.error("XML file not found {}. Stop", xmlFile);
                     return;
                 }
 
@@ -154,9 +160,6 @@ public class Convertor {
                         .path(file)
                         .sourcePath("")
                         .build());
-
-                //Output classes to base output directory
-                xmlStucture = false;
             } else {
                 convertedConfigs = configs;
             }
@@ -165,7 +168,6 @@ public class Convertor {
                 var file = configData.getPath();
                 log.info("");
                 log.info("Read XML file: {}", file.getAbsolutePath());
-
 
                 Map<String, BeanDefinition> beanFromFile =
                         Arrays.stream(allBeans.get().getBeanDefinitionNames())
@@ -198,7 +200,7 @@ public class Convertor {
                         file.getAbsolutePath(),
                         new File(configData.getSourcePath()).getAbsolutePath(),
                         basePackageName,
-                        xmlStucture
+                        configsPath
                 );
 
                 JavaConfigurationGenerator generator = new JavaConfigurationGenerator(JavaGeneratorParams.builder()
@@ -207,14 +209,14 @@ public class Convertor {
 
                 log.info("");
                 log.info("Generate java config file: path:{} class:{}",
-                        new File(configsPath).getAbsolutePath(),
+                        new File(meta.getConfigsPath()).getAbsolutePath(),
                         meta.getClassName());
 
                 generator.generateClass(
                         meta.getPackageName(),
                         meta.getClassName(),
                         beansData.getBeans(),
-                        configsPath);
+                        meta.getConfigsPath());
 
 
                 log.info("");
@@ -251,7 +253,16 @@ public class Convertor {
         }
     }
 
-    private static void createMainConfig(String basePackageName, String configsPath, HashSet<JavaConfigurationMetadata> configsMeta) {
+    private static void printClasspath() {
+        log.debug("Classpath: {}", System.getProperty("java.class.path"));
+    }
+
+    private static void createMainConfig(String basePackageName, @Nullable String configsPath, HashSet<JavaConfigurationMetadata> configsMeta) {
+        if (configsPath == null) {
+            log.debug("\tSkipp create main config. Output path is empty");
+            return;
+        }
+
         if (configsMeta.isEmpty()) {
             log.info("\tConfigs empty. No need main config");
             return;
@@ -270,7 +281,7 @@ public class Convertor {
                 );
     }
 
-    private static String convertWinPathToUnixPath(@Nonnull String path) {
+    private static String convertWinPathToUnixPath(@NonNull String path) {
         return path.replaceAll("\\\\", "/");
     }
 

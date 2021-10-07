@@ -10,6 +10,34 @@ The tool for converting Spring XML configuration to Spring Java-Based configurat
 Just set parameters input path (-xp), output path(-op) and package name(-p) and the tool converts all supported types to Java class and
 remove them from XML.
 
+# Usage
+
+You need *java 11* to run this tool.
+
+Simple run:
+```
+java -jar spring-xml-to-java-converter.jar -xp <XMLs base path> -op <Java classes base path> -p <Base java package name>
+```
+
+Full params list:
+```
+java -jar spring-xml-to-java-converter.jar -h
+```
+
+Example with class path (need for imports):
+
+Unix
+```
+java -classpath "./spring-xml-to-java-converter.jar:/home/test/project/module1/target/classes/*:/home/test/project/module2/target/classes/*" pro.akvel.spring.converter.Convertor -xp "/home/test/project" -l DEBUG -p pro.akvel.config
+```
+Win
+```
+java -classpath "./spring-xml-to-java-converter.jar;C:\git\test\project\module1\target\classes;C:/git/home/test/project/module2/target/classes" pro.akvel.spring.converter.Convertor -xp "/home/test/project" -l DEBUG -p pro.akvel.config
+```
+
+*Important!* You must remove `classpath:` prefix from imports (&lt;import resource="META-INF/test.xml"/&gt;)
+
+
 # Limitations
 
 Converter does not have access to your classes, so it has some limitation.
@@ -25,19 +53,6 @@ Converter does not have access to your classes, so it has some limitation.
 * Not supported attrs xmlns:c="http://www.springframework.org/schema/c" and xmlns:p="http://www.springframework.org/schema/p"
 * Not supported EL expressions #{} and classpath:
 
-# Usage
-
-You need *java 11* to run this tool.
-
-Simple run:
-```
-java -jar spring-xml-to-java-converter.jar -xp <XMLs base path> -op <Java classes base path> -p <Base java package name>
-```
-
-Full params list:
-```
-java -jar spring-xml-to-java-converter.jar -h
-```
 
 # Contributing
 

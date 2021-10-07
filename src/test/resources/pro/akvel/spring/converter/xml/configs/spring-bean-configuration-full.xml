@@ -436,4 +436,13 @@
     <bean id="BeanWithGoodRef" class="pro.akvel.spring.converter.testbean.BeanWithGoodRef">
         <constructor-arg ref="BeanWithRefBeanWithFactoryConst"/>
     </bean>
+
+    <bean id="SubBeanWith-Dash" class="pro.akvel.spring.converter.testbean.SubBeanWithDash"/>
+
+    <bean id="BeanWith-Dash" class="pro.akvel.spring.converter.testbean.BeanWithDash">
+        <constructor-arg ref="SubBeanWith-Dash"/>
+        <property name="param" ref="SubBeanWith-Dash"/>
+    </bean>
+
+
 </beans>

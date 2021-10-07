@@ -934,6 +934,37 @@ class ConfigurationDataConverterTest {
     }
 
     @Test
+    public void  BeanWithDash() {
+        String bean = "BeanWith-Dash";
+        BeanData actualObject = ConfigurationDataConverter.getInstance()
+                .getConfigurationData(bean, reader.getBeanFactory().get());
+
+        var expectedObject = BeanData.builder()
+                .id(bean)
+                .className(PACKAGE + "BeanWithDash")
+                .constructorParams(List.of(
+                        ConstructorBeanParam.builder()
+                                .ref("SubBeanWith-Dash")
+                                .className("pro.akvel.spring.converter.testbean.SubBeanWithDash")
+                                .build()
+                ))
+                .propertyParams(List.of(
+                        PropertyBeanParam.builder()
+                                .name("param")
+                                .ref("SubBeanWith-Dash")
+                                .className("pro.akvel.spring.converter.testbean.SubBeanWithDash")
+                                .build()
+                ))
+                .build();
+
+        assertThat(actualObject).usingRecursiveComparison().isEqualTo(expectedObject);
+
+        assertGeneratedConfigClass(actualObject, "BeanWithDash");
+    }
+
+
+
+    @Test
     public void BeanWithDependsOnJavaConfiguration() {
         XmlConfigurationReader reader = new XmlConfigurationReader(
                 root

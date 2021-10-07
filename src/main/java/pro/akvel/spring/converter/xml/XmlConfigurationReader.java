@@ -2,7 +2,7 @@ package pro.akvel.spring.converter.xml;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
@@ -23,12 +23,12 @@ import java.util.Set;
 public class XmlConfigurationReader {
     private DefaultListableBeanFactory beanFactory;
 
-    public XmlConfigurationReader(String configurationPath){
-        this(Set.of(configurationPath));
+    public XmlConfigurationReader(String configurationPath) {
+        this(Set.of(configurationPath), true);
     }
 
     @SneakyThrows
-    public XmlConfigurationReader(Set<String> configurationPath) {
+    public XmlConfigurationReader(Set<String> configurationPath, boolean strictMode) {
         beanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
@@ -37,12 +37,19 @@ public class XmlConfigurationReader {
         configurationPath.forEach(it -> {
                     try {
                         reader.loadBeanDefinitions(new InputSource(new FileInputStream(it)), it);
-                        //Load beans from java configurations
+                        //Load beans from java configurations (if it is possible)
                         new ConfigurationClassPostProcessor()
                                 .processConfigBeanDefinitions(beanFactory);
                     } catch (Exception e) {
-                        log.debug("Error {}", e.getMessage());
+                        log.debug("Error read: {} {}", e.getMessage(), e.getClass());
                         log.trace("Exception", e);
+
+                        if (strictMode){
+                            if (e instanceof BeanDefinitionParsingException){
+                                throw new IllegalStateException(e);
+                            }
+                        }
+
                         if (configurationPath.size() == 1) {
                             beanFactory = null;
                         }

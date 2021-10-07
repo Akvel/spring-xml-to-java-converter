@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml.write;
 
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.saxon.Configuration;
@@ -36,9 +37,9 @@ public class XmlConfigurationHandler extends DefaultHandler {
 
 
     @SneakyThrows
-    public XmlConfigurationHandler(@Nonnull Set<BeanKey> convertedBeans,
-                                   @Nonnull String outputFilePath,
-                                   @Nonnull String javaConfigClass) throws IOException {
+    public XmlConfigurationHandler(@NonNull Set<BeanKey> convertedBeans,
+                                   @NonNull String outputFilePath,
+                                   @NonNull String javaConfigClass) throws IOException {
         this.convertedBeans = convertedBeans;
         XMLOutputFactory xof = XMLOutputFactory.newInstance();
 

@@ -1,5 +1,6 @@
 package pro.akvel.spring.converter.xml;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,15 +40,15 @@ public class ConfigurationDataConverter {
     private final BeanSupportValidator beanSupportValidator = new BeanSupportValidator();
 
     @Nullable
-    public BeanData getConfigurationData(@Nonnull String name,
-                                         @Nonnull BeanDefinitionRegistry beanDefinitionRegistry) {
+    public BeanData getConfigurationData(@NonNull String name,
+                                         @NonNull BeanDefinitionRegistry beanDefinitionRegistry) {
         return getConfigurationData(beanDefinitionRegistry.getBeanDefinition(name), beanDefinitionRegistry, name);
     }
 
 
     @Nullable
-    public BeanData getConfigurationData(@Nonnull BeanDefinition beanDefinition,
-                                         @Nonnull BeanDefinitionRegistry beanDefinitionRegistry,
+    public BeanData getConfigurationData(@NonNull BeanDefinition beanDefinition,
+                                         @NonNull BeanDefinitionRegistry beanDefinitionRegistry,
                                          @Nullable String beanName) {
         log.debug("Convert bean definition " + beanDefinition);
 
@@ -110,7 +111,7 @@ public class ConfigurationDataConverter {
     }
 
     @Nullable
-    private static Set<String> getQualifier(@Nonnull BeanDefinition beanDefinition) {
+    private static Set<String> getQualifier(@NonNull BeanDefinition beanDefinition) {
         if (beanDefinition instanceof AbstractBeanDefinition){
             if (((AbstractBeanDefinition) beanDefinition).getQualifiers().isEmpty()){
                 return null;
@@ -126,7 +127,7 @@ public class ConfigurationDataConverter {
     }
 
     @Nullable
-    private static String getBeanId(@Nullable String name, @Nonnull String beanClassName) {
+    private static String getBeanId(@Nullable String name, @NonNull String beanClassName) {
         if (name == null) {
             return null;
         }
@@ -142,8 +143,8 @@ public class ConfigurationDataConverter {
 
     }*/
 
-    public ConfigurationData getConfigurationData(@Nonnull Map<String, BeanDefinition> beanDefinitions,
-                                                  @Nonnull BeanDefinitionRegistry allBeansDefinition) {
+    public ConfigurationData getConfigurationData(@NonNull Map<String, BeanDefinition> beanDefinitions,
+                                                  @NonNull BeanDefinitionRegistry allBeansDefinition) {
         AtomicInteger skippedBeansCount = new AtomicInteger();
         AtomicInteger convertedBeansCount = new AtomicInteger();
 
