@@ -3,6 +3,7 @@ package pro.akvel.spring.converter.xml;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.beans.factory.support.BeanDefinitionOverrideException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
@@ -30,9 +31,9 @@ public class XmlConfigurationReader {
     @SneakyThrows
     public XmlConfigurationReader(Set<String> configurationPath, boolean strictMode) {
         beanFactory = new DefaultListableBeanFactory();
+
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.setValidationMode(XmlValidationModeDetector.VALIDATION_NONE);
-
 
         configurationPath.forEach(it -> {
                     try {
@@ -44,8 +45,8 @@ public class XmlConfigurationReader {
                         log.debug("Error read: {} {}", e.getMessage(), e.getClass());
                         log.trace("Exception", e);
 
-                        if (strictMode){
-                            if (e instanceof BeanDefinitionParsingException){
+                        if (strictMode) {
+                            if (e instanceof BeanDefinitionParsingException) {
                                 throw new IllegalStateException(e);
                             }
                         }

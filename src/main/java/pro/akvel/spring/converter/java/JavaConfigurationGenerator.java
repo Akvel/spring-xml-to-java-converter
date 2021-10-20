@@ -486,7 +486,7 @@ public class JavaConfigurationGenerator {
     }
 
     private String getJavaValidName(String ref) {
-        return ref.replaceAll("-", "_");
+        return ref.replaceAll("[-\\.]", "_");
     }
 
     @NonNull
@@ -501,7 +501,7 @@ public class JavaConfigurationGenerator {
 
     private String getMethodName(@NonNull String className, @Nullable String id) {
         if (id != null) {
-            return id;
+            return getJavaValidName(id);
         }
 
         //pro.akvel.test.TestBean -> TestBean
@@ -510,7 +510,7 @@ public class JavaConfigurationGenerator {
         //TestBean -> testBean
         methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
 
-        return getJavaValidName(methodName);
+        return methodName;
     }
 
 
