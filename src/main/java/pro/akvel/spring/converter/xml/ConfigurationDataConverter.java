@@ -132,7 +132,7 @@ public class ConfigurationDataConverter {
             return null;
         }
 
-        if (name.matches(beanClassName + "#\\d")) {
+        if (name.matches(beanClassName + "#\\d+")) {
             return null;
         }
 
